@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS FOR CONVERTER --- #}
+{% block title %}Free Image Converter - JPG to PNG, WebP, BMP & TIFF | ImgCraft{% endblock %}
+
+{% block meta_description %}Convert images online for free. Change formats from JPG to PNG (transparent), WebP to JPG,
+BMP, and TIFF. Batch conversion with high-quality output.{% endblock %}
+
+{% block meta_keywords %}image converter online, jpg to png converter, convert webp to jpg, transparent png maker,
+change image format, tiff converter, free photo converter, imgcraft{% endblock %}
+
+{% block og_title %}Universal Image Converter - JPG, PNG, WebP, TIFF{% endblock %}
+{% block og_description %}Instantly convert image formats online. Support for JPG, PNG (Transparency), WebP, BMP, and
+TIFF. Fast, secure, and free.{% endblock %}
+{# --- END SEO BLOCKS --- #}
+
+{% block content %}
+<div class="studio-wrapper">
+
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-info-circle"></i> Source File</h3>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info-section">
+                    <div class="file-info-row">
+                        <span class="file-info-label">Name:</span>
+                        <span class="file-info-value" id="fileName">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Size:</span>
+                        <span class="file-info-value" id="fileSize">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Type:</span>
+                        <span class="file-info-value" id="fileType">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfo">
+                <i class="fas fa-file-import"></i>
+                <p>Upload an image to see details</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-exchange-alt"></i></div>
+                    <h2>Convert Image</h2>
+                    <p class="text-muted">Supports JPG, PNG, WEBP, BMP, TIFF, ICO</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+                <div class="compress-preview-wrapper">
+                    <img id="previewImage" class="compress-image" src="" alt="Preview">
+                </div>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text" id="progressText">Converting...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Configuration</h3>
+            <div class="badge"
+                style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">
+                FREE</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="convertControls" style="display: none;">
+                <div class="control-section">
+                    <label class="section-label">Target Format</label>
+
+                    <div class="custom-input-group">
+                        <div class="custom-select" id="formatDropdown">
+                            <div class="select-trigger">
+                                <span>PNG (Transparent)</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="select-options">
+                                <div class="option selected" data-value="PNG">PNG (Transparent)</div>
+                                <div class="option" data-value="JPEG">JPEG (Small Size)</div>
+                                <div class="option" data-value="WEBP">WEBP (Modern Web)</div>
+                                <div class="option" data-value="BMP">BMP (Bitmap)</div>
+                                <div class="option" data-value="ICO">ICO (Favicon)</div>
+                                <div class="option" data-value="TIFF">TIFF (Print)</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="formatSelect" value="PNG">
+                    </div>
+
+                    <div
+                        style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-top: 15px;">
+                        <p id="formatInfoText"
+                            style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+                            <i class="fas fa-info-circle" style="color: var(--primary); margin-right: 5px;"></i>
+                            Best for high quality images with transparency support.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="controlsInfo">
+                <i class="fas fa-cogs"></i>
+                <p>Upload image to unlock</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn btn-primary btn-full" id="convertBtn" disabled>
+                Convert Image
+            </button>
+
+            <div id="successArea" class="action-stack" style="display: none; margin-top: 16px;">
+                <a id="downloadBtn" class="btn btn-primary btn-full">
+                    <i class="fas fa-download"></i> Download File
+                </a>
+                <button class="btn btn-text mt-2"
+                    style="width:100%; text-align:center; color: var(--text-muted); background: none; border: none; cursor: pointer;"
+                    onclick="location.reload()">
+                    Convert Another
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - Convert Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861" data-ad-slot="XXXXXXXXXX"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/convert.css') }}?v=1">
+<script src="{{ url_for('static', filename='js/convert.js') }}?v=1"></script>
+{% endblock %}

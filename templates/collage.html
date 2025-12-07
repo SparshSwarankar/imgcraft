@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS START --- #}
+{% block title %}AI Collage Generator - Create Photo Collages with AI | ImgCraft{% endblock %}
+
+{% block meta_description %}Create stunning photo collages automatically with AI. Upload 1-6 images and let our AI
+compose the perfect layout with color harmonization and smart spacing.{% endblock %}
+
+{% block meta_keywords %}ai collage maker, photo collage generator, automatic collage, ai photo composition, collage
+creator online, multi-image collage, smart photo layout, imgcraft{% endblock %}
+
+{% block og_title %}AI-Powered Collage Generator - Automatic Photo Layouts{% endblock %}
+{% block og_description %}Upload your photos and watch AI create beautiful collages instantly. Smart layouts, color
+harmony, and professional results.{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<div class="studio-wrapper">
+
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-layer-group"></i> Assets</h3>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+            <div class="section-group">
+                <label class="section-label">Selected Images <span id="imageCountBadge" class="badge">0</span></label>
+                <div class="image-stack-container" id="imageGrid">
+                    <div class="empty-state-mini" style="color: var(--text-muted); font-size: 0.85rem; padding: 10px;">
+                        No images selected</div>
+                </div>
+                <button class="btn-mini-add" id="addMoreBtn" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-plus"></i> Add Images
+                </button>
+            </div>
+
+            <hr class="panel-divider">
+
+            <div class="section-group" id="layoutControls" style="display: none;">
+                <label class="section-label">Layout Configuration</label>
+
+                <div class="layout-count-selector mb-3" style="display:none;">
+                    <div class="count-pills" id="imageCountSelector"></div>
+                </div>
+
+                <div class="layout-grid-container" id="layoutGrid"></div>
+                <input type="hidden" id="selectedLayoutInput" value="">
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <h2>Start Your Collage</h2>
+                    <p class="text-muted">Drag & drop 1-6 images here</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*" multiple>
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+
+                <div id="layoutPlaceholder" class="canvas-placeholder">
+                    <div class="placeholder-content">
+                        <i class="fas fa-arrow-left"></i>
+                        <p>Select a layout from the left panel to begin</p>
+                    </div>
+                </div>
+
+                <div class="collage-preview-wrapper" id="collageWrapper" style="display: none;">
+                    <div class="ai-scan-overlay" id="scanOverlay"></div>
+                    <img id="collagePreview" class="collage-image" src="" alt="Generated Collage">
+                </div>
+
+                <div class="progress-container-floating" id="progressContainer" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text" id="progressText">Analyzing composition...</p>
+                    <div class="progress-bar-container" style="display:none;">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Controls</h3>
+            <div class="badge badge-pro">PRO</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="customizeControls" style="display: none;">
+                <div class="control-section">
+                    <label class="section-label">Dimensions</label>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Spacing</span>
+                            <span class="slider-val" id="spacingValue">10</span>
+                        </div>
+                        <input type="range" id="spacingSlider" class="range-slider" min="0" max="50" value="10">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Corner Radius</span>
+                            <span class="slider-val" id="radiusValue">0</span>
+                        </div>
+                        <input type="range" id="radiusSlider" class="range-slider" min="0" max="100" value="0">
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section" id="styleControls">
+                    <label class="section-label">Styling</label>
+
+                    <div class="custom-input-group mb-4">
+                        <label class="sub-label">Background</label>
+                        <div class="custom-select" id="backgroundDropdown">
+                            <div class="select-trigger">
+                                <span>Transparent</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="select-options">
+                                <div class="option selected" data-value="transparent">Transparent</div>
+                                <div class="option" data-value="white">White</div>
+                                <div class="option" data-value="black">Black</div>
+                                <div class="option" data-value="gradient">Auto Gradient</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="backgroundSelect" value="transparent">
+                    </div>
+
+                    <div class="custom-input-group">
+                        <label class="sub-label">Filter</label>
+                        <div class="custom-select" id="filterDropdown">
+                            <div class="select-trigger">
+                                <span>Normal</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="select-options">
+                                <div class="option selected" data-value="none">Normal</div>
+                                <div class="option" data-value="warm">Warm</div>
+                                <div class="option" data-value="cool">Cool</div>
+                                <div class="option" data-value="vintage">Vintage</div>
+                                <div class="option" data-value="bw">Black & White</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="filterSelect" value="none">
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfo">
+                <i class="fas fa-info-circle"></i>
+                <p>Upload images to unlock controls</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <div class="cost-indicator">
+                <i class="fas fa-coins"></i> 13 credits
+            </div>
+
+            <button class="btn btn-primary btn-block" id="generateBtn" disabled>
+                Generate Collage
+            </button>
+
+            <div id="downloadArea" class="action-stack" style="display: none;">
+                <a id="downloadBtn" class="btn btn-primary btn-full btn-glow" style="margin-bottom: 12px;">
+                    <i class="fas fa-download"></i> Download Image
+                </a>
+                <button id="regenerateBtn" class="btn btn-outline btn-full">
+                    <i class="fas fa-sync-alt"></i> Shuffle Layout
+                </button>
+                <button id="newCollageBtn" class="btn btn-text mt-3" style="width:100%; text-align:center;"
+                    onclick="location.reload()">
+                    Start Over
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - Collage Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861" data-ad-slot="XXXXXXXXXX"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/collage.css') }}?v=5">
+<script src="{{ url_for('static', filename='js/collage.js') }}?v=4"></script>
+{% endblock %}

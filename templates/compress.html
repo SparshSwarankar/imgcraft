@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS FOR COMPRESSOR --- #}
+{% block title %}Compress Image Online - Reduce File Size (JPG, PNG, WebP) | ImgCraft{% endblock %}
+
+{% block meta_description %}Compress images online for free without losing quality. Reduce JPG, PNG, and WebP file sizes
+by up to 80%. Best image optimizer for web speed and SEO.{% endblock %}
+
+{% block meta_keywords %}compress image online, reduce image size in kb, jpg compressor, png optimizer, compress webp,
+image file size reducer, free photo compressor, imgcraft{% endblock %}
+
+{% block og_title %}Free Online Image Compressor - Reduce Size, Keep Quality{% endblock %}
+{% block og_description %}Reduce image file size by up to 80% instantly. Smart AI compression for JPG, PNG, and WebP.
+Try ImgCraft Compressor now.{% endblock %}
+{# --- END SEO BLOCKS --- #}
+
+{% block content %}
+<div class="studio-wrapper">
+
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-info-circle"></i> File Info</h3>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info-section">
+                    <div class="file-info-row">
+                        <span class="file-info-label">File Name:</span>
+                        <span class="file-info-value" id="fileName">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Original Size:</span>
+                        <span class="file-info-value" id="originalSize">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Format:</span>
+                        <span class="file-info-value" id="fileFormat">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Dimensions:</span>
+                        <span class="file-info-value" id="fileDimensions">-</span>
+                    </div>
+                </div>
+
+                <div class="stats-container" id="statsContainer" style="display: none;">
+                    <div class="stat-row">
+                        <span>Compressed:</span>
+                        <span id="compressedSize">-</span>
+                    </div>
+                    <div class="stat-row highlight">
+                        <span>Saved:</span>
+                        <span id="savings">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfo">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Upload an image to see details</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-compress-arrows-alt"></i></div>
+                    <h2>Compress Image</h2>
+                    <p class="text-muted">Drag & drop JPG, PNG, or WebP</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+                <div class="compress-preview-wrapper">
+                    <img id="previewImage" class="compress-image" src="" alt="Preview">
+                </div>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text">Compressing...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Controls</h3>
+            <div class="badge badge-pro">PRO</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="compressionControls" style="display: none;">
+                <div class="control-section">
+                    <label class="section-label">Settings</label>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Intensity</span>
+                            <span class="slider-val" id="qualityValue">20%</span>
+                        </div>
+                        <input type="range" id="qualityRange" class="range-slider" min="0" max="95" value="20"
+                            autocomplete="off">
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">High Quality</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">High Compression</span>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-top: 15px;">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+                            <i class="fas fa-info-circle" style="color: var(--primary); margin-right: 5px;"></i>
+                            Higher intensity reduces file size but lowers quality.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="controlsInfo">
+                <i class="fas fa-sliders-h"></i>
+                <p>Controls will appear here</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <div class="cost-indicator">
+                <i class="fas fa-coins"></i> 2 credits
+            </div>
+
+            <button class="btn btn-primary btn-block" id="compressBtn" disabled>
+                Compress Image
+            </button>
+
+            <div id="successArea" class="action-stack" style="display: none; margin-top: 16px;">
+                <a id="downloadBtn" class="btn btn-primary btn-full">
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+    </aside>
+    
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - Convert Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861" data-ad-slot="XXXXXXXXXX"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/compress.css') }}?v=1">
+<script src="{{ url_for('static', filename='js/compress.js') }}"></script>
+{% endblock %}

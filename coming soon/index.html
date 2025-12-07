@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="ImgCraft - The ultimate image toolkit: Upscale, Compress, Remove BG, and more.">
+    <meta name="theme-color" content="#0F172A">
+
+    <title>ImgCraft - Intelligent Image Toolkit | Coming Soon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+    <style id="main-styles">
+        /* =========================================
+       1. VARIABLES & THEME CONFIGURATION
+       ========================================= */
+        :root {
+            /* Palette - Sunset Cyber */
+            --primary-400: #fb923c;
+            --primary-500: #f97316;
+            /* Vibrant Orange */
+            --primary-600: #ea580c;
+            --primary-glow: rgba(249, 115, 22, 0.5);
+
+            --secondary-500: #e11d48;
+            /* Deep Pink */
+            --secondary-glow: rgba(225, 29, 72, 0.5);
+
+            /* Backgrounds */
+            --dark-900: #020617;
+            /* Deep Space Black */
+            --dark-800: #0F172A;
+            /* Card Surface */
+            --dark-700: #1E293B;
+            /* Lighter Surface */
+
+            /* Glassmorphism */
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+
+            /* Typography */
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+
+            /* Animation Easings */
+            --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* =========================================
+       2. RESET & GLOBAL STYLES
+       ========================================= */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-900);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Canvas Background */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* =========================================
+       3. NAVIGATION
+       ========================================= */
+        .glass-nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 0;
+            z-index: 50;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .brand-logo {
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+        }
+
+        .logo-icon {
+            color: var(--primary-500);
+        }
+
+        /* =========================================
+       4. HERO SECTION
+       ========================================= */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 100px;
+            color: var(--primary-400);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-400), var(--secondary-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 3rem;
+        }
+
+        /* Buttons */
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-smooth);
+            border: none;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            color: white;
+            box-shadow: 0 10px 25px -5px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -5px var(--primary-glow);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Countdown */
+        .countdown-wrapper {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .countdown-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* =========================================
+       5. FEATURE CARDS
+       ========================================= */
+        .features {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Glow Card Logic */
+        .glow-card {
+            position: relative;
+            background: var(--dark-800);
+            border-radius: 16px;
+            overflow: hidden;
+            padding: 2px;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+        }
+
+        .glow-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent 0deg, transparent 90deg, rgba(249, 115, 22, 0.1) 130deg, var(--primary-500) 180deg, rgba(249, 115, 22, 0.1) 230deg, transparent 270deg);
+            animation: rotate-border 4s linear infinite;
+            z-index: 0;
+        }
+
+        .glow-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent 0deg, var(--primary-500) 180deg, transparent 360deg);
+            animation: rotate-border 4s linear infinite;
+            filter: blur(20px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        @keyframes rotate-border {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .card-content {
+            position: relative;
+            background: var(--dark-800);
+            border-radius: 14px;
+            padding: 2rem;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-500);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-content p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* =========================================
+       6. TIMELINE & OTHER SECTIONS
+       ========================================= */
+        .roadmap {
+            padding: 6rem 0;
+            overflow: hidden;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background: var(--dark-700);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item.left {
+            left: 0;
+            text-align: right;
+        }
+
+        .timeline-item.right {
+            left: 50%;
+            text-align: left;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            right: -8px;
+            background: var(--dark-900);
+            border: 2px solid var(--primary-500);
+            top: 25px;
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .timeline-item.right::after {
+            left: -8px;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .content-box .date {
+            display: block;
+            color: var(--primary-400);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* =========================================
+       7. NOTIFY & FOOTER
+       ========================================= */
+        .notify-section {
+            padding: 4rem 0 6rem;
+        }
+
+        .notify-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+            backdrop-filter: blur(12px);
+        }
+
+        .notify-icon {
+            font-size: 2.5rem;
+            color: var(--primary-500);
+            margin-bottom: 1.5rem;
+        }
+
+        .notify-desc {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            min-width: 250px;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 3rem 0;
+            background: rgba(2, 6, 23, 0.9);
+            text-align: center;
+        }
+
+        .footer-brand h3 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .toast {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: translateX(120%);
+            transition: transform 0.3s var(--ease-elastic);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--secondary-500);
+        }
+
+        /* =========================================
+       8. RESPONSIVE MEDIA QUERIES (UPDATED)
+       ========================================= */
+
+        /* Tablet (1024px) */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 2rem;
+            }
+        }
+
+        /* Mobile (768px) */
+        @media (max-width: 768px) {
+            .hero {
+                padding-top: 6rem;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .countdown-wrapper {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+
+            /* Timeline Stack */
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 0;
+                text-align: left;
+            }
+
+            .timeline-item.right {
+                left: 0;
+            }
+
+            .timeline-item::after {
+                left: 21px !important;
+            }
+        }
+
+        /* Small Mobile (480px) */
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            /* Feature Grid: 1 column */
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            /* Input: Stack Vertical with spacing */
+            .input-group {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .input-wrapper {
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 0 1.25rem;
+            }
+        }
+
+        /* Extra Small / Fold / 365px (TARGET FIXES) */
+        @media (max-width: 365px) {
+
+            /* 1. Timer Fix: Smaller font, tighter gap */
+            .countdown-wrapper {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+                /* Force 4 cols if possible, or 2x2 */
+                gap: 0.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .countdown-number {
+                font-size: 1.25rem;
+            }
+
+            /* Much smaller */
+            .countdown-label {
+                font-size: 0.6rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .badge-pill {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+
+            /* 2. Card Spacing Fix */
+            .features-grid {
+                gap: 1rem;
+            }
+
+            .feature-card {
+                padding: 1px;
+            }
+
+            /* Thinner border */
+            .card-content {
+                padding: 1.25rem;
+            }
+
+            .feature-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            /* 3. Email Input Fix */
+            .notify-box {
+                padding: 2rem 1rem;
+            }
+
+            .email-input {
+                font-size: 0.9rem;
+                padding: 0.8rem 1rem;
+            }
+
+            /* Timeline Adjustment */
+            .timeline-item {
+                padding-left: 50px;
+            }
+
+            .timeline::after {
+                left: 20px;
+            }
+
+            .timeline-item::after {
+                left: 10px !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <nav class="glass-nav">
+        <div class="container nav-container">
+            <div class="brand-logo">
+                <i class="fas fa-layer-group logo-icon"></i> ImgCraft
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="badge-pill">
+                <i class="fas fa-bolt"></i> All-in-One Image Toolkit
+            </div>
+
+            <h1 class="hero-title">
+                Master Your<br>
+                <span class="gradient-text">Digital Assets</span>
+            </h1>
+
+            <p class="hero-description">
+                The complete suite for web creators. From AI Upscaling and Background Removal to Exif Data management
+                and Smart Compression and many more.
+            </p>
+
+            <div class="countdown-wrapper" id="countdown">
+                <div class="countdown-item">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Mins</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Secs</span>
+                </div>
+            </div>
+
+            <div class="cta-group">
+                <button class="btn btn-primary"
+                    onclick="document.getElementById('notify').scrollIntoView({behavior: 'smooth'})">
+                    Join Waitlist <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn glass-btn"
+                    onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">
+                    See All Tools
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>The <span class="gradient-text">ImgCraft Suite</span></h2>
+                <p>A comprehensive toolkit designed for modern web workflows.</p>
+            </div>
+
+            <div class="features-grid">
+
+                <div class="feature-card glow-card" data-tilt>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </div>
+                        <h3>AI Upscale</h3>
+                        <p>Enhance low-res images up to 4x with our neural network engine. Perfect for restoring old
+                            assets.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card glow-card" data-tilt>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-eraser"></i>
+                        </div>
+                        <h3>Remove BG</h3>
+                        <p>Instantly separate subjects from backgrounds. Ideal for e-commerce and profile pictures.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card glow-card" data-tilt>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-compress-alt"></i>
+                        </div>
+                        <h3>Smart Compress</h3>
+                        <p>Drastically reduce file size while maintaining visual quality. WebP and JPEG optimization.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card glow-card" data-tilt>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Palette Gen</h3>
+                        <p>Extract dominant colors and generate beautiful color schemes directly from your images.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card glow-card" data-tilt>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-copyright"></i>
+                        </div>
+                        <h3>Watermark</h3>
+                        <p>Protect your work. Batch apply text or logo watermarks to thousands of images in seconds.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card glow-card" data-tilt>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h3>Exif & Utils</h3>
+                        <p>View metadata, crop, resize, and convert formats. The essential utilities you use daily.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="roadmap">
+        <div class="container">
+            <div class="section-header">
+                <h2>Launch Roadmap</h2>
+                <p>Rolling out the suite in phases.</p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="content-box glass-panel">
+                        <span class="date">Phase 1 (Complete)</span>
+                        <h3>Essential Utilities</h3>
+                        <p>Launch of <strong>Resize</strong>, <strong>Crop</strong>, and <strong>Convert</strong> tools.
+                            Basic image manipulation logic.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item right">
+                    <div class="content-box glass-panel">
+                        <span class="date">Phase 2 (In Progress)</span>
+                        <h3>Processing Core</h3>
+                        <p>Integration of <strong>Smart Compress</strong>, <strong>Filters</strong>, and
+                            <strong>Exif</strong> data viewer.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item left">
+                    <div class="content-box glass-panel">
+                        <span class="date">Phase 3 (Upcoming)</span>
+                        <h3>Protection & Identity</h3>
+                        <p>Rollout of <strong>Watermark</strong> system and <strong>Palette</strong> generator for
+                            designers.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item right">
+                    <div class="content-box glass-panel">
+                        <span class="date">Phase 4 (Launch)</span>
+                        <h3>AI & Accounts</h3>
+                        <p><strong>Auth</strong>, <strong>Billing</strong>, <strong>AI Upscale</strong>, and
+                            <strong>Remove BG</strong> officially go live.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="notify" class="notify-section">
+        <div class="container notify-container">
+            <div class="glass-panel notify-box">
+                <i class="fas fa-bell notify-icon"></i>
+                <h2>Get Early Access</h2>
+                <p class="notify-desc">Be the first to access the full ImgCraft suite when we launch.</p>
+
+                <form id="notifyForm">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <input type="email" class="email-input" id="email" placeholder="Enter your email address"
+                                required>
+                            <i class="fas fa-envelope input-icon"></i>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            Notify Me
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-simple">
+                <div class="footer-brand">
+                    <h3>ImgCraft</h3>
+                    <p>Redefining how the web handles images through automation and artificial intelligence.</p>
+                </div>
+                <div class="footer-copyright">
+                    &copy; 2025 ImgCraft. All rights reserved. <br>
+                    Built with <i class="fas fa-heart" style="color: var(--secondary-500)"></i> by the ImgCraft Team.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast-container"></div>
+
+    <script id="main-script">
+        /**
+         * ImgCraft Core Logic
+         * Fixed: Countdown Timer is now persistent (Targeting Jan 30, 2026)
+         */
+
+        // 1. Initialize Supabase Configuration
+        const SUPABASE_URL = 'https://uhtpfmxyjrnywfbhtqve.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVodHBmbXh5anJueXdmYmh0cXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MDk1ODUsImV4cCI6MjA3OTk4NTU4NX0.GTbG5I5c84cFQtpvNTFpqfdJJSk9IYs-X9E-cN1OM8I';
+
+        let dbClient = null;
+
+        // 2. Safe Initialization
+        if (window.supabase) {
+            dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log("Supabase connected successfully.");
+        } else {
+            console.error('Supabase library not loaded. Check <head> script tag.');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. Particle Engine ---
+            class ParticleNetwork {
+                constructor(canvasId) {
+                    this.canvas = document.getElementById(canvasId);
+                    if (!this.canvas) return;
+                    this.ctx = this.canvas.getContext('2d');
+                    this.particles = [];
+                    this.config = {
+                        count: window.innerWidth < 768 ? 35 : 80,
+                        color: '249, 115, 22',
+                        distance: window.innerWidth < 768 ? 90 : 150,
+                        radius: 2
+                    };
+                    this.resize = this.resize.bind(this);
+                    this.animate = this.animate.bind(this);
+                    this.resize();
+                    window.addEventListener('resize', this.resize);
+                    this.mouse = { x: null, y: null };
+                    window.addEventListener('mousemove', (e) => {
+                        this.mouse.x = e.x;
+                        this.mouse.y = e.y;
+                    });
+                    this.animate();
+                }
+                resize() {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                    this.config.count = window.innerWidth < 768 ? 35 : 80;
+                    this.config.distance = window.innerWidth < 768 ? 90 : 150;
+                    this.initParticles();
+                }
+                initParticles() {
+                    this.particles = [];
+                    for (let i = 0; i < this.config.count; i++) {
+                        this.particles.push({
+                            x: Math.random() * this.canvas.width,
+                            y: Math.random() * this.canvas.height,
+                            vx: (Math.random() - 0.5) * 0.5,
+                            vy: (Math.random() - 0.5) * 0.5,
+                            size: Math.random() * this.config.radius + 1
+                        });
+                    }
+                }
+                draw() {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    for (let i = 0; i < this.particles.length; i++) {
+                        let p = this.particles[i];
+                        if (!p) continue;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
+                        if (p.y < 0 || p.y > this.canvas.height) p.vy *= -1;
+                        if (this.mouse.x != null) {
+                            let dx = p.x - this.mouse.x;
+                            let dy = p.y - this.mouse.y;
+                            let distance = Math.sqrt(dx * dx + dy * dy);
+                            if (distance < 120) { p.x += dx * 0.015; p.y += dy * 0.015; }
+                        }
+                        this.ctx.beginPath();
+                        this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        this.ctx.fillStyle = `rgba(${this.config.color}, 0.5)`;
+                        this.ctx.fill();
+                        for (let j = i; j < this.particles.length; j++) {
+                            let p2 = this.particles[j];
+                            if (!p2) continue;
+                            let dx = p.x - p2.x;
+                            let dy = p.y - p2.y;
+                            let distance = Math.sqrt(dx * dx + dy * dy);
+                            if (distance < this.config.distance) {
+                                this.ctx.beginPath();
+                                this.ctx.strokeStyle = `rgba(${this.config.color}, ${1 - distance / this.config.distance})`;
+                                this.ctx.lineWidth = 0.5;
+                                this.ctx.moveTo(p.x, p.y);
+                                this.ctx.lineTo(p2.x, p2.y);
+                                this.ctx.stroke();
+                            }
+                        }
+                    }
+                }
+                animate() {
+                    this.draw();
+                    requestAnimationFrame(this.animate);
+                }
+            }
+
+            // --- 2. Countdown Timer (FIXED DATE) ---
+            class Countdown {
+                constructor() {
+                    // FIX: Set a Fixed Date (January 30, 2026)
+                    // This ensures the timer persists across refreshes
+                    this.targetDate = new Date('2025-12-25T00:00:00');
+
+                    this.els = {
+                        days: document.getElementById('days'),
+                        hours: document.getElementById('hours'),
+                        minutes: document.getElementById('minutes'),
+                        seconds: document.getElementById('seconds')
+                    };
+                    if (this.els.days) this.start();
+                }
+                update() {
+                    const now = new Date().getTime();
+                    const distance = this.targetDate - now;
+
+                    // If date passed, show 00
+                    if (distance < 0) {
+                        this.els.days.innerText = "00";
+                        this.els.hours.innerText = "00";
+                        this.els.minutes.innerText = "00";
+                        this.els.seconds.innerText = "00";
+                        return;
+                    }
+
+                    const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    this.els.days.innerText = d.toString().padStart(2, '0');
+                    this.els.hours.innerText = h.toString().padStart(2, '0');
+                    this.els.minutes.innerText = m.toString().padStart(2, '0');
+                    this.els.seconds.innerText = s.toString().padStart(2, '0');
+                }
+                start() {
+                    this.update();
+                    setInterval(() => this.update(), 1000);
+                }
+            }
+
+            // --- 3. Utilities ---
+            function initTilt() {
+                if (window.matchMedia("(hover: none)").matches) return;
+                const cards = document.querySelectorAll('[data-tilt]');
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -7;
+                        const rotateY = ((x - centerX) / centerX) * 7;
+                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                    });
+                });
+            }
+
+            function initScrollSpy() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = "1";
+                            entry.target.style.transform = "translateY(0)";
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                document.querySelectorAll('.timeline-item, .feature-card').forEach(el => {
+                    el.style.opacity = "0";
+                    el.style.transform = "translateY(30px)";
+                    el.style.transition = "all 0.6s ease-out";
+                    observer.observe(el);
+                });
+            }
+
+            function showToast(msg, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                let icon = type === 'success' ? 'check-circle' : (type === 'error' ? 'exclamation-circle' : 'info-circle');
+                toast.innerHTML = `<i class="fas fa-${icon}"></i> <span>${msg}</span>`;
+                container.appendChild(toast);
+                requestAnimationFrame(() => toast.classList.add('show'));
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // --- Init Visuals ---
+            try {
+                new ParticleNetwork('particleCanvas');
+                new Countdown();
+                initTilt();
+                initScrollSpy();
+            } catch (err) {
+                console.error("Visual Init Warning:", err);
+            }
+
+            // ==========================================
+            //  FORM HANDLER (Table Name: email_notifications)
+            // ==========================================
+            const form = document.getElementById('notifyForm');
+
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const btn = document.getElementById('submitBtn');
+                    const emailInput = document.getElementById('email');
+                    const email = emailInput.value.trim();
+
+                    if (!email) return;
+
+                    if (!dbClient) {
+                        showToast('Database connection failed. Refresh page.', 'error');
+                        return;
+                    }
+
+                    // UI Loading State
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+
+                    try {
+                        // 1. Check for Duplicates
+                        const { data: existing, error: checkError } = await dbClient
+                            .from('email_notifications')
+                            .select('email')
+                            .eq('email', email);
+
+                        if (checkError) throw checkError;
+
+                        if (existing && existing.length > 0) {
+                            showToast('You are already on the waitlist!', 'info');
+                            btn.innerHTML = 'Notify Me';
+                            btn.disabled = false;
+                            return;
+                        }
+
+                        // 2. Insert New Email
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                        const { error: insertError } = await dbClient
+                            .from('email_notifications')
+                            .insert([
+                                {
+                                    email: email,
+                                    source: 'coming_soon',
+                                    created_at: new Date().toISOString()
+                                }
+                            ]);
+
+                        if (insertError) throw insertError;
+
+                        // 3. Success
+                        showToast(`Success! ${email} added.`, 'success');
+                        emailInput.value = '';
+
+                    } catch (err) {
+                        console.error('Supabase Error:', err);
+
+                        if (err.message && err.message.includes('policy')) {
+                            showToast('Database Policy Error. Check RLS settings.', 'error');
+                        } else {
+                            showToast('Something went wrong. Please try again.', 'error');
+                        }
+                    } finally {
+                        btn.innerHTML = 'Notify Me';
+                        btn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

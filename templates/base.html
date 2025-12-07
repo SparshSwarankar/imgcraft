@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>{% block title %}ImgCraft - AI Image Tools, Converter & Editor Online{% endblock %}</title>
+    <meta name="description"
+        content="{% block meta_description %}ImgCraft is a, ultra-fast online image toolkit. Resize, compress, convert, remove backgrounds with AI, and edit images securely in your browser.{% endblock %}">
+    <meta name="keywords"
+        content="{% block meta_keywords %}online image editor, free image converter, ai background remover, image compressor, webp converter, exif remover, image upscaler, imgcraft, photo editor online, image resizer, crop image online, png to jpg converter, jpg to webp, image format converter, bulk image converter, compress images online, reduce image size, optimize images, ai image enhancement, background removal tool, remove photo background, transparent background maker, image watermark tool, add watermark online, color palette generator, image color extractor, exif data viewer, exif metadata remover, ai photo upscaler, enhance image quality, image filters online, photo filters, batch image processing, free photo editor, browser image editor, client-side image processing, secure image editor, privacy-focused image tools, no upload image editor, offline image processing, professional image tools, image editing software, web-based image editor, fast image converter, lossless image compression, image optimization tool, photo enhancement, picture editor, graphic design tools, image manipulation, digital image processing{% endblock %}">
+    <meta name="author" content="ImgCraft Team">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://imgcraft.online{{ request.path }}">
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='image/fevicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/fevicon.png') }}">
+    <meta name="theme-color" content="#F97316">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="{{ url_for('static', filename='image/fevicon.png', _external=True) }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ads.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ImgCraft",
+      "url": "https://imgcraft.online",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "primaryImageOfPage": "{{ url_for('static', filename='image/fevicon.ico', _external=True) }}",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "lowPrice": "0",
+        "offerCount": "10",
+        "availability": "https://schema.org/InStock"
+      },
+      "description": "Professional AI-powered image editing suite. Resize, compress, and convert images with premium quality. Supports global payments in USD and INR."
+    }
+    </script>
+    {% if not user_ad_free %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5547900968688861"
+        crossorigin="anonymous"></script>
+    {% endif %}
+
+    {% block head %}{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        window.SUPABASE_URL = "{{ SUPABASE_URL or '' }}";
+        window.SUPABASE_ANON_KEY = "{{ SUPABASE_ANON_KEY or '' }}";
+        window.RAZORPAY_KEY_ID = "{{ RAZORPAY_KEY_ID or '' }}";
+    </script>
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <nav class="navbar glass">
+        <div class="container nav-content">
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='image/Logo.jpg') }}" alt="ImgCraft AI Logo" height="32"
+                    width="32" style="margin-right: 10px; border-radius: 6px;">
+                ImgCraft
+            </a>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                <div class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Essentials <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-menu glass-panel">
+                        <a href="/resize" class="dropdown-item"><i class="fas fa-compress-arrows-alt"></i> Resize</a>
+                        <a href="/crop" class="dropdown-item"><i class="fas fa-crop-alt"></i> Crop</a>
+                        <a href="/convert" class="dropdown-item"><i class="fas fa-exchange-alt"></i> Convert</a>
+                        <a href="/compress" class="dropdown-item"><i class="fas fa-file-image"></i> Compress</a>
+                    </div>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Enhance <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-menu glass-panel">
+                        <a href="/filter" class="dropdown-item"><i class="fas fa-magic"></i> Filter</a>
+                        <a href="/upscale" class="dropdown-item"><i class="fas fa-arrow-up"></i> Upscale</a>
+                        <a href="/remove-bg" class="dropdown-item"><i class="fas fa-eraser"></i> Remove BG</a>
+                    </div>
+                </div>
+
+                <div class="nav-item dropdown premium-nav">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-sparkles"></i> AI Studio <i class="fas fa-chevron-down"
+                            style="font-size: 0.8em; margin-left: 5px;"></i>
+                    </a>
+                    <div class="dropdown-menu glass-panel">
+                        <a href="/collage" class="dropdown-item premium-item">
+                            <i class="fas fa-th-large" style="color: #ffd700;"></i> AI Collage <span
+                                class="badge-pro">New</span>
+                        </a>
+                        <a href="/watermark" class="dropdown-item">
+                            <i class="fas fa-copyright"></i> Watermark
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <div class="auth-guest" style="display: block;">
+                    <a href="/auth" class="btn btn-primary btn-sm">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </div>
+
+                <div class="auth-user" style="display: none;">
+                    <div class="user-credits">
+                        <a href="/billing" class="credit-badge">
+                            <i class="fas fa-coins"></i>
+                            <span id="creditBalance">0</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link user-link">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <div class="dropdown-menu glass-panel dropdown-right">
+                            <div class="user-info-header">
+                                <div class="user-name-display" id="userNameDisplay">User</div>
+                                <div class="user-email-display" id="userEmail">user@example.com</div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/billing" class="dropdown-item">
+                                <i class="fas fa-credit-card"></i> Billing & Credits
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="AuthManager.signOut()">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Brand Area -->
+                <div class="footer-section footer-brand">
+                    <div class="footer-logo">
+                        <img src="{{ url_for('static', filename='image/Logo.jpg') }}" alt="ImgCraft Logo" height="40"
+                            width="40">
+                        <span>ImgCraft</span>
+                    </div>
+                    <p class="footer-tagline">Professional AI-powered image editing suite. Transform your images with
+                        premium quality tools.</p>
+
+                    <!-- Social Media Icons -->
+                    <div class="footer-social">
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tools/Explore Column -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Explore Tools</h3>
+                    <ul class="footer-links">
+                        <li><a href="/resize">Image Resize</a></li>
+                        <li><a href="/compress">Image Compress</a></li>
+                        <li><a href="/convert">Format Converter</a></li>
+                        <li><a href="/filter">Filters & Effects</a></li>
+                        <li><a href="/remove-bg">Background Remover</a></li>
+                        <li><a href="/upscale">AI Upscaler</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support/Legal Column -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Support & Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" data-modal="contact">Contact Us</a></li>
+                        <li><a href="#" data-modal="privacy">Privacy Policy</a></li>
+                        <li><a href="#" data-modal="terms">Terms & Conditions</a></li>
+                        <li><a href="#" data-modal="refunds">Payments & Refunds</a></li>
+                        <li><a href="/billing">Billing & Credits</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <p class="footer-copyright">© 2024 ImgCraft. All rights reserved.</p>
+                <p class="footer-made-with">Made with <i class="fas fa-heart"></i> by ImgCraft Team</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Modal Container -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" id="modalClose" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content" id="modalContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Toast Notification System
+        window.showToast = function (message, type = 'info', title = null, duration = 4000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+
+            let icon = 'info-circle';
+            let defaultTitle = 'Information';
+
+            if (type === 'success') {
+                icon = 'check-circle';
+                defaultTitle = 'Success';
+            } else if (type === 'error') {
+                icon = 'exclamation-circle';
+                defaultTitle = 'Error';
+            } else if (type === 'warning') {
+                icon = 'exclamation-triangle';
+                defaultTitle = 'Warning';
+            }
+
+            const toastTitle = title || defaultTitle;
+
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas fa-${icon}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${toastTitle}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="toast-progress"></div>
+            `;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 400);
+            }, duration);
+        };
+
+        // Mobile Menu Elements
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        if (mobileMenuBtn && navLinks) {
+            const icon = mobileMenuBtn.querySelector('i');
+
+            // 1. Reusable function to close the menu
+            const closeMenu = () => {
+                navLinks.classList.remove('active');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            };
+
+            // 2. Toggle Button Click
+            mobileMenuBtn.addEventListener('click', (e) => {
+                // Prevent the click from bubbling up to the document immediately
+                e.stopPropagation();
+
+                if (navLinks.classList.contains('active')) {
+                    closeMenu();
+                } else {
+                    navLinks.classList.add('active');
+                    if (icon) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    }
+                }
+            });
+
+            // 3. Close if clicked outside the menu
+            document.addEventListener('click', (e) => {
+                // Check if the menu is open AND the click target is NOT inside the menu or the button
+                if (navLinks.classList.contains('active') &&
+                    !navLinks.contains(e.target) &&
+                    !mobileMenuBtn.contains(e.target)) {
+                    closeMenu();
+                }
+            });
+
+            // 4. Close on Scroll
+            window.addEventListener('scroll', () => {
+                // If the menu is open and the user scrolls, close it
+                if (navLinks.classList.contains('active')) {
+                    closeMenu();
+                }
+            });
+        }
+
+        // Welcome Notification & Backend Status Check
+        (function checkBackendStatus() {
+            const hasVisited = sessionStorage.getItem('imgcraft_visited');
+
+            if (!hasVisited) {
+                sessionStorage.setItem('imgcraft_visited', 'true');
+
+                const timeout = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timeout')), 3000)
+                );
+
+                Promise.race([
+                    fetch('/api/health', {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    }),
+                    timeout
+                ])
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    })
+                    .then(data => {
+                        console.log('Backend health check:', data);
+                        setTimeout(() => {
+                            showToast(
+                                'Backend server is connected and ready to process your images!',
+                                'success',
+                                'Welcome to ImgCraft! 🎨',
+                                5000
+                            );
+                        }, 500);
+                    })
+                    .catch(error => {
+                        console.error('Backend health check failed:', error);
+                        setTimeout(() => {
+                            let errorMessage = 'Backend server is not responding. ';
+
+                            if (error.message === 'Request timeout') {
+                                errorMessage += 'Request timed out after 3 seconds.';
+                            } else if (error.message.includes('Failed to fetch')) {
+                                errorMessage += 'Make sure the server is running at http://127.0.0.1:5000';
+                            } else {
+                                errorMessage += error.message;
+                            }
+
+                            showToast(
+                                errorMessage,
+                                'error',
+                                'Connection Error ⚠️',
+                                7000
+                            );
+                        }, 500);
+                    });
+            }
+        })();
+    </script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/credits.js') }}"></script>
+    
+    <script>
+        // Apply same guest access logic to navigation bar links
+        (function () {
+            const freeTools = ['resize', 'convert']; // Same as index.html
+
+            // Wait for AuthManager to be ready
+            setTimeout(() => {
+                if (!window.AuthManager || !window.AuthManager.user) {
+                    // User is NOT logged in - apply restrictions
+                    const navLinks = document.querySelectorAll('.dropdown-menu a[href^="/"]');
+
+                    navLinks.forEach(link => {
+                        const href = link.getAttribute('href');
+                        const toolName = href.replace('/', '').split('/')[0];
+
+                        // If it's a tool link and NOT in free tools
+                        if (toolName && !freeTools.includes(toolName) && href.startsWith('/')) {
+                            // Change href to redirect to auth page
+                            link.setAttribute('data-original-href', href);
+                            link.href = '/auth';
+
+                            // Add lock icon
+                            if (!link.querySelector('.fa-lock')) {
+                                const lockIcon = document.createElement('i');
+                                lockIcon.className = 'fas fa-lock';
+                                lockIcon.style.marginLeft = '6px';
+                                lockIcon.style.fontSize = '0.75em';
+                                lockIcon.style.opacity = '0.7';
+                                link.appendChild(lockIcon);
+                            }
+                        }
+                    });
+                }
+            }, 500); // Same delay as index.html
+        })();
+    </script>
+
+    <!-- Modal System -->
+    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+
+    <!-- Ad Management System -->
+    <script src="{{ url_for('static', filename='js/ads.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/background.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

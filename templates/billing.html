@@ -1,0 +1,1665 @@
+{% extends "base.html" %}
+
+{% block title %}Billing & Credits - ImgCraft{% endblock %}
+
+{% block head %}
+<style>
+    /* --- Enhanced Billing Page Styles (Cleaned & Fixed) --- */
+
+    /* Billing Header */
+    .billing-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    /* REMOVED: Bottom glow line */
+    .billing-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: var(--primary-color);
+        /* Removed gradient/glow */
+        border-radius: 2px;
+    }
+
+    .billing-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+
+        /* Gradient Text Effect */
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        /* Required for the image/gradient to show through text */
+
+        margin-bottom: 0.5rem;
+        margin-top: 150px;
+    }
+
+    /* Balance Card - Cleaned */
+    .balance-card {
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        background: rgba(var(--primary-rgb), 0.05);
+        text-align: center;
+        color: white;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .balance-card h3 {
+        font-size: 2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        opacity: 1;
+    }
+
+    .balance-card p {
+        opacity: 0.85;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .balance-card:hover {
+        transform: translateY(-5px);
+        /* FIXED: Clean shadow on hover */
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Balance Amount */
+    .balance-amount {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin: 1.5rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        position: relative;
+        z-index: 1;
+        /* REMOVED: text-shadow */
+    }
+
+    .balance-amount i {
+        /* Kept coin spin but removed drop-shadow glow */
+        animation: coin-spin 3s ease-in-out infinite;
+    }
+
+    @keyframes coin-spin {
+
+        0%,
+        100% {
+            transform: rotateY(0deg);
+        }
+
+        50% {
+            transform: rotateY(180deg);
+        }
+    }
+
+    .balance-amount span {
+        display: inline-block;
+        animation: count-up 0.5s ease-out;
+    }
+
+    @keyframes count-up {
+        0% {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* REMOVED: Old Plans Grid & Plan Card Styling - Replaced with modern pricing cards below */
+
+    /* REMOVED: Old Plan Cards Styling - Replaced with modern pricing cards above */
+
+    /* History Section */
+    .history-section {
+        margin-top: 4rem;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        /* FIXED: Minimal shadow */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-section h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: var(--text-color);
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .history-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 2px;
+    }
+
+    /* Table Container */
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.2);
+        /* REMOVED: Flex align-items center which breaks table layout */
+    }
+
+    /* History Table - FIXED ALIGNMENT */
+    .history-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 1rem;
+    }
+
+    .history-table thead {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* FIXED: Center aligned Header */
+    .history-table th {
+        padding: 1.25rem 1.5rem;
+        text-align: center;
+        /* Changed from left to center */
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        background: transparent;
+    }
+
+    /* FIXED: Center aligned Content */
+    .history-table td {
+        padding: 1.25rem 1.5rem;
+        text-align: center;
+        /* Changed from left to center */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        background: transparent;
+    }
+
+    .history-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    /* REMOVED: Side glow line on row hover */
+
+    .history-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+        /* Removed translation/movement */
+    }
+
+    .history-table tbody tr:hover td {
+        color: white;
+    }
+
+    /* Status Badges */
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* Minimal shadow */
+    }
+
+    .badge-success {
+        background: #16a34a;
+        /* Flat color */
+        color: white;
+    }
+
+    .badge-danger {
+        background: #dc2626;
+        /* Flat color */
+        color: white;
+    }
+
+    .badge-warning {
+        background: #d97706;
+        /* Flat color */
+        color: white;
+    }
+
+    .badge-info {
+        background: #2563eb;
+        /* Flat color */
+        color: white;
+    }
+
+    /* Utility Classes */
+    .p-4 {
+        padding: 24px;
+    }
+
+    .rounded-lg {
+        border-radius: var(--radius-lg);
+    }
+
+    .mt-4 {
+        margin-top: 16px;
+    }
+
+    .mb-4 {
+        margin-bottom: 16px;
+    }
+
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-muted {
+        color: rgba(255, 255, 255, 0.6);
+        opacity: 0.85;
+    }
+
+    /* Add this to your existing CSS styles */
+
+    .plan-card .btn:disabled,
+    .plan-card .btn.btn-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none !important;
+        /* Prevents hover movement while loading */
+        box-shadow: none !important;
+        filter: grayscale(0.5);
+    }
+
+    /* Ensure the spinner has some space from the text */
+    .fa-spinner {
+        margin-right: 8px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .billing-header h1 {
+            font-size: 2rem;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+        }
+
+        .plans-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .plan-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .plan-credits {
+            font-size: 2.5rem;
+        }
+
+        .plan-price {
+            font-size: 1.5rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 1rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .history-section {
+            padding: 1rem;
+        }
+
+        .popular-badge {
+            font-size: 0.65rem;
+            padding: 0.3rem 2.5rem;
+        }
+    }
+
+    /* Ad-Free Section */
+    .ad-free-section {
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 200, 87, 0.1));
+        border: 2px solid rgba(255, 107, 107, 0.3);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        margin: 3rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ad-free-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    }
+
+    .ad-free-section h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #ff6b6b, #ffc857);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .ad-free-section p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .ad-free-card {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 107, 107, 0.2);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem;
+        min-width: 250px;
+        transition: all 0.3s ease;
+    }
+
+    .ad-free-card:hover {
+        background: rgba(255, 107, 107, 0.1);
+        border-color: rgba(255, 107, 107, 0.4);
+        transform: translateY(-5px);
+    }
+
+    .ad-free-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #ffc857;
+    }
+
+    .ad-free-card .price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 1rem 0;
+        color: #ff6b6b;
+    }
+
+    .ad-free-card .currency {
+        font-size: 1.2rem;
+        vertical-align: super;
+    }
+
+    .ad-free-card .duration {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+
+    .ad-free-card ul {
+        list-style: none;
+        padding: 0;
+        text-align: left;
+        margin: 1.5rem 0;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .ad-free-card li {
+        padding: 0.5rem 0;
+        color: rgba(255, 255, 255, 0.8);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ad-free-card li:last-child {
+        border-bottom: none;
+    }
+
+    .ad-free-card li::before {
+        content: '✓ ';
+        color: #2ecc71;
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+
+    .ad-free-card .btn {
+        width: 100%;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #ff6b6b, #ff8e72);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .ad-free-card .btn:hover {
+        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .ad-free-card .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Ad-Free Status Badge */
+    .ad-free-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 1rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .ad-free-section {
+            padding: 2rem 1rem;
+            margin: 2rem 0;
+        }
+
+        .ad-free-section h2 {
+            font-size: 1.5rem;
+        }
+
+        .ad-free-card {
+            min-width: 200px;
+            padding: 1.5rem;
+            margin: 0.5rem;
+        }
+
+        .ad-free-card .price {
+            font-size: 2rem;
+        }
+    }
+
+    /* =========================================
+       MODERN PRICING PLANS SECTION - PHASE 1
+       ========================================= */
+
+    .pricing-header-section {
+        text-align: center;
+        margin-bottom: 4rem;
+        margin-top: 2rem;
+    }
+
+    .pricing-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .pricing-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    .pricing-subtitle {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.75);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Pricing Info Strip */
+    .pricing-info-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: rgba(249, 115, 22, 0.05);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        border-radius: var(--radius-lg);
+        backdrop-filter: blur(10px);
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        text-align: left;
+    }
+
+    .info-item i {
+        font-size: 1.5rem;
+        color: var(--primary);
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+    }
+
+    .info-item span {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* Pricing Plans Grid - Fixed 4-Column Layout */
+    .pricing-plans-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-bottom: 4rem;
+        align-items: start;
+    }
+
+    /* Responsive: 3 columns on large tablets */
+    @media (max-width: 1200px) {
+        .pricing-plans-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Responsive: 2 columns on tablets */
+    @media (max-width: 768px) {
+        .pricing-plans-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Responsive: 1 column on mobile */
+    @media (max-width: 480px) {
+        .pricing-plans-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pricing-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 2.5rem 2rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        border-radius: var(--radius-lg);
+        backdrop-filter: blur(16px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    .pricing-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.5), transparent);
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(249, 115, 22, 0.4);
+        background: rgba(249, 115, 22, 0.08);
+        box-shadow: 0 20px 40px rgba(249, 115, 22, 0.15);
+    }
+
+    .pricing-card.featured {
+        border-color: var(--primary);
+        background: rgba(249, 115, 22, 0.12);
+        transform: scale(1.02);
+    }
+
+    .pricing-card.featured:hover {
+        transform: scale(1.02) translateY(-8px);
+        box-shadow: 0 30px 60px rgba(249, 115, 22, 0.25);
+    }
+
+    /* Best Value Badge */
+    .best-value-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        z-index: 10;
+    }
+
+    /* Plan Details */
+    .plan-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-main);
+    }
+
+    .plan-description {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    /* Credits Display - Large & Prominent */
+    .plan-credits-display {
+        margin: 2rem 0 1.5rem 0;
+        flex-grow: 1;
+    }
+
+    .plan-credits-amount {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary);
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .plan-credits-unit {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 400;
+    }
+
+    .plan-price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-main);
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price-per-unit {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Features List */
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+        flex-grow: 1;
+    }
+
+    .plan-features li {
+        padding: 0.75rem 0;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .plan-features li::before {
+        content: '✓';
+        color: var(--success);
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    /* CTA Button */
+    .plan-buy-btn {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: auto;
+        box-shadow: 0 8px 16px rgba(249, 115, 22, 0.2);
+    }
+
+    .plan-buy-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(249, 115, 22, 0.3);
+        filter: brightness(1.05);
+    }
+
+    .plan-buy-btn:active {
+        transform: translateY(0);
+    }
+
+    .plan-buy-btn:disabled,
+    .plan-buy-btn.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none;
+    }
+
+    .plan-buy-btn i {
+        margin-right: 0.5rem;
+    }
+
+    /* FAQ Section */
+    .pricing-faq-section {
+        margin-top: 5rem;
+        padding: 3rem 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(249, 115, 22, 0.15);
+        border-radius: var(--radius-lg);
+        backdrop-filter: blur(12px);
+    }
+
+    .pricing-faq-section h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .faq-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 2rem;
+    }
+
+    .faq-item {
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-md);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+        background: rgba(249, 115, 22, 0.1);
+        border-color: rgba(249, 115, 22, 0.2);
+    }
+
+    .faq-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .faq-item h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--text-main);
+    }
+
+    .faq-item p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+    }
+
+
+    /* Responsive Adjustments - Enhanced */
+    @media (max-width: 1024px) {
+        .pricing-plans-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .pricing-title {
+            font-size: 2rem;
+        }
+
+        .pricing-subtitle {
+            font-size: 1rem;
+        }
+
+        .pricing-info-strip {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+
+        .pricing-plans-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .pricing-card.featured {
+            transform: scale(1);
+        }
+
+        .pricing-card.featured:hover {
+            transform: translateY(-8px);
+        }
+
+        .plan-credits-amount {
+            font-size: 2.5rem;
+        }
+
+        .plan-price {
+            font-size: 1.5rem;
+        }
+
+        .faq-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pricing-faq-section {
+            padding: 2rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .pricing-plans-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="billing-header">
+    <h1>Credits & Billing</h1>
+    <p class="text-muted">Manage your credits and view usage history</p>
+</div>
+
+<div class="balance-card glass-panel glass-panel p-4 rounded-lg">
+    <h3>Current Balance</h3>
+    <div class="balance-amount ">
+        <i class="fas fa-coins"></i> <span id="billingBalance">0</span>
+    </div>
+    <p>Credits available for use</p>
+</div>
+
+<!-- Modern Pricing Header -->
+<div class="pricing-header-section">
+    <div class="pricing-header">
+        <h1 class="pricing-title">Buy Credits</h1>
+        <p class="pricing-subtitle">Choose the plan that works best for you. Credits never expire and can be used on any tool.</p>
+    </div>
+    
+    <div class="pricing-info-strip">
+        <div class="info-item">
+            <i class="fas fa-lightning"></i>
+            <span><strong>Fast Processing:</strong> Credits added instantly after payment</span>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-shield-alt"></i>
+            <span><strong>Secure Payment:</strong> All transactions handled by Razorpay</span>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-infinity"></i>
+            <span><strong>Never Expire:</strong> Use credits anytime, no expiration date</span>
+        </div>
+    </div>
+</div>
+
+<!-- Pricing Plans Grid -->
+<div class="pricing-plans-grid" id="plansGrid">
+    <div class="glass-panel" style="text-align: center; padding: 2rem; grid-column: 1 / -1;">
+        <i class="fas fa-spinner fa-spin"></i> Loading plans...
+    </div>
+</div>
+
+<!-- FAQ/Info Section -->
+<div class="pricing-faq-section">
+    <h3>How Credits Work</h3>
+    <div class="faq-grid">
+        <div class="faq-item">
+            <div class="faq-icon">📸</div>
+            <h4>Credit Consumption</h4>
+            <p>Different tools consume different amounts of credits. Check each tool for its credit cost before processing.</p>
+        </div>
+        <div class="faq-item">
+            <div class="faq-icon">🔄</div>
+            <h4>Flexible Usage</h4>
+            <p>Use your credits on any tool, any time. Your balance persists across all ImgCraft tools.</p>
+        </div>
+        <div class="faq-item">
+            <div class="faq-icon">💳</div>
+            <h4>Secure Payments</h4>
+            <p>We partner with Razorpay for secure, PCI-compliant payment processing. Your card details are never stored.</p>
+        </div>
+        <div class="faq-item">
+            <div class="faq-icon">⚡</div>
+            <h4>Instant Credits</h4>
+            <p>After successful payment verification, credits are added to your account instantly.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Ad-Free Section -->
+<div class="ad-free-section glass-panel">
+    <h2><i class="fas fa-ban"></i> Remove Ads Forever</h2>
+    <p>Get uninterrupted access to ImgCraft without any advertisements</p>
+    
+    <div id="adFreeContainer">
+        <!-- Ad-Free Cards will be loaded here -->
+    </div>
+    
+    <div id="adFreeStatus" style="display: none;">
+        <span class="ad-free-badge"><i class="fas fa-check-circle"></i> Ad-Free Activated</span>
+        <p style="color: rgba(255, 255, 255, 0.7); margin-top: 1rem;">Thank you for supporting ImgCraft!</p>
+    </div>
+</div>
+
+<div class="history-section glass-panel glass-panel p-4 rounded-lg">
+    <h2>Usage History</h2>
+    <div class="table-responsive">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th id="usageUserHeader" style="display: none;">User</th>
+                    <th>Date</th>
+                    <th>Tool</th>
+                    <th>Credits</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="usageHistory">
+                <tr>
+                    <td colspan="4" class="text-center">Loading history...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="history-section glass-panel glass-panel p-4 rounded-lg">
+    <h2>Payment History</h2>
+    <div class="table-responsive">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th id="paymentUserHeader" style="display: none;">User</th>
+                    <th>Date</th>
+                    <th>Plan</th>
+                    <th>Amount</th>
+                    <th>Credits</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="paymentHistory">
+                <tr>
+                    <td colspan="5" class="text-center">Loading payment history...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        loadPlans();
+        loadAdFreeOptions();
+
+        // Check Supabase directly to handle race condition
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+            // Ensure AuthManager is in sync
+            if (typeof AuthManager !== 'undefined' && !AuthManager.session) {
+                AuthManager.handleAuthChange('BILLING_INIT', session);
+            }
+            loadHistory(session.access_token);
+            loadPaymentHistory(session.access_token);
+        } else {
+            document.getElementById('usageHistory').innerHTML = `
+                <tr><td colspan="4" class="text-center">Please login to view history</td></tr>
+            `;
+            document.getElementById('paymentHistory').innerHTML = `
+                <tr><td colspan="5" class="text-center">Please login to view payment history</td></tr>
+            `;
+        }
+
+        // Listen for auth changes to load history
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                loadHistory(session.access_token);
+                loadPaymentHistory(session.access_token);
+            } else {
+                document.getElementById('usageHistory').innerHTML = `
+                    <tr><td colspan="4" class="text-center">Please login to view history</td></tr>
+                `;
+                document.getElementById('paymentHistory').innerHTML = `
+                    <tr><td colspan="5" class="text-center">Please login to view payment history</td></tr>
+                `;
+            }
+        });
+
+        // Update balance from CreditManager
+        if (window.CreditManager) {
+            const balanceEl = document.getElementById('billingBalance');
+            const updateBalance = () => {
+                if (balanceEl && CreditManager.data) {
+                    balanceEl.textContent = CreditManager.data.remaining_credits;
+                }
+            };
+
+            // Initial update
+            updateBalance();
+
+            // Watch for changes
+            setInterval(updateBalance, 1000);
+        }
+    });
+
+    async function loadPlans() {
+        try {
+            const response = await fetch('/api/payments/plans');
+            const data = await response.json();
+
+            if (data.success && data.plans && data.plans.length > 0) {
+                const grid = document.getElementById('plansGrid');
+                
+                // Sort plans by credits to find recommended one
+                const sortedPlans = [...data.plans].sort((a, b) => b.credits - a.credits);
+                const bestValuePlanId = sortedPlans[Math.floor(sortedPlans.length / 2)]?.id;
+                
+                grid.innerHTML = data.plans.map(plan => {
+                    const pricePerCredit = (parseFloat(plan.price) / plan.credits).toFixed(2);
+                    const isFeatured = plan.id === bestValuePlanId;
+                    
+                    return `
+                        <div class="pricing-card ${isFeatured ? 'featured' : ''}">
+                            ${isFeatured ? '<div class="best-value-badge">⭐ Best Value</div>' : ''}
+                            
+                            <h3 class="plan-name">${plan.name}</h3>
+                            <p class="plan-description">${plan.description || 'Get started with ImgCraft'}</p>
+                            
+                            <div class="plan-credits-display">
+                                <div class="plan-credits-amount">
+                                    <span>${plan.credits.toLocaleString()}</span>
+                                    <span class="plan-credits-unit">Credits</span>
+                                </div>
+                            </div>
+                            
+                            <div class="plan-price">${plan.price_display}</div>
+                            <div class="plan-price-per-unit">₹${pricePerCredit} per credit</div>
+                            
+                            <ul class="plan-features">
+                                <li>Valid for all tools</li>
+                                <li>Never expires</li>
+                                <li>Instant activation</li>
+                                <li>Secure Razorpay payment</li>
+                            </ul>
+                            
+                            <button onclick="handleBuyCredits('${plan.id}', this)" class="plan-buy-btn">
+                                <i class="fas fa-shopping-cart"></i> Buy Credits
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                const grid = document.getElementById('plansGrid');
+                grid.innerHTML = '<div class="glass-panel" style="text-align: center; padding: 2rem; grid-column: 1 / -1;">No plans available at the moment.</div>';
+            }
+        } catch (error) {
+            const grid = document.getElementById('plansGrid');
+            grid.innerHTML = '<div class="glass-panel" style="text-align: center; padding: 2rem; grid-column: 1 / -1;">Failed to load plans. Please try again later.</div>';
+        }
+    }
+
+    // Wrapper function to handle buy credits with better error handling
+    async function handleBuyCredits(planId, btnElement) {
+        // Check if user is logged in
+        let token = null;
+        
+        if (window.AuthManager && typeof window.AuthManager.getToken === 'function') {
+            token = window.AuthManager.getToken();
+        }
+        
+        if (!token) {
+            token = sessionStorage.getItem('sb-access-token') || localStorage.getItem('sb-access-token');
+        }
+        
+        if (!token) {
+            // User not logged in
+            showToast('Please login to purchase credits', 'warning');
+            window.location.href = '/auth';
+            return;
+        }
+        
+        if (!window.CreditManager) {
+            showToast('Payment system not loaded. Please refresh the page.', 'error');
+            return;
+        }
+
+        // 1. Store original text
+        const originalText = btnElement.innerHTML;
+
+        // 2. Start Animation (Loading Spinner)
+        btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btnElement.classList.add('loading');
+        btnElement.disabled = true;
+
+        try {
+            // 3. Await the payment process
+            await CreditManager.buyCredits(planId);
+
+        } catch (error) {
+            // Silently handle errors
+        } finally {
+            // 4. Reset Animation (This runs whether success or fail)
+            btnElement.innerHTML = originalText;
+            btnElement.classList.remove('loading');
+            btnElement.disabled = false;
+        }
+    }
+
+    // Load Ad-Free Options
+    async function loadAdFreeOptions() {
+        try {
+            const adFreeSection = document.querySelector('.ad-free-section');
+            const container = document.getElementById('adFreeContainer');
+            const statusDiv = document.getElementById('adFreeStatus');
+            
+            // Check if user is logged in - try multiple sources
+            let token = null;
+            
+            // Try AuthManager first
+            if (window.AuthManager && typeof window.AuthManager.getToken === 'function') {
+                token = window.AuthManager.getToken();
+            }
+            
+            // Try sessionStorage
+            if (!token) {
+                token = sessionStorage.getItem('sb-access-token');
+            }
+            
+            // Try localStorage
+            if (!token) {
+                token = localStorage.getItem('sb-access-token');
+            }
+            
+            // Try Supabase session
+            if (!token) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session && session.access_token) {
+                    token = session.access_token;
+                }
+            }
+            
+            if (!token) {
+                // Guest access - hide ad-free section completely
+                if (adFreeSection) {
+                    adFreeSection.style.display = 'none';
+                }
+                return;
+            }
+            
+            // Show ad-free section for logged-in users
+            if (adFreeSection) {
+                adFreeSection.style.display = 'block';
+            }
+            
+            // Check user's ad-free status
+            const headers = { 'Authorization': `Bearer ${token}` };
+            
+            const response = await fetch('/api/ads/status', { headers });
+            const data = await response.json();
+            
+            if (data.ad_free || data.has_ad_free) {
+                // User already has ad-free - show status
+                statusDiv.style.display = 'block';
+                container.style.display = 'none';
+            } else {
+                // Show ad-free purchase options
+                statusDiv.style.display = 'none';
+                container.innerHTML = `
+                    <div class="ad-free-card">
+                        <h3>🚀 Lifetime</h3>
+                        <div>
+                            <span class="price"><span class="currency">₹</span>99</span>
+                            <div class="duration">One-time payment</div>
+                        </div>
+                        <ul>
+                            <li>Forever ad-free access</li>
+                            <li>No expiration</li>
+                            <li>Full priority support</li>
+                            <li>All future features included</li>
+                        </ul>
+                        <button onclick="handleBuyAdFree('lifetime', this)" class="btn">
+                            Remove Ads
+                        </button>
+                    </div>
+                    
+                    <div class="ad-free-card" style="border: 2px solid rgba(255, 200, 87, 0.5);">
+                        <h3>⭐ 1 Year</h3>
+                        <div>
+                            <span class="price"><span class="currency">₹</span>49</span>
+                            <div class="duration">Renews yearly</div>
+                        </div>
+                        <ul>
+                            <li>Ad-free for 1 year</li>
+                            <li>Auto-renews annually</li>
+                            <li>Standard support</li>
+                            <li>All current features</li>
+                        </ul>
+                        <button onclick="handleBuyAdFree('yearly', this)" class="btn">
+                            Remove Ads
+                        </button>
+                    </div>
+                    
+                    <div class="ad-free-card">
+                        <h3>🎯 1 Month</h3>
+                        <div>
+                            <span class="price"><span class="currency">₹</span>9</span>
+                            <div class="duration">Monthly plan</div>
+                        </div>
+                        <ul>
+                            <li>Ad-free for 1 month</li>
+                            <li>Basic support</li>
+                            <li>Core features</li>
+                            <li style="color: rgba(255, 127, 127, 0.8);">⚠ No cancellation</li>
+                        </ul>
+                        <button onclick="handleBuyAdFree('monthly', this)" class="btn">
+                            Remove Ads
+                        </button>
+                    </div>
+                `;
+                
+                // Add cancellation/refund policy notice
+                const policyDiv = document.createElement('div');
+                policyDiv.style.cssText = `
+                    margin-top: 2rem;
+                    padding: 1rem;
+                    border: 1px solid rgba(255, 127, 127, 0.3);
+                    border-radius: 0.5rem;
+                    background: rgba(255, 127, 127, 0.05);
+                    color: rgba(255, 200, 200, 0.9);
+                    font-size: 0.85rem;
+                    text-align: center;
+                    line-height: 1.6;
+                `;
+                policyDiv.innerHTML = `
+                    <strong style="color: rgba(255, 150, 150, 1);">❌ No Cancellation • No Refund</strong><br>
+                    All purchases are final. No cancellations or refunds are available once payment is completed.
+                `;
+                container.parentNode.insertBefore(policyDiv, container.nextSibling);
+            }
+        } catch (error) {
+            document.getElementById('adFreeContainer').innerHTML = '<p style="color: rgba(255, 255, 255, 0.7);">Unable to load ad-free options.</p>';
+        }
+    }
+
+    // Handle Ad-Free Purchase
+    async function handleBuyAdFree(plan, btnElement) {
+        if (!window.AuthManager?.session) {
+            showToast('Please login to purchase ad-free access', 'error');
+            window.location.href = '/auth';
+            return;
+        }
+
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btnElement.disabled = true;
+
+        try {
+            const response = await fetch('/api/ads/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.AuthManager.getToken()}`
+                },
+                body: JSON.stringify({ plan: plan })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success' && data.order) {
+                // Open Razorpay payment modal
+                const options = {
+                    key: data.order.key_id,
+                    amount: data.order.amount,
+                    currency: data.order.currency,
+                    order_id: data.order.id,
+                    handler: async (response) => {
+                        // Verify payment
+                        await verifyAdFreePayment(response, data.order.id);
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            // User closed the payment modal
+                            btnElement.innerHTML = originalText;
+                            btnElement.disabled = false;
+                        }
+                    },
+                    prefill: {
+                        email: window.AuthManager.user?.email || ''
+                    },
+                    theme: {
+                        color: '#ff6b6b'
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                throw new Error(data.message || 'Failed to create payment order');
+            }
+        } catch (error) {
+            showToast(error.message || 'Failed to process payment', 'error');
+            btnElement.innerHTML = originalText;
+            btnElement.disabled = false;
+        }
+    }
+
+    // Verify Ad-Free Payment
+    async function verifyAdFreePayment(response, orderId) {
+        try {
+            const verifyResponse = await fetch('/api/ads/verify-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.AuthManager.getToken()}`
+                },
+                body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature
+                })
+            });
+
+            const data = await verifyResponse.json();
+
+            if (data.status === 'success') {
+                // Immediately hide ads on this page
+                if (window.AdManager && typeof window.AdManager.hideAllAds === 'function') {
+                    window.AdManager.hideAllAds();
+                }
+                
+                showToast('✓ Ad-free access activated! Refresh to see changes.', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                throw new Error(data.message || 'Payment verification failed');
+            }
+        } catch (error) {
+            showToast('Payment verified but please refresh to confirm', 'warning');
+        }
+    }
+
+    async function loadHistory(tokenOverride = null) {
+        try {
+            let token = tokenOverride;
+            if (!token && window.AuthManager && AuthManager.session) {
+                token = AuthManager.getToken();
+            }
+
+            if (!token) {
+                document.getElementById('usageHistory').innerHTML = `
+                    <tr><td colspan="4" class="text-center">Please login to view history</td></tr>
+                `;
+                return;
+            }
+
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            const response = await fetch('/api/credits/history', { headers });
+            const data = await response.json();
+
+            if (data.success) {
+                const tbody = document.getElementById('usageHistory');
+                const isAdmin = data.is_admin || false;
+
+                // Show/hide user column based on admin status
+                const userHeader = document.getElementById('usageUserHeader');
+                if (userHeader) {
+                    userHeader.style.display = isAdmin ? '' : 'none';
+                }
+
+                if (data.data.length === 0) {
+                    const colspan = isAdmin ? "5" : "4";
+                    tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">No usage history found</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.data.map(item => `
+                    <tr>
+                        ${isAdmin ? `<td>${item.user_email || 'Unknown'}</td>` : ''}
+                        <td>${new Date(item.created_at).toLocaleDateString()} ${new Date(item.created_at).toLocaleTimeString()}</td>
+                        <td>${item.tool_name}</td>
+                        <td>${item.credits_consumed}</td>
+                        <td>
+                            <span class="badge ${item.status === 'success' ? 'badge-success' : 'badge-danger'}">
+                                ${item.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (error) {
+            // Silently handle errors
+        }
+    }
+
+    async function loadPaymentHistory(tokenOverride = null) {
+        try {
+            let token = tokenOverride;
+            
+            // Try multiple token sources if override not provided
+            if (!token) {
+                // Try AuthManager
+                if (window.AuthManager && typeof window.AuthManager.getToken === 'function') {
+                    token = window.AuthManager.getToken();
+                }
+                
+                // Try sessionStorage
+                if (!token) {
+                    token = sessionStorage.getItem('sb-access-token');
+                }
+                
+                // Try localStorage
+                if (!token) {
+                    token = localStorage.getItem('sb-access-token');
+                }
+                
+                // Try Supabase session
+                if (!token) {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session && session.access_token) {
+                        token = session.access_token;
+                    }
+                }
+            }
+
+            if (!token) {
+                document.getElementById('paymentHistory').innerHTML = `
+                    <tr><td colspan="6" class="text-center">Please login to view payment history</td></tr>
+                `;
+                return;
+            }
+            
+            const headers = { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+
+            const response = await fetch('/api/payments/history', { headers });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+
+            if (data.success) {
+                const tbody = document.getElementById('paymentHistory');
+                const isAdmin = data.is_admin || false;
+
+                // Show/hide user column based on admin status
+                const userHeader = document.getElementById('paymentUserHeader');
+                if (userHeader) {
+                    userHeader.style.display = isAdmin ? '' : 'none';
+                }
+
+                if (!data.payments || data.payments.length === 0) {
+                    const colspan = isAdmin ? "6" : "5";
+                    tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">No payment history found</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.payments.map(payment => {
+                    const dateStr = new Date(payment.created_at).toLocaleDateString() + ' ' + new Date(payment.created_at).toLocaleTimeString();
+                    const statusBadgeClass = payment.status === 'completed' ? 'badge-success' : 
+                                            payment.status === 'failed' ? 'badge-danger' : 
+                                            'badge-warning';
+                    
+                    if (isAdmin) {
+                        return `
+                            <tr>
+                                <td>${payment.user_email || 'Unknown'}</td>
+                                <td>${dateStr}</td>
+                                <td>${payment.plan_name || 'N/A'}</td>
+                                <td>${payment.currency || 'INR'} ${payment.amount || 0}</td>
+                                <td>${payment.credits_purchased || 0}</td>
+                                <td>
+                                    <span class="badge ${statusBadgeClass}">
+                                        ${payment.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        return `
+                            <tr>
+                                <td>${dateStr}</td>
+                                <td>${payment.plan_name || 'N/A'}</td>
+                                <td>${payment.currency || 'INR'} ${payment.amount || 0}</td>
+                                <td>${payment.credits_purchased || 0}</td>
+                                <td>
+                                    <span class="badge ${statusBadgeClass}">
+                                        ${payment.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }).join('');
+            } else {
+                const tbody = document.getElementById('paymentHistory');
+                const colspan = data.is_admin ? "6" : "5";
+                tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center text-danger">Error loading payment history: ${data.error || 'Unknown error'}</td></tr>`;
+            }
+        } catch (error) {
+            document.getElementById('paymentHistory').innerHTML = `
+                <tr><td colspan="6" class="text-center text-danger">Failed to load payment history</td></tr>
+            `;
+        }
+    }
+
+    // Expose for CreditManager to call
+    window.loadBillingHistory = () => {
+        loadHistory();
+        loadPaymentHistory();
+    };
+
+    // Auto-refresh history every 5 seconds to show new tool usage
+    let historyRefreshInterval = null;
+    
+    function startHistoryRefresh() {
+        if (historyRefreshInterval) {
+            clearInterval(historyRefreshInterval);
+        }
+        // Initial load
+        loadHistory();
+        loadPaymentHistory();
+        // Refresh every 5 seconds
+        historyRefreshInterval = setInterval(() => {
+            loadHistory();
+        }, 5000);
+    }
+    
+    function stopHistoryRefresh() {
+        if (historyRefreshInterval) {
+            clearInterval(historyRefreshInterval);
+            historyRefreshInterval = null;
+        }
+    }
+    
+    // Start refresh when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        startHistoryRefresh();
+    });
+    
+    // Stop refresh when user leaves the page
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopHistoryRefresh();
+        } else {
+            startHistoryRefresh();
+        }
+    });
+</script>
+{% endblock %}

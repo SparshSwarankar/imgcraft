@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS START --- #}
+{% block title %}AI Image Upscaler - Enhance Resolution up to 4x Online | ImgCraft{% endblock %}
+
+{% block meta_description %}Upscale images online using AI. Increase resolution by 2x or 4x without losing quality. Fix
+pixelated photos and make blurry images clear instantly.{% endblock %}
+
+{% block meta_keywords %}ai image upscaler, enhance photo resolution, increase image size, 4k upscaler, fix blurry
+photos, depixelate image, super resolution, imgcraft{% endblock %}
+
+{% block og_title %}Free AI Photo Upscaler - 2x & 4x Enhancement{% endblock %}
+{% block og_description %}Transform low-resolution photos into HD masterpieces. Our AI enhances details, sharpens edges,
+and removes noise automatically.{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<div class="tool-layout">
+    <div class="tool-sidebar glass-panel p-4 rounded-lg">
+        <h1 class="text-xl font-bold mb-4">AI Upscale Settings</h1>
+
+        <div class="control-group">
+            <label class="control-label">Upscale Factor</label>
+            <div class="flex gap-2 mb-4">
+                <button class="btn btn-sm active" id="factor2x" onclick="setFactor(2)"
+                    aria-label="Upscale 2x">2x</button>
+                <button class="btn btn-sm" id="factor4x" onclick="setFactor(4)" aria-label="Upscale 4x">4x</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="enhance" checked aria-label="Enhance Quality">
+                <span class="text-sm">Enhance Quality (Sharpen)</span>
+            </label>
+        </div>
+
+        <button class="btn btn-primary btn-full mt-4" id="upscaleBtn" disabled aria-label="Start Upscaling">
+            <i class="fas fa-level-up-alt"></i> Upscale Image
+        </button>
+
+        <a id="downloadBtn" class="btn btn-full mt-4" style="display: none; background: var(--secondary);"
+            aria-label="Download Upscaled Image">
+            <i class="fas fa-download"></i> Download
+        </a>
+    </div>
+
+    <div class="tool-main">
+        <div class="upload-area" id="dropZone">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h3>Drag & Drop or Click to Upload</h3>
+            <p class="text-muted">Supports JPG, PNG, WEBP</p>
+            <input type="file" id="fileInput" hidden accept="image/*" aria-label="Upload Image to Upscale">
+        </div>
+
+        <div class="preview-container" id="previewContainer" style="display: none;">
+            <div class="compare-slider">
+                <img id="previewOriginal" class="preview-image" src="" alt="Original Low-Res Image">
+                <img id="previewUpscaled" class="preview-image" src="" alt="Upscaled High-Res Image"
+                    style="display: none;">
+            </div>
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                <div class="spinner"></div>
+                <div class="text-white mt-4 font-medium">Upscaling...</div>
+            </div>
+        </div>
+
+        <div class="seo-content mt-8 p-4 glass-panel rounded-lg">
+            <h2 class="text-lg font-bold mb-2">Why Use AI Upscaling?</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-sm font-bold text-primary">Fix Pixelation</h3>
+                    <p class="text-xs text-muted mb-2">
+                        Turn low-quality, blocky images into smooth, high-definition photos. Perfect for printing or
+                        large screens.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-primary">Recover Details</h3>
+                    <p class="text-xs text-muted mb-2">
+                        Our neural networks predict and reconstruct missing details, making blurry faces and textures
+                        sharp again.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="text-sm font-bold mt-4 mb-2">Best For:</h3>
+            <ul class="text-xs text-muted list-disc pl-4 grid grid-cols-2 gap-2">
+                <li>Old Family Photos</li>
+                <li>E-commerce Products</li>
+                <li>Anime & Cartoons</li>
+                <li>Low-Res Web Assets</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - Upscale Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861" data-ad-slot="XXXXXXXXXX"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/upscale.js') }}"></script>
+<style>
+    /* PRESERVED STYLES */
+    .p-4 {
+        padding: 24px;
+    }
+
+    .rounded-lg {
+        border-radius: var(--radius-lg);
+    }
+
+    .text-xl {
+        font-size: 1.25rem;
+    }
+
+    .font-bold {
+        font-weight: 700;
+    }
+
+    .mt-4 {
+        margin-top: 16px;
+    }
+
+    .mb-4 {
+        margin-bottom: 16px;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .gap-2 {
+        gap: 8px;
+    }
+
+    .items-center {
+        align-items: center;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    .text-white {
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid transparent;
+        border-radius: 6px;
+        color: var(--text-muted);
+        cursor: pointer;
+        flex: 1;
+    }
+
+    .btn-sm.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        z-index: 10;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ADDED FOR SEO CONTENT */
+    .mt-8 {
+        margin-top: 32px;
+    }
+
+    .grid {
+        display: grid;
+    }
+
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gap-4 {
+        gap: 16px;
+    }
+
+    .text-xs {
+        font-size: 0.75rem;
+    }
+
+    .list-disc {
+        list-style-type: disc;
+    }
+
+    .pl-4 {
+        padding-left: 1rem;
+    }
+    .seo-content {
+        margin-bottom: 50px;
+    }
+
+
+    /* ===== MODERN CONTROL GROUP STYLES (from compress.html) ===== */
+    
+    /* Enhanced Control Group */
+    .control-group {
+        margin-bottom: 24px;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: visible;
+    }
+
+    .control-group::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .control-group:hover::before {
+        opacity: 1;
+    }
+
+    .control-group:hover {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+        border-color: rgba(var(--primary-rgb), 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Enhanced Control Label */
+    .control-label {
+        display: block;
+        margin-bottom: 12px;
+        color: var(--text-main);
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        padding-left: 12px;
+    }
+
+    .control-label::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background: linear-gradient(180deg, var(--primary), var(--secondary));
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}

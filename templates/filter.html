@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS START --- #}
+{% block title %}Professional Photo Filters & Effects - AI Image Editor | ImgCraft{% endblock %}
+
+{% block meta_description %}Apply professional filters and effects to your photos online. Cinematic color grading,
+vintage filters, Instagram-style presets, and advanced manual adjustments. Real-time preview with before/after
+comparison.{% endblock %}
+
+{% block meta_keywords %}photo filters online, image effects editor, color grading tool, instagram filters, cinematic
+filters, vintage photo effects, duotone filter, image enhancement, photo editor, brightness contrast, saturation
+adjustment, imgcraft{% endblock %}
+
+{% block og_title %}Premium Photo Filters & Color Grading Tool{% endblock %}
+{% block og_description %}Transform your photos with professional filters and color grading. One-click presets, manual
+adjustments, and real-time preview. Create stunning images in seconds.{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<div class="studio-wrapper">
+
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-magic"></i> Presets</h3>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+            <div class="control-section" id="presetSection" style="display: none;">
+                <div class="preset-grid">
+                    <button class="preset-btn active" data-preset="none">
+                        <div class="preset-preview" style="background: #333;"></div>
+                        <span>Original</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="cinematic">
+                        <div class="preset-preview cinematic-preview"></div>
+                        <span>Cinematic</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="vintage">
+                        <div class="preset-preview vintage-preview"></div>
+                        <span>Vintage</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="moody">
+                        <div class="preset-preview moody-preview"></div>
+                        <span>Moody</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="bright">
+                        <div class="preset-preview bright-preview"></div>
+                        <span>Bright</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="bw">
+                        <div class="preset-preview bw-preview"></div>
+                        <span>B&W</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="warm">
+                        <div class="preset-preview warm-preview"></div>
+                        <span>Warm</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="cool">
+                        <div class="preset-preview cool-preview"></div>
+                        <span>Cool</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="dramatic">
+                        <div class="preset-preview dramatic-preview"></div>
+                        <span>Dramatic</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfoLeft">
+                <i class="fas fa-photo-video"></i>
+                <p>Upload image to apply presets</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-sliders-h"></i></div>
+                    <h2>Filter & Effects</h2>
+                    <p class="text-muted">Drag & drop JPG, PNG, or WebP</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+
+                <div class="comparison-wrapper" id="comparisonWrapper">
+                    <canvas id="previewCanvas" class="preview-canvas"></canvas>
+
+                    <div class="comparison-slider" id="comparisonSlider" style="display: none;">
+                        <div class="slider-handle">
+                            <i class="fas fa-arrows-alt-h"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-toggle">
+                    <button class="toggle-btn" id="toggleComparison" title="Toggle Before/After">
+                        <i class="fas fa-columns"></i> Compare
+                    </button>
+                </div>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text">Applying magic...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Adjustments</h3>
+            <div class="badge badge-pro">PRO</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="filterControls" style="display: none;">
+                <div class="control-section">
+                    <label class="section-label">Light & Color</label>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Brightness</span> <span class="val"
+                                id="brightnessValue">0</span></div>
+                        <input type="range" id="brightness" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Contrast</span> <span class="val" id="contrastValue">0</span>
+                        </div>
+                        <input type="range" id="contrast" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Saturation</span> <span class="val"
+                                id="saturationValue">0</span></div>
+                        <input type="range" id="saturation" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Exposure</span> <span class="val" id="exposureValue">0</span>
+                        </div>
+                        <input type="range" id="exposure" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="section-label">Details & Effects</label>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Sharpness</span> <span class="val" id="sharpnessValue">0</span>
+                        </div>
+                        <input type="range" id="sharpness" class="range-slider" min="0" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Vignette</span> <span class="val" id="vignetteValue">0</span>
+                        </div>
+                        <input type="range" id="vignette" class="range-slider" min="0" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Grain</span> <span class="val" id="grainValue">0</span></div>
+                        <input type="range" id="grain" class="range-slider" min="0" max="100" value="0">
+                    </div>
+                </div>
+
+                <div class="info-card-small"
+                    style="margin-top: 16px; background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--primary);">
+                    <i class="fas fa-info-circle"
+                        style="color: var(--primary); font-size: 1.1rem; margin-bottom: 6px;"></i>
+                    <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;">
+                        <strong>Preview Mode:</strong><br>
+                        • <strong>Basic adjustments</strong> (Brightness, Contrast, Saturation) show in real-time<br>
+                        • <strong>Advanced effects</strong> (Exposure, Sharpness, Vignette, Grain) apply when you click
+                        "Apply & Download"
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfoRight">
+                <i class="fas fa-sliders-h"></i>
+                <p>Controls will appear here</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <div class="cost-indicator">
+                <i class="fas fa-coins"></i> 2 credits
+            </div>
+
+            <button class="btn btn-primary btn-full" id="applyBtn" disabled>
+                Apply & Download
+            </button>
+
+            <div id="downloadArea" class="action-stack" style="display: none;">
+                <a id="downloadBtn" class="btn btn-primary btn-full btn-glow" style="margin-bottom: 12px;">
+                    <i class="fas fa-download"></i> Download
+                </a>
+                <button id="resetBtn" class="btn btn-outline btn-full">
+                    <i class="fas fa-undo"></i> Reset All
+                </button>
+                <button class="btn btn-text mt-2" style="width:100%;" onclick="location.reload()">New Image</button>
+            </div>
+        </div>
+    </aside>
+
+    
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - Filter Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861" data-ad-slot="XXXXXXXXXX"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter.css') }}?v=1">
+<script src="{{ url_for('static', filename='js/filter.js') }}?v=1"></script>
+{% endblock %}

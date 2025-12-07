@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS START --- #}
+{% block title %}View & Remove EXIF Data Online - Image Metadata Viewer | ImgCraft{% endblock %}
+
+{% block meta_description %}View hidden EXIF data in photos (ISO, shutter speed, GPS location). Remove metadata
+instantly to protect your privacy online. Free and secure tool.{% endblock %}
+
+{% block meta_keywords %}exif viewer online, remove metadata from photo, view photo gps, remove camera data, clear exif,
+image privacy tool, shutter speed viewer, imgcraft{% endblock %}
+
+{% block og_title %}Free EXIF Viewer & Metadata Remover{% endblock %}
+{% block og_description %}Analyze camera settings and remove sensitive GPS data from your photos before sharing. Protect
+your digital privacy.{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<div class="studio-wrapper">
+
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-info-circle"></i> Image Details</h3>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info-section">
+                    <div class="file-info-row">
+                        <span class="file-info-label">File Name:</span>
+                        <span class="file-info-value" id="fileName">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">File Size:</span>
+                        <span class="file-info-value" id="fileSize">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Format:</span>
+                        <span class="file-info-value" id="fileType">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Dimensions:</span>
+                        <span class="file-info-value" id="fileDim">-</span>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="info-card-small">
+                    <i class="fas fa-shield-alt"
+                        style="color: var(--success-color); font-size: 1.2rem; margin-bottom: 8px;"></i>
+                    <p><strong>Privacy Check:</strong><br>Review the data on the right. If GPS data is present, your
+                        location is visible.</p>
+                </div>
+
+                <div class="info-card-small"
+                    style="margin-top: 12px; background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--primary);">
+                    <i class="fas fa-info-circle"
+                        style="color: var(--primary); font-size: 1.2rem; margin-bottom: 8px;"></i>
+                    <p><strong>Credit Costs:</strong><br>
+                        • View Metadata: <strong>1 credit</strong><br>
+                        • Remove Metadata: <strong>2 credits</strong></p>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfoLeft">
+                <i class="fas fa-image"></i>
+                <p>Upload an image to inspect details</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-camera-retro"></i></div>
+                    <h2>EXIF Inspector</h2>
+                    <p class="text-muted">Drag & drop JPG, PNG, or TIFF</p>
+                    <div class="cost-indicator"
+                        style="margin-top: 12px; margin-bottom: 8px; font-size: 0.9rem; opacity: 0.9;">
+                        <i class="fas fa-coins"></i> 1 credit to view metadata
+                    </div>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+                <div class="collage-preview-wrapper">
+                    <img id="previewImage" class="collage-image" src="" alt="Preview">
+                </div>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text" id="loadingText">Reading Metadata...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-list"></i> Metadata</h3>
+            <div class="badge badge-pro">PRO</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="exifContainer" style="display: none;">
+                <div id="exifList" class="exif-list">
+                </div>
+
+                <div id="noExifMsg" class="info-box-empty" style="display: none; padding: 20px;">
+                    <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                    <p>No sensitive metadata found.</p>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfoRight">
+                <i class="fas fa-list-alt"></i>
+                <p>Data will appear here</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <div id="actionArea" style="display:none;">
+                <div class="cost-indicator">
+                    <i class="fas fa-coins"></i> 2 credits to remove
+                </div>
+
+                <button class="btn btn-primary btn-full" id="removeBtn">
+                    <i class="fas fa-eraser"></i> Remove Metadata
+                </button>
+
+                <a id="downloadBtn" class="btn btn-primary btn-full"
+                    style="display: none; background: linear-gradient(135deg, #22c55e, #16a34a) !important;">
+                    <i class="fas fa-download"></i> Download Clean File
+                </a>
+
+                <button class="btn btn-text mt-2" style="width:100%;" onclick="location.reload()">
+                    Analyze Another
+                </button>
+            </div>
+
+            <button class="btn btn-primary btn-full" id="dummyBtn" disabled>
+                Remove Metadata
+            </button>
+        </div>
+    </aside>
+    
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - EXIF Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
+            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+
+<div id="confirmModal" class="custom-modal-overlay" style="display: none;">
+    <div class="custom-modal-content glass-panel">
+        <div class="modal-icon-wrapper">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3>Remove Metadata?</h3>
+        <p>This will permanently delete GPS, Camera, and Software data from the image.<br><br><strong>Cost: 2
+                Credits</strong></p>
+        <div class="modal-actions">
+            <button id="btnCancelRemove" class="btn btn-outline">Cancel</button>
+            <button id="btnConfirmRemove" class="btn btn-primary">Yes, Remove</button>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exif.css') }}?v=1">
+<script src="{{ url_for('static', filename='js/exif.js') }}?v=1"></script>
+{% endblock %}

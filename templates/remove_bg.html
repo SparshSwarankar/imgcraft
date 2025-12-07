@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS START --- #}
+{% block title %}AI Background Remover - AI Transparent Background Maker | ImgCraft{% endblock %}
+
+{% block meta_description %}Remove image backgrounds automatically in 5 seconds with AI. Download transparent PNGs for
+free. Includes manual magic eraser for perfect edges.{% endblock %}
+
+{% block meta_keywords %}remove background online, transparent background maker, ai background eraser,
+png maker, clear background, e-commerce photo editor, imgcraft{% endblock %}
+
+{% block og_title %}AI Background Remover - Instant Transparent PNGs{% endblock %}
+{% block og_description %}Upload an image and watch the background vanish instantly. Perfect for logos, products, and
+portraits. Try it on ImgCraft.online{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<div class="studio-wrapper">
+
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-image"></i> Source Image</h3>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info-section">
+                    <div class="file-info-row">
+                        <span class="file-info-label">Name:</span>
+                        <span class="file-info-value" id="fileName">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Size:</span>
+                        <span class="file-info-value" id="fileSize">-</span>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="info-card-small">
+                    <i class="fas fa-magic" style="color: var(--primary); font-size: 1.2rem; margin-bottom: 8px;"></i>
+                    <p><strong> AI Auto-Detect:</strong><br>Automatically separates subject from background.</p>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfoLeft">
+                <i class="fas fa-file-upload"></i>
+                <p>Upload image to begin</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-eraser"></i></div>
+                    <h2>Remove Background</h2>
+                    <p class="text-muted">Drag & drop JPG, PNG, or WebP</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+
+                <div class="compare-wrapper" id="compareWrapper" style="display: none;">
+                    <div class="compare-container checkerboard-bg">
+                        <img id="previewProcessed" class="preview-image img-processed" src="" alt="Processed">
+
+                        <div class="img-wrapper-original" id="imgWrapperOriginal">
+                            <img id="previewOriginal" class="preview-image img-original" src="" alt="Original">
+                        </div>
+
+                        <div class="slider-handle" id="sliderHandle">
+                            <div class="handle-line"></div>
+                            <div class="handle-button"><i class="fas fa-arrows-alt-h"></i></div>
+                        </div>
+
+                        <div class="ai-scan-overlay" id="scanOverlay"></div>
+                    </div>
+                </div>
+
+                <div class="editor-stage" id="editorContainer" style="display: none;">
+                    <div class="canvas-wrapper checkerboard-bg" id="canvasWrapper">
+                        <img id="ghostOverlay" class="ghost-overlay" src="" alt="">
+                        <canvas id="editorCanvas"></canvas>
+                        <div id="brushCursor" class="brush-cursor"></div>
+                    </div>
+                </div>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text" id="progressText">Processing...</p>
+                    <div class="progress-bar-container" style="margin-top: 10px; width: 150px;">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <img id="previewSimple" class="preview-image" src="" alt="Preview"
+                    style="display: none; max-height: 500px;">
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Controls</h3>
+            <div class="badge badge-pro">PRO</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="mainControls">
+                <div class="info-box-empty" id="startInfoRight">
+                    <i class="fas fa-magic"></i>
+                    <p>Actions will appear here</p>
+                </div>
+
+                <div id="successInfo" style="display: none;">
+                    <div class="success-message-box">
+                        <i class="fas fa-check-circle"></i> Background Removed
+                    </div>
+                    <p class="text-muted text-sm text-center mt-2">Use the slider to compare.</p>
+                </div>
+            </div>
+
+
+            <div id="editorTools" style="display: none;">
+
+                <div class="control-section">
+                    <label class="section-label">Brush Mode</label>
+                    <div class="tool-grid">
+                        <button class="tool-btn active" id="toolErase" title="Erase Background">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <button class="tool-btn" id="toolRestore" title="Restore Original">
+                            <i class="fas fa-paint-brush"></i>
+                        </button>
+                    </div>
+                    <div class="tool-desc-text" id="toolDesc">Click to remove background</div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="section-label">Brush Settings</label>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Size</span> <span class="val" id="brushSizeVal">30</span></div>
+                        <input type="range" id="brushSize" class="range-slider" min="5" max="100" value="30">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Hardness</span> <span class="val"
+                                id="brushHardnessVal">80</span></div>
+                        <input type="range" id="brushHardness" class="range-slider" min="0" max="100" value="80">
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="section-label">History</label>
+                    <div class="tool-grid">
+                        <button class="tool-btn" id="btnUndo" disabled title="Undo"><i class="fas fa-undo"></i></button>
+                        <button class="tool-btn" id="btnRedo" disabled title="Redo"><i class="fas fa-redo"></i></button>
+                        <button class="tool-btn" id="btnResetEdit" title="Reset All"><i
+                                class="fas fa-trash-restore"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+
+            <div id="mainFooter">
+                <div class="cost-indicator">
+                    <i class="fas fa-coins"></i> 5 credits
+                </div>
+
+                <button class="btn btn-primary btn-full" id="removeBtn" disabled>
+                    Remove Background
+                </button>
+
+                <div id="resultButtons" class="action-stack" style="display: none;">
+                    <a id="downloadBtn" class="btn btn-primary btn-full btn-glow">
+                        <i class="fas fa-download"></i> Download HD
+                    </a>
+                    <button id="manualFixBtn" class="btn btn-outline btn-full mt-2">
+                        <i class="fas fa-magic"></i> Manual Fix
+                    </button>
+                    <button class="btn btn-text mt-2" style="width:100%;" onclick="location.reload()">New Image</button>
+                </div>
+            </div>
+
+            <div id="editorFooter" style="display: none;">
+                <div class="flex gap-2">
+                    <button class="btn btn-outline" style="flex:1;" id="btnCancelEdit">Cancel</button>
+                    <button class="btn btn-primary" style="flex:1;" id="btnApplyEdit">Done</button>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+    
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - Remove BG Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
+            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+
+<div id="resetModal" class="custom-modal-overlay" style="display: none;">
+    <div class="custom-modal-content glass-panel">
+        <div class="modal-icon-wrapper">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Discard Edits?</h3>
+        <p>This will revert all manual changes you've made in this session.</p>
+        <div class="modal-actions">
+            <button id="btnCancelReset" class="btn btn-outline">Cancel</button>
+            <button id="btnConfirmReset" class="btn btn-danger">Yes, Reset</button>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/remove_bg.css') }}?v=1">
+<script src="{{ url_for('static', filename='js/remove_bg.js') }}?v=1"></script>
+{% endblock %}

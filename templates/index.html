@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS START --- #}
+{% block title %}ImgCraft - Professional AI Image Tools | Compress, Convert & Edit{% endblock %}
+
+{% block meta_description %}ImgCraft offers professional-grade AI image tools. Compress images, remove backgrounds,
+convert formats (WebP, PNG, JPG), and upscale photos. Premium quality for everyone.{% endblock %}
+
+{% block meta_keywords %}ai image editor, professional image compressor, background remover ai, convert jpg to webp,
+image upscaler, premium image tools, imgcraft online, free online image editor, all-in-one image toolkit, image editing
+suite, photo editor tools, batch image processing, smart image resizer, lossless image compression, ai background
+removal, transparent background maker, image format converter, png to jpg converter, webp to png, crop image tool,
+aspect ratio crop, color palette extractor, hex color picker, watermark generator, protect images online, exif metadata
+viewer, remove exif data, photo privacy tool, image filters online, color grading tool, ai photo enhancer, upscale image
+quality, enhance low resolution images, web-based image editor, browser image tools, client-side image processing,
+secure image editing, no upload required, offline image editor, professional photo tools, graphic design toolkit, image
+optimization suite, fast image converter, digital asset management, content creator tools, social media image editor,
+ecommerce product images, photography tools online, image manipulation software, multimedia editing tools, developer
+image api, designer toolkit online, free image utilities, premium image processing{% endblock %}
+
+{% block og_title %}ImgCraft - The Professional AI Image Suite{% endblock %}
+{% block og_description %}Enhance your workflow with ImgCraft. Smart compression, AI background removal, and instant
+format conversion. Try it now.{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<section class="hero">
+    <h1 class="animate-fade-up">Professional Image Tools<br><span class="text-primary">Powered by AI</span></h1>
+    <p class="animate-fade-up delay-100">Secure, high-speed, and intelligent image processing. The ultimate toolkit for
+        developers, designers, and creators.</p>
+
+    <div class="search-container animate-fade-up delay-200">
+        <input type="text" class="search-input" placeholder="Search tools (e.g., 'Compress', 'Remove BG')..."
+            id="toolSearch" aria-label="Search for image tools">
+    </div>
+</section>
+
+<div class="tools-grid" id="toolsGrid">
+    <a href="/resize" class="tool-card glass" data-tool-id="resize" title="Resize Images Online">
+        <div class="tool-icon"><i class="fas fa-expand-arrows-alt"></i></div>
+        <div class="tool-name">Smart Resizer</div>
+        <div class="tool-desc">Scale images by pixel or percentage while preserving sharpness using Lanczos algorithms.
+        </div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/compress" class="tool-card glass" data-tool-id="compress" title="Compress Images">
+        <div class="tool-icon"><i class="fas fa-compress-arrows-alt"></i></div>
+        <div class="tool-name">Pro Compressor</div>
+        <div class="tool-desc">Intelligent compression to reduce file size up to 90% without visible quality loss.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/convert" class="tool-card glass" data-tool-id="convert" title="Convert Image Formats">
+        <div class="tool-icon"><i class="fas fa-exchange-alt"></i></div>
+        <div class="tool-name">Format Converter</div>
+        <div class="tool-desc">Universal converter for JPG, PNG, WEBP, TIFF, and BMP formats with transparency support.
+        </div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/remove-bg" class="tool-card glass" data-tool-id="remove_bg" title="AI Background Remover">
+        <div class="tool-icon"><i class="fas fa-eraser"></i></div>
+        <div class="tool-name">AI Background Remover</div>
+        <div class="tool-desc">Instantly remove backgrounds using advanced machine learning models. Clean edges
+            guaranteed.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/crop" class="tool-card glass" data-tool-id="crop" title="Crop Images">
+        <div class="tool-icon"><i class="fas fa-crop-alt"></i></div>
+        <div class="tool-name">Precision Crop</div>
+        <div class="tool-desc">Crop to exact aspect ratios (16:9, 1:1) or custom dimensions for social media.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/palette" class="tool-card glass" data-tool-id="palette" title="Color Palette Generator">
+        <div class="tool-icon"><i class="fas fa-palette"></i></div>
+        <div class="tool-name">Palette Generator</div>
+        <div class="tool-desc">Extract dominant color schemes and HEX codes from any image for design consistency.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/watermark" class="tool-card glass" data-tool-id="watermark" title="Add Watermark">
+        <div class="tool-icon"><i class="fas fa-copyright"></i></div>
+        <div class="tool-name">Watermark Studio</div>
+        <div class="tool-desc">Protect your intellectual property by adding custom text or logo watermarks.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/exif" class="tool-card glass" data-tool-id="exif" title="View EXIF Data">
+        <div class="tool-icon"><i class="fas fa-info-circle"></i></div>
+        <div class="tool-name">EXIF Manager</div>
+        <div class="tool-desc">View detailed camera metadata or scrub sensitive location data for privacy.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/filter" class="tool-card glass" data-tool-id="filter" title="Photo Filters">
+        <div class="tool-icon"><i class="fas fa-magic"></i></div>
+        <div class="tool-name">Smart Filters</div>
+        <div class="tool-desc">Apply professional color grading, brightness, contrast, and saturation adjustments.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/upscale" class="tool-card glass" data-tool-id="upscale" title="AI Image Upscaler">
+        <div class="tool-icon"><i class="fas fa-level-up-alt"></i></div>
+        <div class="tool-name">AI Upscaler</div>
+        <div class="tool-desc">Enhance resolution and clarify details in low-quality images using AI.</div>
+        <div class="tool-btn">Open Tool</div>
+    </a>
+
+    <a href="/collage" class="tool-card glass premium-card" data-tool-id="collage" title="AI Collage Generator">
+        <div class="premium-ribbon">Premium</div>
+        <div class="tool-icon"><i class="fas fa-th-large"></i></div>
+        <div class="tool-name">AI Collage Creator</div>
+        <div class="tool-desc">Auto-generate professional photo collages with smart layouts and color harmony.</div>
+        <div class="tool-btn" style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; border: none;">
+            Try AI Studio</div>
+    </a>
+</div>
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement 1 - Between Tools and Features -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
+            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+
+<section class="container mt-12 mb-8 animate-fade-up delay-300">
+    <div class="glass-panel p-8 rounded-lg">
+        <h2 class="text-2xl font-bold mb-4 text-center">Why Professionals Choose <span
+                class="text-primary">ImgCraft</span></h2>
+        <div class="grid-features">
+            <div class="feature-item">
+                <i class="fas fa-bolt text-primary mb-2 text-xl"></i>
+                <h3 class="font-bold mb-1">Ultra-Fast Processing</h3>
+                <p class="text-sm text-muted">Optimized algorithms ensure your images are processed in milliseconds, not
+                    seconds.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt text-primary mb-2 text-xl"></i>
+                <h3 class="font-bold mb-1">Secure & Private</h3>
+                <p class="text-sm text-muted">We prioritize privacy. Images are processed securely and deleted
+                    automatically.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-brain text-primary mb-2 text-xl"></i>
+                <h3 class="font-bold mb-1">AI-Powered Core</h3>
+                <p class="text-sm text-muted">Leveraging advanced Neural Networks for background removal and upscaling
+                    tasks.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Inline styles for the specific SEO section */
+    .rounded-lg {
+        border-radius: var(--radius-lg);
+    }
+
+    .mt-12 {
+        margin-top: 3rem;
+    }
+
+    .mb-8 {
+        margin-bottom: 2rem;
+    }
+
+    .p-8 {
+        padding: 2rem;
+    }
+
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-primary {
+        color: var(--primary);
+    }
+
+    .grid-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .feature-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Animation Utilities */
+    .animate-fade-up {
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .delay-100 {
+        animation-delay: 0.1s;
+    }
+
+    .delay-200 {
+        animation-delay: 0.2s;
+    }
+
+    .delay-300 {
+        animation-delay: 0.3s;
+    }
+
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* PREMIUM TOOL CARD STYLING */
+    .tool-card.premium-card {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 215, 0, 0.05));
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tool-card.premium-card:hover {
+        border-color: #ffd700;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 25px rgba(255, 215, 0, 0.2);
+        transform: translateY(-5px) scale(1.02);
+    }
+
+    .tool-card.premium-card .tool-icon {
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.5rem;
+    }
+
+    .premium-ribbon {
+        position: absolute;
+        top: 12px;
+        right: -30px;
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        color: #000;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 5px 30px;
+        transform: rotate(45deg);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+        text-transform: uppercase;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Fetch tool config for pricing badges
+        try {
+            const response = await fetch('/api/tools/config');
+            const { tools } = await response.json();
+
+            // Identify free vs paid tools
+            const freeTools = ['resize', 'convert']; // As per backend logic
+
+            tools.forEach(tool => {
+                const card = document.querySelector(`[data-tool-id="${tool.tool_name}"]`);
+                if (card) {
+                    if (!freeTools.includes(tool.tool_name)) {
+                        // Add Premium/Credit Badge
+                        const costBadge = document.createElement('div');
+                        costBadge.className = 'tool-cost-badge';
+                        costBadge.innerHTML = `<i class="fas fa-coins"></i> ${tool.credit_cost}`;
+                        card.appendChild(costBadge);
+                    } else {
+                        // Add Free Badge
+                        const freeBadge = document.createElement('div');
+                        freeBadge.className = 'free-badge';
+                        freeBadge.innerHTML = 'FREE';
+                        card.appendChild(freeBadge);
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('Failed to fetch tool config', e);
+        }
+
+        // Handle Guest/Auth State UI
+        setTimeout(() => {
+            if (!AuthManager.user) {
+                const freeTools = ['resize', 'convert'];
+                const cards = Array.from(document.querySelectorAll('.tool-card'));
+
+                cards.forEach((card) => {
+                    const toolId = card.getAttribute('data-tool-id');
+
+                    if (!freeTools.includes(toolId)) {
+                        card.classList.add('locked');
+                        card.href = '/auth'; // Redirect to auth
+
+                        // Add visual lock overlay
+                        const lockOverlay = document.createElement('div');
+                        lockOverlay.className = 'lock-overlay';
+                        lockOverlay.innerHTML = '<div class="lock-content"><i class="fas fa-lock"></i><span>Login to Unlock</span></div>';
+                        card.appendChild(lockOverlay);
+                    }
+                });
+            }
+        }, 500);
+    });
+
+    // Search Functionality
+    document.getElementById('toolSearch').addEventListener('input', function (e) {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.tool-card');
+
+        cards.forEach(card => {
+            const name = card.querySelector('.tool-name').textContent.toLowerCase();
+            const desc = card.querySelector('.tool-desc').textContent.toLowerCase();
+
+            if (name.includes(term) || desc.includes(term)) {
+                card.style.display = 'flex';
+                card.classList.add('animate-fade-up'); // Re-trigger animation on search
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

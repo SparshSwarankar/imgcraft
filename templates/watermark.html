@@ -1,0 +1,961 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS START --- #}
+{% block title %}Add Watermark to Photo Online - Text & Logo Overlay | ImgCraft{% endblock %}
+
+{% block meta_description %}Protect your images with custom watermarks. Add text copyrights or logo overlays online for
+free. Adjust transparency, position, and rotation instantly.{% endblock %}
+
+{% block meta_keywords %}add watermark online, watermark photos free, copyright image tool, logo overlay, text watermark
+maker, protect image rights, batch watermark, imgcraft{% endblock %}
+
+{% block og_title %}Free Online Watermark Creator - Protect Your Work{% endblock %}
+{% block og_description %}Secure your photography and digital art. Add professional text or logo watermarks with
+adjustable transparency and positioning.{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<div class="tool-layout">
+    <div class="tool-sidebar glass-panel p-4 rounded-lg">
+        <h1 class="text-xl font-bold mb-4">Watermark Settings</h1>
+
+        <div class="control-group">
+            <label class="control-label">Watermark Type</label>
+            <div class="flex gap-2 mb-4">
+                <button class="btn btn-sm active" id="typeText" onclick="setWatermarkType('text')"
+                    aria-label="Text Watermark">
+                    <i class="fas fa-font"></i> Text
+                </button>
+                <button class="btn btn-sm" id="typeImage" onclick="setWatermarkType('image')"
+                    aria-label="Image Watermark">
+                    <i class="fas fa-image"></i> Image
+                </button>
+            </div>
+        </div>
+
+        <div id="textControls">
+            <div class="control-group">
+                <label class="control-label" for="watermarkText">Watermark Text</label>
+                <input type="text" id="watermarkText" class="search-input" placeholder="© Your Name" value="© ImgCraft"
+                    aria-label="Enter Watermark Text">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Font Family</label>
+                <div class="custom-dropdown-container">
+                    <div class="dropdown-selected" id="fontFamilyDropdown">
+                        <span id="fontFamilyText">Arial</span>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                    </div>
+                    <div class="dropdown-options" id="fontFamilyOptions">
+                        <div class="dropdown-option selected" data-value="Arial">Arial</div>
+                        <div class="dropdown-option" data-value="Times New Roman">Times New Roman</div>
+                        <div class="dropdown-option" data-value="Courier New">Courier New</div>
+                        <div class="dropdown-option" data-value="Georgia">Georgia</div>
+                        <div class="dropdown-option" data-value="Verdana">Verdana</div>
+                        <div class="dropdown-option" data-value="Impact">Impact</div>
+                        <div class="dropdown-option" data-value="Comic Sans MS">Comic Sans MS</div>
+                    </div>
+                </div>
+                <input type="hidden" id="fontFamily" value="Arial">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="fontSize">Font Size: <span id="fontSizeValue">40</span>px</label>
+                <input type="range" id="fontSize" class="range-slider" min="10" max="200" value="40"
+                    aria-label="Font Size">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Font Style</label>
+                <div class="flex gap-2">
+                    <button class="btn btn-sm" id="fontBold" onclick="toggleBold()" aria-label="Toggle Bold">
+                        <i class="fas fa-bold"></i> Bold
+                    </button>
+                    <button class="btn btn-sm" id="fontItalic" onclick="toggleItalic()" aria-label="Toggle Italic">
+                        <i class="fas fa-italic"></i> Italic
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Text Color</label>
+                <div class="color-picker-container">
+                    <div class="color-swatches" id="colorSwatches">
+                        <div class="color-swatch active" data-color="#ffffff" style="background: #ffffff;"
+                            title="White"></div>
+                        <div class="color-swatch" data-color="#000000" style="background: #000000;" title="Black"></div>
+                        <div class="color-swatch" data-color="#ff6b6b" style="background: #ff6b6b;" title="Red"></div>
+                        <div class="color-swatch" data-color="#4ecdc4" style="background: #4ecdc4;" title="Cyan"></div>
+                        <div class="color-swatch" data-color="#45b7d1" style="background: #45b7d1;" title="Blue"></div>
+                        <div class="color-swatch" data-color="#96ceb4" style="background: #96ceb4;" title="Green"></div>
+                        <div class="color-swatch" data-color="#ffeaa7" style="background: #ffeaa7;" title="Yellow">
+                        </div>
+                        <div class="color-swatch" data-color="#dfe6e9" style="background: #dfe6e9;" title="Light Gray">
+                        </div>
+                        <div class="color-swatch" data-color="#fd79a8" style="background: #fd79a8;" title="Pink"></div>
+                        <div class="color-swatch" data-color="#a29bfe" style="background: #a29bfe;" title="Purple">
+                        </div>
+                        <div class="color-swatch" data-color="#fab1a0" style="background: #fab1a0;" title="Orange">
+                        </div>
+                        <div class="color-swatch color-swatch-custom" id="customColorSwatch" title="Custom Color">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                    </div>
+
+                    <div class="custom-color-panel" id="customColorPanel" style="display: none;">
+                        <div class="custom-color-header">
+                            <span>Custom Color</span>
+                            <button class="btn-close-picker" id="closeColorPicker" aria-label="Close Picker">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="color-picker-content">
+                            <input type="color" id="fontColor" value="#ffffff" class="native-color-input"
+                                aria-label="Select Custom Color">
+                            <div class="color-input-group">
+                                <div class="color-input-field"><label>R</label><input type="number" id="colorR" min="0"
+                                        max="255" value="255"></div>
+                                <div class="color-input-field"><label>G</label><input type="number" id="colorG" min="0"
+                                        max="255" value="255"></div>
+                                <div class="color-input-field"><label>B</label><input type="number" id="colorB" min="0"
+                                        max="255" value="255"></div>
+                            </div>
+                            <div class="color-preview-box" id="colorPreviewBox"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="imageControls" style="display: none;">
+            <div class="control-group">
+                <label class="control-label">Upload Watermark Image</label>
+                <div class="upload-btn-wrapper">
+                    <button class="btn btn-secondary btn-full">
+                        <i class="fas fa-upload"></i> Choose Image
+                    </button>
+                    <input type="file" id="watermarkImageInput" accept="image/*" aria-label="Upload Watermark Logo">
+                </div>
+                <p class="text-sm text-muted mt-2" id="watermarkImageName">No image selected</p>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Opacity: <span id="opacityValue">70</span>%</label>
+            <input type="range" id="opacity" class="range-slider" min="0" max="100" value="70"
+                aria-label="Watermark Opacity">
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Scale: <span id="scaleValue">100</span>%</label>
+            <input type="range" id="scale" class="range-slider" min="10" max="200" value="100"
+                aria-label="Watermark Scale">
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Rotation: <span id="rotationValue">0</span>°</label>
+            <input type="range" id="rotation" class="range-slider" min="-180" max="180" value="0"
+                aria-label="Watermark Rotation">
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Quick Position</label>
+            <div class="position-grid">
+                <button class="position-btn" onclick="setPosition('top-left')" title="Top Left"><i
+                        class="fas fa-arrow-up"></i><i class="fas fa-arrow-left"></i></button>
+                <button class="position-btn" onclick="setPosition('top-center')" title="Top Center"><i
+                        class="fas fa-arrow-up"></i></button>
+                <button class="position-btn" onclick="setPosition('top-right')" title="Top Right"><i
+                        class="fas fa-arrow-up"></i><i class="fas fa-arrow-right"></i></button>
+                <button class="position-btn" onclick="setPosition('center-left')" title="Center Left"><i
+                        class="fas fa-arrow-left"></i></button>
+                <button class="position-btn" onclick="setPosition('center')" title="Center"><i
+                        class="fas fa-circle"></i></button>
+                <button class="position-btn" onclick="setPosition('center-right')" title="Center Right"><i
+                        class="fas fa-arrow-right"></i></button>
+                <button class="position-btn" onclick="setPosition('bottom-left')" title="Bottom Left"><i
+                        class="fas fa-arrow-down"></i><i class="fas fa-arrow-left"></i></button>
+                <button class="position-btn" onclick="setPosition('bottom-center')" title="Bottom Center"><i
+                        class="fas fa-arrow-down"></i></button>
+                <button class="position-btn active" onclick="setPosition('bottom-right')" title="Bottom Right"><i
+                        class="fas fa-arrow-down"></i><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <button class="btn btn-secondary btn-full mt-4" id="resetBtn" onclick="resetWatermark()">
+            <i class="fas fa-undo"></i> Reset Watermark
+        </button>
+
+        <button class="btn btn-primary btn-full mt-4" id="applyBtn" disabled>
+            <i class="fas fa-copyright"></i> Apply Watermark
+        </button>
+
+        <div id="downloadArea" class="success-card mt-4" style="display: none;">
+            <div class="success-icon-wrapper">
+                <div class="success-icon-bg"></div>
+                <i class="fas fa-check-circle success-icon"></i>
+            </div>
+            <h3 class="success-title">Success!</h3>
+            <p class="success-message">Your watermark has been applied successfully</p>
+            <a id="downloadBtn" class="btn btn-primary btn-full">
+                <i class="fas fa-download"></i> Download
+            </a>
+        </div>
+    </div>
+
+    <div class="tool-main">
+        <div class="upload-area" id="dropZone">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h3>Drag & Drop or Click to Upload</h3>
+            <p class="text-muted">Supports JPG, PNG, WEBP</p>
+            <input type="file" id="fileInput" hidden accept="image/*" aria-label="Upload Main Image">
+        </div>
+
+        <div class="preview-container" id="previewContainer" style="display: none;">
+            <div id="fileInfo" class="file-info-card" style="display: none;">
+                <div class="file-icon"><i class="fas fa-image"></i></div>
+                <div class="file-details">
+                    <span id="fileName" class="file-name">filename.jpg</span>
+                    <span id="fileSize" class="file-size">0 MB</span>
+                </div>
+                <button class="btn-icon" onclick="document.getElementById('fileInput').click()" title="Change Image">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="watermarkCanvas"></canvas>
+            </div>
+
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; font-weight: 500; color: white;">Applying Watermark...</p>
+            </div>
+        </div>
+
+        <div class="seo-content mt-8 p-4 glass-panel rounded-lg">
+            <h2 class="text-lg font-bold mb-2">Watermarking Best Practices</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-sm font-bold text-primary">Placement</h3>
+                    <p class="text-xs text-muted mb-2">
+                        Avoid corners where watermarks can be easily cropped out. Place them near the center or over
+                        complex details for better protection.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-primary">Transparency</h3>
+                    <p class="text-xs text-muted mb-2">
+                        Use <strong>30-50% opacity</strong>. Your watermark should be visible enough to deter theft but
+                        subtle enough not to ruin the viewing experience.
+                    </p>
+                </div>
+            </div>
+            <p class="text-sm text-muted mt-4">
+                <strong>Why Watermark?</strong> It is the simplest way to establish ownership and build brand
+                recognition when your images are shared on social media.
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<div id="resetModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Reset Watermark</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to reset the watermark? This will clear all your customizations.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeResetModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="confirmReset()">Reset</button>
+        </div>
+    </div>
+</div>
+
+{% if not user_ad_free %}
+<section class="ads-section">
+    <div class="ad-container">
+        <!-- ImgCraft: Ad Placement - Watermark Tool -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861" data-ad-slot="XXXXXXXXXX"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/watermark.js') }}?v=10"></script>
+<style>
+    /* REQUESTED STYLE CHANGE */
+    .seo-content {
+        margin-bottom: 50px;
+    }
+
+    /* PRESERVED STYLES (Identical to your original file) */
+    .p-4 {
+        padding: 24px;
+    }
+
+    .rounded-lg {
+        border-radius: var(--radius-lg);
+    }
+
+    .text-xl {
+        font-size: 1.25rem;
+    }
+
+    .font-bold {
+        font-weight: 700;
+    }
+
+    .mt-4 {
+        margin-top: 16px;
+    }
+
+    .mt-2 {
+        margin-top: 8px;
+    }
+
+    .mb-4 {
+        margin-bottom: 16px;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .gap-2 {
+        gap: 8px;
+    }
+
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    /* Button Styles */
+    .btn-sm {
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: var(--text-muted);
+        cursor: pointer;
+        flex: 1;
+        transition: all 0.2s;
+    }
+
+    .btn-sm:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-sm.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Upload Button Wrapper */
+    .upload-btn-wrapper {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-btn-wrapper input[type=file] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    /* Position Grid */
+    .position-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .position-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+    }
+
+    .position-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .position-btn.active {
+        background: rgba(var(--primary-rgb), 0.2);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .position-btn i {
+        font-size: 0.75rem;
+    }
+
+    /* Custom Dropdown */
+    .custom-dropdown-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .dropdown-selected {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-main);
+        font-size: 0.95rem;
+    }
+
+    .dropdown-selected:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .dropdown-selected.active {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .dropdown-arrow {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        transition: transform 0.2s;
+    }
+
+    .dropdown-selected.active .dropdown-arrow {
+        transform: rotate(180deg);
+        color: var(--primary);
+    }
+
+    .dropdown-options {
+        position: relative;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .dropdown-options.show {
+        max-height: 400px;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .dropdown-option {
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .dropdown-option:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-option:hover {
+        background: rgba(255, 255, 255, 0.08);
+        padding-left: 20px;
+    }
+
+    .dropdown-option.selected {
+        background: rgba(var(--primary-rgb), 0.15);
+        border-left: 3px solid var(--primary);
+    }
+
+    .dropdown-option.selected:hover {
+        background: rgba(var(--primary-rgb), 0.2);
+    }
+
+    /* Custom Color Picker */
+    .color-picker-container {
+        width: 100%;
+        position: relative;
+    }
+
+    .color-swatches {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+    }
+
+    .color-swatch {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s;
+    }
+
+    .color-swatch:hover {
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .color-swatch.active {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .color-swatch-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .custom-color-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        background: rgba(15, 23, 42, 0.98);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 12px;
+        z-index: 100;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+    }
+
+    .custom-color-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        color: var(--text-main);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .btn-close-picker {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .btn-close-picker:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+    }
+
+    .color-picker-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .native-color-input {
+        width: 100%;
+        height: 70px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+    .color-input-group {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .color-input-field {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+
+    .color-input-field label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    .color-input-field input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        padding: 6px 2px;
+        color: var(--text-main);
+        text-align: center;
+        font-size: 0.8rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .color-preview-box {
+        width: 100%;
+        height: 30px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-sizing: border-box;
+    }
+
+    /* Preview Container */
+    .preview-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .canvas-wrapper {
+        width: 100%;
+        height: 100%;
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 10px;
+    }
+
+    #watermarkCanvas {
+        max-width: calc(100% - 20px);
+        max-height: calc(100% - 20px);
+        width: auto;
+        height: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        cursor: move;
+        border-radius: 8px;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        z-index: 100;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Modal */
+    .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        max-width: 400px;
+        width: 90%;
+        overflow: hidden;
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .modal-header i {
+        color: var(--warning);
+    }
+
+    .modal-body {
+        padding: 20px;
+        color: var(--text-muted);
+    }
+
+    .modal-footer {
+        padding: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    /* ADDED SEO STYLES */
+    .mt-8 {
+        margin-top: 32px;
+    }
+
+    .grid {
+        display: grid;
+    }
+
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gap-4 {
+        gap: 16px;
+    }
+
+    .text-xs {
+        font-size: 0.75rem;
+    }
+
+    /* ===== MODERN SLIDER STYLES (from compress.html) ===== */
+
+    /* Enhanced Control Group */
+    .control-group {
+        margin-bottom: 24px;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: visible;
+        /* Changed from hidden to visible to allow dropdowns */
+    }
+
+    .control-group::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .control-group:hover::before {
+        opacity: 1;
+    }
+
+    .control-group:hover {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+        border-color: rgba(var(--primary-rgb), 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Enhanced Control Label */
+    .control-label {
+        display: block;
+        margin-bottom: 12px;
+        color: var(--text-main);
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        padding-left: 12px;
+    }
+
+    .control-label::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background: linear-gradient(180deg, var(--primary), var(--secondary));
+        border-radius: 2px;
+    }
+
+    /* Enhanced Range Slider */
+    .range-slider {
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg,
+                rgba(239, 68, 68, 0.3) 0%,
+                rgba(245, 158, 11, 0.3) 33%,
+                rgba(34, 197, 94, 0.3) 66%,
+                rgba(34, 197, 94, 0.5) 100%);
+        border-radius: 4px;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+    }
+
+    .range-slider::-webkit-slider-track {
+        width: 100%;
+        height: 8px;
+        background: transparent;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        cursor: grab;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4),
+            0 0 0 6px rgba(var(--primary-rgb), 0.2),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+    }
+
+    .range-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5),
+            0 0 0 10px rgba(var(--primary-rgb), 0.3),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .range-slider:active::-webkit-slider-thumb {
+        cursor: grabbing;
+        transform: scale(1.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5),
+            0 0 0 12px rgba(var(--primary-rgb), 0.35);
+    }
+
+    .range-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        cursor: grab;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.2s;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .range-slider::-moz-range-thumb:hover {
+        transform: scale(1.3);
+    }
+
+    /* Value Display Styling */
+    #fontSizeValue,
+    #opacityValue,
+    #scaleValue,
+    #rotationValue {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800;
+        font-size: 1.1rem;
+        display: inline-block;
+        min-width: 45px;
+        text-align: center;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(var(--primary-rgb), 0.15);
+        -webkit-text-fill-color: var(--primary);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}
