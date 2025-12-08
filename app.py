@@ -3085,11 +3085,11 @@ if __name__ == '__main__':
     logger.info("=" * 80)
     
     try:
-        app.run(
-            host=config.HOST,
-            port=config.PORT,
-            debug=config.DEBUG
-        )
+        import os
+        port = int(os.environ.get("PORT", config.PORT))
+        host = os.environ.get("HOST", config.HOST)
+        app.run(host=host, port=port, debug=config.DEBUG)
+        
     except KeyboardInterrupt:
         logger.info("Server shutdown requested by user")
     except Exception as e:
