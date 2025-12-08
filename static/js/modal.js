@@ -75,15 +75,6 @@ class ModalManager {
         }
     }
 
-    close() {
-        this.overlay.classList.remove('active');
-
-        // Clear content after animation
-        setTimeout(() => {
-            this.content.innerHTML = '';
-        }, 300);
-    }
-
     getModalContent(type) {
         const contents = {
             privacy: this.getPrivacyPolicy(),
@@ -93,6 +84,33 @@ class ModalManager {
         };
 
         return contents[type] || '<p>Content not found</p>';
+    }
+
+    // New method to show custom modal content
+    showCustomModal(content, containerClass = '') {
+        if (content) {
+            this.content.innerHTML = content;
+
+            // Add custom class to container if provided
+            if (containerClass) {
+                this.container.className = 'modal-container ' + containerClass;
+            }
+
+            this.overlay.classList.add('active');
+        }
+    }
+
+    // Override close to reset container class
+    close() {
+        this.overlay.classList.remove('active');
+
+        // Reset container class
+        this.container.className = 'modal-container';
+
+        // Clear content after animation
+        setTimeout(() => {
+            this.content.innerHTML = '';
+        }, 300);
     }
 
     getPrivacyPolicy() {

@@ -211,6 +211,23 @@ const CreditManager = {
                     }, 500);
                 }
 
+                // Trigger review modal after toast notification disappears
+                // Toast shows for 4 seconds, so trigger review after 5 seconds
+                console.log('🎉 Payment successful! Review modal will appear after notification...');
+                if (window.reviewModalManager) {
+                    setTimeout(() => {
+                        console.log('✅ Showing review modal now');
+                        // Use the instance method directly
+                        window.reviewModalManager.show('purchase', {
+                            title: 'Thank you for your purchase!',
+                            subtitle: 'How was your experience? We\'d appreciate your feedback.',
+                            icon: '🎉'
+                        });
+                    }, 5000); // 5 seconds - after toast disappears
+                } else {
+                    console.warn('❌ reviewModalManager not found! Review modal will not show.');
+                }
+
                 // Log success
                 console.log(`Credits added: ${result.credits_added}, New balance: ${result.new_balance}`);
 

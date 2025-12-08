@@ -1,0 +1,153 @@
+{
+  "name": "ImgCraft - AI Image Tools & Editor",
+  "short_name": "ImgCraft",
+  "description": "Professional AI-powered image editing suite. Resize, compress, convert, remove backgrounds, and edit images with advanced tools.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#F97316",
+  "categories": ["productivity", "graphics"],
+  "screenshots": [
+    {
+      "src": "/static/image/pwa-screenshot-1.png",
+      "sizes": "540x720",
+      "form_factor": "narrow",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/image/pwa-screenshot-2.png",
+      "sizes": "1280x720",
+      "form_factor": "wide",
+      "type": "image/png"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/static/image/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/image/icon-192x192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/image/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/image/icon-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/image/icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "platform": "ios"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Resize Image",
+      "short_name": "Resize",
+      "description": "Quickly resize your images",
+      "url": "/resize",
+      "icons": [
+        {
+          "src": "/static/image/shortcut-resize-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Compress Image",
+      "short_name": "Compress",
+      "description": "Reduce image file size",
+      "url": "/compress",
+      "icons": [
+        {
+          "src": "/static/image/shortcut-compress-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Convert Format",
+      "short_name": "Convert",
+      "description": "Convert between image formats",
+      "url": "/convert",
+      "icons": [
+        {
+          "src": "/static/image/shortcut-convert-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Remove Background",
+      "short_name": "Remove BG",
+      "description": "Remove image background with AI",
+      "url": "/remove_bg",
+      "icons": [
+        {
+          "src": "/static/image/shortcut-remove-bg-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Crop Image",
+      "short_name": "Crop",
+      "description": "Crop and adjust images",
+      "url": "/crop",
+      "icons": [
+        {
+          "src": "/static/image/shortcut-crop-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "image/webp": [".webp"],
+        "image/gif": [".gif"],
+        "image/bmp": [".bmp"],
+        "image/tiff": [".tiff", ".tif"]
+      },
+      "launch_type": "single-client"
+    }
+  ],
+  "share_target": {
+    "action": "/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "image",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  },
+  "prefer_related_applications": false
+}

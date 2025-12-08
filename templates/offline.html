@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - ImgCraft</title>
+    <link rel="icon" type="image/png" href="/static/image/fevicon.png">
+    <style>
+        :root {
+            /* Colors - Sunset Theme (ImgCraft) */
+            --primary: #F97316;
+            --primary-hover: #EA580C;
+            --secondary: #E11D48;
+            --secondary-hover: #BE123C;
+            --dark-bg: #020617;
+            --card-bg: #0F172A;
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --glow: #FFD700;
+            --success: #22C55E;
+            --error: #EF4444;
+            --primary-rgb: 249, 115, 22;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.6));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.3));
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .offline-description {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .offline-features {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(225, 29, 72, 0.05));
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .feature:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            color: white;
+            font-weight: 700;
+        }
+
+        .offline-actions {
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+            margin-bottom: 24px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .offline-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 24px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(249, 115, 22, 0.15);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--error);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .reconnect-timer {
+            display: none;
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .reconnect-timer.show {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .offline-container {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .offline-icon {
+                font-size: 60px;
+            }
+
+            .offline-actions {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">
+            <i class="fas fa-wifi-off"></i>
+        </div>
+
+        <h1>You're Offline</h1>
+
+        <p class="offline-description">
+            ImgCraft is currently offline, but you can still access cached content and perform some operations.
+        </p>
+
+        <div class="offline-features">
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>View cached images and previously edited content</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Save drafts locally - they'll sync when you're back online</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Access offline-enabled tools with your cached data</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Keep track of your edits and sync later</span>
+            </div>
+        </div>
+
+        <div class="offline-actions">
+            <button class="btn-primary" onclick="goHome()">Go to Home Page</button>
+            <button class="btn-secondary" onclick="window.history.back()">Go Back</button>
+        </div>
+
+        <div class="offline-status">
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                Waiting for connection...
+            </div>
+            <div class="reconnect-timer" id="reconnect-timer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        // Check for reconnection
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 30; // Check for 5 minutes with 10-second intervals
+
+        function checkConnection() {
+            fetch('/ping', { method: 'HEAD' })
+                .then(() => {
+                    // Connection restored
+                    showReconnected();
+                })
+                .catch(() => {
+                    reconnectAttempts++;
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        updateReconnectTimer();
+                        setTimeout(checkConnection, 10000); // Check every 10 seconds
+                    }
+                });
+        }
+
+        function updateReconnectTimer() {
+            const timer = document.getElementById('reconnect-timer');
+            const secondsWaited = reconnectAttempts * 10;
+            const minutesWaited = Math.floor(secondsWaited / 60);
+            const secondsRemaining = secondsWaited % 60;
+
+            timer.classList.add('show');
+            if (minutesWaited > 0) {
+                timer.textContent = `Checking connection... (${minutesWaited}m ${secondsRemaining}s)`;
+            } else {
+                timer.textContent = `Checking connection... (${secondsRemaining}s)`;
+            }
+        }
+
+        function showReconnected() {
+            const container = document.querySelector('.offline-container');
+            container.innerHTML = `
+                <div class="offline-icon" style="color: var(--success); filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.4));">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1 style="color: var(--success);">Back Online!</h1>
+                <p class="offline-description">
+                    Your connection has been restored. Your saved drafts and pending actions are being synced automatically.
+                </p>
+                <button class="btn-primary" onclick="location.reload()">Reload App</button>
+            `;
+        }
+
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Start checking connection
+        if (navigator.onLine === false) {
+            checkConnection();
+        }
+
+        // Also listen for online event
+        window.addEventListener('online', showReconnected);
+    </script>
+</body>
+
+</html>

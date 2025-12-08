@@ -15,9 +15,17 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://imgcraft.online{{ request.path }}">
 
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ImgCraft">
+    <meta name="apple-mobile-web-app-status-bar" content="black-translucent">
+    
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='image/fevicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/fevicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/icon-180x180.png') }}">
     <meta name="theme-color" content="#F97316">
+    <meta name="description" content="ImgCraft - Professional AI-powered image editing suite. Works offline with PWA technology.">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
@@ -27,7 +35,9 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/review-modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ads.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pwa.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -417,7 +427,7 @@
     </script>
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
     <script src="{{ url_for('static', filename='js/credits.js') }}"></script>
-    
+
     <script>
         // Apply same guest access logic to navigation bar links
         (function () {
@@ -458,10 +468,16 @@
     <!-- Modal System -->
     <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
 
+    <!-- Review Modal System -->
+    <script src="{{ url_for('static', filename='js/review-modal.js') }}"></script>
+
     <!-- Ad Management System -->
     <script src="{{ url_for('static', filename='js/ads.js') }}"></script>
-    
+
     <script src="{{ url_for('static', filename='js/background.js') }}"></script>
+
+    <!-- PWA Initialization Script - Load early for quick initialization -->
+    <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
 
     {% block scripts %}{% endblock %}
 </body>

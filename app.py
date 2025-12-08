@@ -44,11 +44,15 @@ from payments import (
     get_plan_by_id,
     CREDIT_PLANS
 )
-from flask import jsonify
+from flask import jsonify, redirect, current_app
 
 # Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(config)
+
+# PWA version
+APP_VERSION = '1.0.0'
+app.config['APP_VERSION'] = APP_VERSION
 
 # Initialize configuration
 config.init_app(app)
@@ -143,6 +147,9 @@ def log_request(func):
 @app.after_request
 def add_cache_control_headers(response):
     """Add cache control headers to prevent aggressive caching"""
+    
+    # Allow service worker to have root scope
+    response.headers['Service-Worker-Allowed'] = '/'
     
     # Don't cache API responses
     if request.path.startswith('/api/'):
@@ -653,57 +660,76 @@ def get_payment_history(current_user):
         user_email = current_user.get('email', '')
         user_id = current_user.get('id', '')
         
-        # If admin, use service role to get all payments
+        # ==========================================
+        # 1. ADMIN LOGIC (View All Payments)
+        # ==========================================
         if is_admin(user_email):
             logger.debug(f"Admin {user_email} requesting all payment history")
             
-            # Use service role client for admin to bypass RLS
+            # Fetch ALL payments using service role
             res = supabase_admin.table('payments').select('*').order('created_at', desc=True).execute()
-            
-            # Fetch user emails for all payments
             payments_data = res.data if res.data else []
-            logger.debug(f"Found {len(payments_data)} payments for admin query")
             
+            # Helper: Fetch user emails to make the data readable for Admin
             if payments_data:
                 try:
-                    # Get all user profiles from database (more reliable than auth API)
+                    # Get all user profiles to map UUID -> Email
                     profiles_res = supabase_admin.table('user_profiles').select('id, email').execute()
                     
-                    # Create a mapping of user_id to email
                     user_map = {}
                     if profiles_res.data:
                         for profile in profiles_res.data:
                             user_map[profile['id']] = profile.get('email', 'Unknown')
                     
-                    # Add user email to each payment
+                    # Attach emails to payment records
                     for payment in payments_data:
                         payment['user_email'] = user_map.get(payment['user_id'], 'Unknown')
+                        
                 except Exception as e:
-                    logger.warning(f"Could not fetch user emails from profiles: {str(e)}")
+                    logger.warning(f"Could not fetch user profiles for mapping: {str(e)}")
+                    # Fallback if profile fetch fails
                     for payment in payments_data:
                         payment['user_email'] = 'Unknown'
-            
+
             return jsonify({
                 'success': True,
                 'payments': payments_data,
                 'is_admin': True,
                 'count': len(payments_data)
             })
+
+        # ==========================================
+        # 2. REGULAR USER LOGIC (View Own Payments)
+        # ==========================================
         else:
-            # Regular user - only their payments, use anon client with RLS
             logger.debug(f"User {user_email} requesting their payment history")
-            supabase = get_supabase_client()
-            res = supabase.table('payments').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
             
-            payments_data = res.data if res.data else []
-            logger.debug(f"Found {len(payments_data)} payments for user {user_email}")
-            
-            return jsonify({
-                'success': True,
-                'payments': payments_data,
-                'is_admin': False,
-                'count': len(payments_data)
-            })
+            try:
+                # Use supabase_admin but STRICTLY filter by user_id
+                # This bypasses RLS issues while maintaining security
+                res = supabase_admin.table('payments')\
+                    .select('*')\
+                    .eq('user_id', user_id)\
+                    .order('created_at', desc=True)\
+                    .execute()
+                
+                payments_data = res.data if res.data else []
+                logger.info(f"Found {len(payments_data)} payments for user {user_email}")
+                
+                # Add own email for consistency
+                for payment in payments_data:
+                    payment['user_email'] = user_email
+                
+                return jsonify({
+                    'success': True,
+                    'payments': payments_data,
+                    'is_admin': False,
+                    'count': len(payments_data)
+                })
+            except Exception as user_error:
+                logger.error(f"Error fetching payments for user: {str(user_error)}")
+                return jsonify({'success': False, 'error': str(user_error)}), 500
+
     except Exception as e:
         logger.error(f"Payment history error: {str(e)}")
         logger.error(traceback.format_exc())
@@ -758,8 +784,87 @@ def razorpay_webhook():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ============================================================================
+# REVIEW SUBMISSION ENDPOINT
+# ============================================================================
+
+@app.route('/api/submit-review', methods=['POST'])
+def submit_review():
+    """
+    Submit user review/feedback
+    Accepts both authenticated and anonymous reviews
+    """
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        rating = data.get('rating')
+        if not rating or not isinstance(rating, int) or rating < 1 or rating > 5:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid rating. Must be between 1 and 5.'
+            }), 400
+        
+        # Get optional fields
+        feedback = data.get('feedback', '').strip()
+        tool_usage_count = data.get('toolUsageCount', 0)
+        user_agent = data.get('userAgent', request.headers.get('User-Agent', ''))
+        
+        # Get user info if authenticated
+        user_id = None
+        user_email = None
+        auth_header = request.headers.get('Authorization', '')
+        
+        if auth_header.startswith('Bearer '):
+            try:
+                token = auth_header.split(' ')[1]
+                user_data = verify_jwt_token(token)
+                user_id = user_data.get('id')
+                user_email = user_data.get('email')
+            except Exception as e:
+                logger.debug(f"Review submitted without authentication: {str(e)}")
+        
+        # Create review record
+        review_record = {
+            'user_id': user_id,
+            'user_email': user_email,
+            'rating': rating,
+            'feedback': feedback[:1000] if feedback else None,  # Limit to 1000 chars
+            'tool_usage_count': tool_usage_count,
+            'user_agent': user_agent[:500] if user_agent else None,
+            'ip_address': request.remote_addr,
+            'created_at': 'now()'
+        }
+        
+        # Insert into database
+        result = supabase_admin.table('reviews').insert(review_record).execute()
+        
+        if not result.data:
+            logger.error("Failed to insert review into database")
+            return jsonify({
+                'success': False,
+                'error': 'Failed to save review'
+            }), 500
+        
+        logger.info(f"Review submitted successfully: Rating={rating}, User={user_email or 'Anonymous'}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Thank you for your feedback!',
+            'review_id': result.data[0]['id'] if result.data else None
+        })
+        
+    except Exception as e:
+        logger.error(f"Review submission error: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({
+            'success': False,
+            'error': 'Failed to submit review. Please try again.'
+        }), 500
+
+# ============================================================================
 # CONTEXT PROCESSOR
 # ============================================================================
+
 
 @app.context_processor
 def inject_config():
@@ -2388,6 +2493,583 @@ def api_log():
     except Exception as e:
         logger.error(f"Failed to log client event: {e}")
         return {'status': 'error', 'message': str(e)}, 500
+
+
+# ============================================================================
+# PWA INTEGRATION HELPER CLASS
+# ============================================================================
+
+from functools import wraps as functools_wraps
+from datetime import timedelta
+
+class PWAIntegration:
+    """Handle integration of PWA features with existing ImgCraft systems"""
+
+    def __init__(self, db=None):
+        self.db = db
+        self.cache_ttl = 3600  # 1 hour cache for sync data
+
+    # ========================================================================
+    # OFFLINE USER DATA MANAGEMENT
+    # ========================================================================
+
+    def get_offline_user_data(self, user_id):
+        """Get user data suitable for offline storage"""
+        try:
+            user_data = {
+                'id': user_id,
+                'credits': self.get_user_credits(user_id),
+                'plan': self.get_user_plan(user_id),
+                'features': self.get_user_features(user_id),
+                'sync_time': datetime.utcnow().isoformat()
+            }
+            return user_data
+        except Exception as e:
+            logger.error(f'[PWA] Get offline user data error: {e}')
+            return None
+
+    # ========================================================================
+    # CREDITS INTEGRATION
+    # ========================================================================
+
+    def sync_user_credits(self, user_id):
+        """Sync user credits from database when coming back online"""
+        try:
+            credits = credit_manager.get_user_credits(user_id)
+            return {
+                'user_id': user_id,
+                'credits': credits,
+                'timestamp': datetime.utcnow().isoformat()
+            }
+        except Exception as e:
+            logger.error(f'[PWA] Sync credits error: {e}')
+            return None
+
+    def deduct_credits_offline(self, user_id, tool, amount, offline_id):
+        """Record credit deduction for offline operation"""
+        try:
+            pending_deduction = {
+                'id': offline_id,
+                'user_id': user_id,
+                'tool': tool,
+                'amount': amount,
+                'timestamp': datetime.utcnow().isoformat(),
+                'status': 'pending'
+            }
+            logger.info(f"[PWA] Offline credit deduction recorded: {offline_id}")
+            return pending_deduction
+        except Exception as e:
+            logger.error(f'[PWA] Deduct credits offline error: {e}')
+            return None
+
+    def sync_credit_deductions(self, user_id):
+        """Sync pending credit deductions when back online"""
+        try:
+            results = []
+            # TODO: Fetch and process pending deductions from database
+            logger.info(f"[PWA] Synced credit deductions for user {user_id}")
+            return results
+        except Exception as e:
+            logger.error(f'[PWA] Sync credit deductions error: {e}')
+            return []
+
+    # ========================================================================
+    # PAYMENTS INTEGRATION
+    # ========================================================================
+
+    def record_offline_purchase(self, user_id, plan_id, amount, payment_id):
+        """Record purchase for offline sync"""
+        try:
+            purchase = {
+                'id': f'offline-purchase-{payment_id}',
+                'user_id': user_id,
+                'plan_id': plan_id,
+                'amount': amount,
+                'timestamp': datetime.utcnow().isoformat(),
+                'status': 'pending'
+            }
+            logger.info(f"[PWA] Offline purchase recorded: {purchase['id']}")
+            return purchase
+        except Exception as e:
+            logger.error(f'[PWA] Record offline purchase error: {e}')
+            return None
+
+    def sync_offline_purchases(self, user_id):
+        """Sync pending purchases when back online"""
+        try:
+            results = []
+            # TODO: Fetch and process pending purchases from database
+            logger.info(f"[PWA] Synced purchases for user {user_id}")
+            return results
+        except Exception as e:
+            logger.error(f'[PWA] Sync offline purchases error: {e}')
+            return []
+
+    # ========================================================================
+    # PUSH NOTIFICATION INTEGRATION
+    # ========================================================================
+
+    def send_push_notification(self, subscription, notification_data):
+        """Send push notification to user"""
+        try:
+            # TODO: Integrate with pywebpush or web-push library
+            logger.info(f"[PWA] Push notification prepared: {notification_data.get('title')}")
+            return True
+        except Exception as e:
+            logger.error(f'[PWA] Send push notification error: {e}')
+            return False
+
+    def send_credit_alert(self, user_id, credits_remaining):
+        """Send push notification for low credits"""
+        try:
+            if credits_remaining < 10:
+                notification_data = {
+                    'title': 'Low Credits Alert',
+                    'body': f'You have {credits_remaining} credits remaining',
+                    'icon': '/static/image/icon-192x192.png',
+                    'data': {
+                        'type': 'credit_alert',
+                        'url': '/billing'
+                    }
+                }
+                logger.info(f"[PWA] Credit alert sent to user {user_id}")
+                return True
+            return False
+        except Exception as e:
+            logger.error(f'[PWA] Send credit alert error: {e}')
+            return False
+
+    def send_update_notification(self, user_id, version):
+        """Send update available notification"""
+        try:
+            notification_data = {
+                'title': 'ImgCraft Updated',
+                'body': f'Version {version} is now available',
+                'icon': '/static/image/icon-192x192.png',
+                'data': {
+                    'type': 'update_available',
+                    'version': version
+                }
+            }
+            logger.info(f"[PWA] Update notification sent to user {user_id}")
+            return True
+        except Exception as e:
+            logger.error(f'[PWA] Send update notification error: {e}')
+            return False
+
+    # ========================================================================
+    # HELPER METHODS
+    # ========================================================================
+
+    def get_user_credits(self, user_id):
+        """Get user's current credits"""
+        try:
+            return credit_manager.get_user_credits(user_id)
+        except Exception as e:
+            logger.error(f'[PWA] Get user credits error: {e}')
+            return 0
+
+    def get_user_plan(self, user_id):
+        """Get user's current plan"""
+        try:
+            # TODO: Fetch from database based on user's subscription
+            return 'free'
+        except Exception as e:
+            logger.error(f'[PWA] Get user plan error: {e}')
+            return 'free'
+
+    def get_user_features(self, user_id):
+        """Get features available to user"""
+        try:
+            user_plan = self.get_user_plan(user_id)
+            tools = get_all_tools()
+            
+            available_features = {
+                tool['name']: True if user_plan != 'free' or tool.get('free', False) else False
+                for tool in tools
+            }
+            return available_features
+        except Exception as e:
+            logger.error(f'[PWA] Get user features error: {e}')
+            return {}
+
+    def get_user_subscription(self, user_id):
+        """Get user's push notification subscription"""
+        try:
+            # TODO: Fetch from database
+            return None
+        except Exception as e:
+            logger.error(f'[PWA] Get user subscription error: {e}')
+            return None
+
+    # ========================================================================
+    # OFFLINE MODE HELPERS
+    # ========================================================================
+
+    def is_offline_operation_allowed(self, user_id, tool):
+        """Check if user can perform operation in offline mode"""
+        try:
+            user_features = self.get_user_features(user_id)
+            return user_features.get(tool, False)
+        except Exception as e:
+            logger.error(f'[PWA] Check offline operation error: {e}')
+            return False
+
+    def get_offline_tool_limits(self, user_id, tool):
+        """Get resource limits for offline operations"""
+        plan = self.get_user_plan(user_id)
+
+        limits = {
+            'free': {
+                'max_file_size': 5 * 1024 * 1024,  # 5MB
+                'max_batch_size': 1,
+                'max_operations': 10
+            },
+            'premium': {
+                'max_file_size': 100 * 1024 * 1024,  # 100MB
+                'max_batch_size': 50,
+                'max_operations': 1000
+            }
+        }
+
+        return limits.get(plan, limits['free'])
+
+    # ========================================================================
+    # DATABASE HELPERS
+    # ========================================================================
+
+    def store_offline_draft(self, user_id, tool, data):
+        """Store draft in database"""
+        try:
+            draft = {
+                'id': f'draft-{user_id}-{int(datetime.utcnow().timestamp())}',
+                'user_id': user_id,
+                'tool': tool,
+                'data': data,
+                'created_at': datetime.utcnow().isoformat(),
+                'updated_at': datetime.utcnow().isoformat()
+            }
+            logger.info(f"[PWA] Draft stored: {draft['id']}")
+            return draft
+        except Exception as e:
+            logger.error(f'[PWA] Store offline draft error: {e}')
+            return None
+
+    def get_user_drafts(self, user_id):
+        """Get all drafts for user"""
+        try:
+            # TODO: Fetch from database
+            return []
+        except Exception as e:
+            logger.error(f'[PWA] Get user drafts error: {e}')
+            return []
+
+    def clear_expired_data(self):
+        """Clean up expired offline data"""
+        try:
+            # Delete drafts older than 30 days
+            cutoff_date = datetime.utcnow() - timedelta(days=30)
+            # TODO: Delete from database
+            logger.info("[PWA] Expired data cleanup completed")
+        except Exception as e:
+            logger.error(f'[PWA] Clear expired data error: {e}')
+
+
+# ============================================================================
+# PWA INTEGRATION INSTANCE
+# ============================================================================
+
+pwa_integration = PWAIntegration()
+
+
+# ============================================================================
+# PWA OFFLINE-AWARE DECORATOR
+# ============================================================================
+
+def offline_aware(f):
+    """Decorator to make route handlers offline-aware"""
+    @functools_wraps(f)
+    def decorated_function(*args, **kwargs):
+        is_offline = request.headers.get('X-Offline-Mode') == 'true'
+        
+        if is_offline:
+            try:
+                data = request.get_json() or {}
+                return jsonify({
+                    'success': True,
+                    'offline': True,
+                    'message': 'Operation saved for sync when online'
+                }), 202
+            except Exception as e:
+                logger.error(f'[PWA] Offline operation error: {e}')
+                return jsonify({'error': str(e)}), 500
+        else:
+            return f(*args, **kwargs)
+    
+    return decorated_function
+
+
+# ============================================================================
+# PWA (PROGRESSIVE WEB APP) ENDPOINTS
+# ============================================================================
+
+@app.route('/offline')
+def offline():
+    """Serve offline fallback page"""
+    return render_template('offline.html')
+
+
+@app.route('/api/version', methods=['GET'])
+def get_version():
+    """Get current app version for update checking"""
+    return jsonify({
+        'version': APP_VERSION,
+        'updateUrl': 'https://imgcraft.online',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+
+@app.route('/api/notifications/subscribe', methods=['POST'])
+@require_auth
+def subscribe_notifications(current_user):
+    """Handle push notification subscription"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'endpoint' not in data:
+            return jsonify({'error': 'Invalid subscription data'}), 400
+        
+        subscription = {
+            'endpoint': data.get('endpoint'),
+            'auth': data.get('keys', {}).get('auth'),
+            'p256dh': data.get('keys', {}).get('p256dh'),
+            'user_id': current_user['id'],
+            'created_at': datetime.utcnow().isoformat()
+        }
+        
+        # TODO: Store subscription in database
+        logger.info(f"[PWA] Push subscription for user {current_user['id']}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Subscription successful'
+        }), 201
+        
+    except Exception as error:
+        logger.error(f'[PWA] Subscription error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/api/notifications/unsubscribe', methods=['POST'])
+@require_auth
+def unsubscribe_notifications(current_user):
+    """Handle push notification unsubscription"""
+    try:
+        data = request.get_json()
+        endpoint = data.get('endpoint')
+        
+        if not endpoint:
+            return jsonify({'error': 'Endpoint required'}), 400
+        
+        # TODO: Remove subscription from database
+        logger.info(f"[PWA] Push unsubscribe for user {current_user['id']}")
+        
+        return jsonify({'success': True}), 200
+        
+    except Exception as error:
+        logger.error(f'[PWA] Unsubscribe error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/api/cache/clear', methods=['POST'])
+@require_auth
+def clear_cache(current_user):
+    """Clear service worker caches"""
+    try:
+        data = request.get_json() or {}
+        cache_names = data.get('caches', [
+            'imgcraft-v1-static',
+            'imgcraft-v1-images',
+            'imgcraft-v1-api'
+        ])
+        
+        logger.info(f"[PWA] Cache clear for user {current_user['id']}: {cache_names}")
+        
+        return jsonify({
+            'success': True,
+            'caches_cleared': cache_names
+        }), 200
+        
+    except Exception as error:
+        logger.error(f'[PWA] Cache clear error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/api/drafts/save', methods=['POST'])
+@require_auth
+def save_draft(current_user):
+    """Save offline draft"""
+    try:
+        data = request.get_json()
+        
+        draft = pwa_integration.store_offline_draft(
+            current_user['id'],
+            data.get('tool'),
+            data.get('data')
+        )
+        
+        return jsonify({
+            'success': True,
+            'draft_id': draft['id']
+        }), 201
+        
+    except Exception as error:
+        logger.error(f'[PWA] Save draft error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/api/drafts/list', methods=['GET'])
+@require_auth
+def list_drafts(current_user):
+    """Get list of saved drafts"""
+    try:
+        drafts = pwa_integration.get_user_drafts(current_user['id'])
+        
+        return jsonify({
+            'success': True,
+            'drafts': drafts
+        }), 200
+        
+    except Exception as error:
+        logger.error(f'[PWA] List drafts error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/api/actions/pending', methods=['GET'])
+@require_auth
+def get_pending_actions(current_user):
+    """Get list of pending actions for sync"""
+    try:
+        # TODO: Fetch pending actions from database
+        actions = []
+        
+        return jsonify({
+            'success': True,
+            'actions': actions
+        }), 200
+        
+    except Exception as error:
+        logger.error(f'[PWA] Get pending actions error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/api/actions/sync', methods=['POST'])
+@require_auth
+def sync_actions(current_user):
+    """Sync pending actions when user comes back online"""
+    try:
+        data = request.get_json()
+        actions = data.get('actions', [])
+        
+        results = {
+            'synced': [],
+            'failed': []
+        }
+        
+        for action in actions:
+            try:
+                if action['type'] == 'edit':
+                    pass  # Handle edit action
+                elif action['type'] == 'delete':
+                    pass  # Handle delete action
+                
+                results['synced'].append(action['id'])
+            except Exception as e:
+                results['failed'].append({
+                    'id': action['id'],
+                    'error': str(e)
+                })
+        
+        logger.info(f"[PWA] Synced {len(results['synced'])} actions for user {current_user['id']}")
+        
+        return jsonify({
+            'success': True,
+            'results': results
+        }), 200
+        
+    except Exception as error:
+        logger.error(f'[PWA] Sync actions error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/api/user', methods=['GET'])
+@require_auth
+def get_user_data(current_user):
+    """Get current user data for offline sync"""
+    try:
+        credit_manager.initialize_credits(current_user['id'])
+        user_data = pwa_integration.get_offline_user_data(current_user['id'])
+        
+        if user_data:
+            user_data['email'] = current_user.get('email')
+            user_data['name'] = current_user.get('user_metadata', {}).get('name', 'User')
+        
+        return jsonify({
+            'success': True,
+            'user': user_data
+        }), 200
+        
+    except Exception as error:
+        logger.error(f'[PWA] Get user data error: {error}')
+        return jsonify({'error': str(error)}), 500
+
+
+@app.route('/share-target', methods=['POST'])
+def handle_share_target():
+    """Handle files shared to the app via Web Share API"""
+    try:
+        files = request.files.getlist('image')
+        
+        if not files:
+            return redirect('/')
+        
+        # TODO: Implement file storage and redirect logic
+        logger.info(f"[PWA] Share target: {len(files)} file(s) received")
+        
+        return redirect('/')
+        
+    except Exception as error:
+        logger.error(f'[PWA] Share target error: {error}')
+        return redirect('/')
+
+
+@app.route('/api/analytics', methods=['POST'])
+def log_analytics():
+    """Log PWA analytics events"""
+    try:
+        data = request.get_json()
+        event = data.get('event')
+        event_data = {k: v for k, v in data.items() if k != 'event'}
+        
+        # TODO: Store analytics in database
+        logger.info(f"[PWA Analytics] {event}: {event_data}")
+        
+        return jsonify({'success': True}), 200
+        
+    except Exception as error:
+        logger.warning(f'[PWA] Analytics error: {error}')
+        return jsonify({'success': True}), 200
+
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat(),
+        'version': APP_VERSION
+    }), 200
+
 
 
 

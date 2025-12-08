@@ -6,6 +6,7 @@ Handles Razorpay integration for ad-free purchases
 import os
 import json
 import logging
+import traceback
 from datetime import datetime
 from decimal import Decimal
 from functools import wraps
@@ -138,15 +139,18 @@ def create_ad_free_order(user_id: str, user_email: str, plan: str = None):
                 'user_id': user_id,
                 'razorpay_order_id': order['id'],
                 'plan': plan,
-                'amount_paid': Decimal(str(plan_config['amount'] / 100)),  # Convert paise to rupees
+                'amount_paid': float(plan_config['amount'] / 100),  # Convert paise to rupees as float
                 'currency': plan_config['currency'],
                 'status': 'pending',
                 'ip_address': get_client_ip(),
                 'user_agent': request.headers.get('User-Agent', '')[:200]
             }).execute()
             
+            logger.info(f"Ad-free purchase record created: order_id={order['id']}, user_id={user_id}")
+            
         except Exception as e:
             logger.error(f"Failed to insert purchase record: {str(e)}")
+            logger.error(traceback.format_exc())
             # Continue anyway - order is created at Razorpay
         
         return {
