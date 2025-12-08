@@ -21,11 +21,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ImgCraft">
     <meta name="apple-mobile-web-app-status-bar" content="black-translucent">
-    
+
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='image/fevicon.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/icon-180x180.png') }}">
     <meta name="theme-color" content="#F97316">
-    <meta name="description" content="ImgCraft - Professional AI-powered image editing suite. Works offline with PWA technology.">
+    <meta name="description"
+        content="ImgCraft - Professional AI-powered image editing suite. Works offline with PWA technology.">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
@@ -33,7 +34,7 @@
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
     <meta property="og:image" content="{{ url_for('static', filename='image/fevicon.png', _external=True) }}">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/review-modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ads.css') }}">
@@ -77,6 +78,9 @@
 </head>
 
 <body>
+    <div id="scroll-progress-container">
+        <div id="scroll-progress-bar"></div>
+    </div>
     <canvas id="bg-canvas"></canvas>
 
     <nav class="navbar glass">
@@ -478,6 +482,7 @@
 
     <!-- PWA Initialization Script - Load early for quick initialization -->
     <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/scrollbar.js') }}"></script>
 
     {% block scripts %}{% endblock %}
 </body>

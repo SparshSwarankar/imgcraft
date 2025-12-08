@@ -17,8 +17,8 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', os.urandom(24).hex())
     
     # Server Configuration
-    HOST = os.getenv('SERVER_HOST', '127.0.0.1')
-    PORT = int(os.getenv('SERVER_PORT', 5000))
+    HOST = os.getenv('HOST', os.getenv('SERVER_HOST', '0.0.0.0'))
+    PORT = int(os.getenv('PORT', os.getenv('SERVER_PORT', 5000)))
     
     # Upload Configuration
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
