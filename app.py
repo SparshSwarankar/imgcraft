@@ -920,15 +920,10 @@ def index():
 @app.route('/favicon.ico')
 def favicon():
     """
-    Serve favicon to prevent 404 errors
+    Redirect favicon requests to static image
     Browsers automatically request /favicon.ico or /favicon.png
     """
-    from flask import send_from_directory
-    return send_from_directory(
-        os.path.join(app.root_path, 'static', 'image'),
-        'favicon.png',
-        mimetype='image/png'
-    )
+    return redirect('/static/image/favicon.png', code=301)
 
 @app.route('/ping', methods=['GET'])
 def ping():
