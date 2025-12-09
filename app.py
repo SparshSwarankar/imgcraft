@@ -916,19 +916,6 @@ def index():
         logger.debug("Rendering main index page (after launch date)")
         return render_template('index.html')
 
-@app.route('/ping', methods=['GET'])
-def ping():
-    """
-    Lightweight health-check endpoint for ImgCraft.
-    Used later by GitHub Actions / uptime monitors / Render.
-    """
-    logger.debug("Ping health check requested")
-    return jsonify({
-        "status": "ok",
-        "service": "ImgCraft Backend",
-        "timestamp": datetime.utcnow().isoformat()
-    }), 200
-
 @app.route('/favicon.png')
 @app.route('/favicon.ico')
 def favicon():
@@ -942,6 +929,19 @@ def favicon():
         'favicon.png',
         mimetype='image/png'
     )
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    """
+    Lightweight health-check endpoint for ImgCraft.
+    Used by uptime monitors and health checks.
+    """
+    logger.debug("Ping health check requested")
+    return jsonify({
+        "status": "ok",
+        "service": "ImgCraft Backend",
+        "timestamp": datetime.utcnow().isoformat()
+    }), 200
 
 @app.route('/auth')
 def auth_page():
