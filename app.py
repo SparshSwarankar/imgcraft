@@ -896,8 +896,25 @@ def inject_config():
 
 @app.route('/')
 def index():
-    logger.debug("Rendering index page")
-    return render_template('index.html')
+    """
+    Main landing page with launch date logic
+    Shows coming soon page before Dec 21, 2025
+    Shows main website after Dec 21, 2025
+    """
+    from datetime import datetime
+    
+    # Set launch date to December 21, 2025 at midnight IST
+    LAUNCH_DATE = datetime(2025, 12, 21, 0, 0, 0)
+    current_date = datetime.now()
+    
+    # Check if we're before the launch date
+    if current_date < LAUNCH_DATE:
+        logger.debug("Rendering coming soon page (before launch date)")
+        # Serve the coming soon page from the 'coming soon' folder
+        return send_file('coming soon/coming_soon.html')
+    else:
+        logger.debug("Rendering main index page (after launch date)")
+        return render_template('index.html')
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -912,6 +929,18 @@ def ping():
         "timestamp": datetime.utcnow().isoformat()
     }), 200
 
+@app.route('/favicon.png')
+def favicon():
+    """
+    Serve favicon to prevent 404 errors
+    Browsers automatically request /favicon.png
+    """
+    from flask import send_from_directory
+    return send_from_directory(
+        os.path.join(app.root_path, 'static', 'image'),
+        'favicon.png',
+        mimetype='image/png'
+    )
 
 @app.route('/auth')
 def auth_page():

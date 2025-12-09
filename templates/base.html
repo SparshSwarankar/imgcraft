@@ -22,7 +22,7 @@
     <meta name="apple-mobile-web-app-title" content="ImgCraft">
     <meta name="apple-mobile-web-app-status-bar" content="black-translucent">
 
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='image/fevicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='image/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/icon-180x180.png') }}">
     <meta name="theme-color" content="#F97316">
     <meta name="description"
@@ -32,7 +32,7 @@
     <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="{{ url_for('static', filename='image/fevicon.png', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='image/favicon.png', _external=True) }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
@@ -50,7 +50,7 @@
       "url": "https://imgcraft.online",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "Any",
-      "primaryImageOfPage": "{{ url_for('static', filename='image/fevicon.ico', _external=True) }}",
+      "primaryImageOfPage": "{{ url_for('static', filename='image/favicon.png', _external=True) }}",
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": "USD",

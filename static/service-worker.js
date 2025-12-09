@@ -25,7 +25,7 @@ const STATIC_ASSETS = [
   '/static/js/background.js',
   '/static/js/pwa.js',
   '/static/image/Logo.jpg',
-  '/static/image/fevicon.png',
+  '/static/image/favicon.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
@@ -176,7 +176,7 @@ async function cacheFirstStrategy(request, cacheName) {
     if (response && response.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, response.clone());
-      
+
       // Enforce cache size limits
       await enforceCacheLimit(cacheName, CACHE_LIMITS[cacheName] || 50);
     }
@@ -184,7 +184,7 @@ async function cacheFirstStrategy(request, cacheName) {
     return response;
   } catch (error) {
     console.error('[ServiceWorker] Cache first error:', error);
-    
+
     // Return offline page for HTML requests
     if (request.destination === 'document') {
       return caches.match(OFFLINE_FALLBACK);
@@ -211,7 +211,7 @@ async function networkFirstStrategy(request, cacheName) {
     if (response && response.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, response.clone());
-      
+
       // Enforce cache size limits
       await enforceCacheLimit(cacheName, CACHE_LIMITS[cacheName] || 50);
     }
@@ -357,7 +357,7 @@ async function syncPendingActions() {
 
         if (response.ok) {
           await deleteFromDB(db, 'pending_actions', action.id);
-          
+
           // Notify clients of successful sync
           notifyClients({
             type: 'action-synced',
