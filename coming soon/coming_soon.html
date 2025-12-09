@@ -5,9 +5,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="ImgCraft - The ultimate image toolkit: Upscale, Compress, Remove BG, and more.">
+    <meta name="keywords"
+        content="image toolkit, AI upscale, background removal, image compression, EXIF data, image editor, web tools, ImgCraft, image optimization, photo editor">
+    <meta name="author" content="ImgCraft">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
     <meta name="theme-color" content="#0F172A">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <title>ImgCraft - Intelligent Image Toolkit | Coming Soon</title>
+    <meta name="title" content="ImgCraft - Intelligent Image Toolkit | Coming Soon">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://imgcraft.com">
+
+    <!-- Open Graph / Facebook Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://imgcraft.com">
+    <meta property="og:title" content="ImgCraft - Intelligent Image Toolkit | Coming Soon">
+    <meta property="og:description"
+        content="The complete suite for web creators. From AI Upscaling and Background Removal to EXIF Data management, Smart Compression, and many more powerful image tools. Launching December 21, 2025.">
+    <meta property="og:image" content="https://imgcraft.com/static/image/Logo.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="ImgCraft">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://imgcraft.com">
+    <meta name="twitter:title" content="ImgCraft - Intelligent Image Toolkit | Coming Soon">
+    <meta name="twitter:description"
+        content="The complete suite for web creators. From AI Upscaling and Background Removal to EXIF Data management, Smart Compression, and many more powerful image tools.">
+    <meta name="twitter:image" content="https://imgcraft.com/static/image/Logo.jpg">
+    <meta name="twitter:creator" content="@ImgCraft">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../static/image/favicon.png">
+    <link rel="apple-touch-icon" href="../static/image/favicon.png">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ImgCraft",
+      "url": "https://imgcraft.com",
+      "logo": "https://imgcraft.com/static/image/Logo.jpg",
+      "description": "The complete suite for web creators. From AI Upscaling and Background Removal to EXIF Data management, Smart Compression, and many more powerful image tools.",
+      "foundingDate": "2025",
+      "sameAs": [
+        "https://twitter.com/ImgCraft",
+        "https://facebook.com/ImgCraft"
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ImgCraft",
+      "url": "https://imgcraft.com",
+      "description": "Intelligent Image Toolkit - AI Upscale, Background Removal, Compression, and More",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://imgcraft.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -116,18 +183,15 @@
         }
 
         .brand-logo {
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 1.5rem;
-            letter-spacing: -0.03em;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            color: white;
+            justify-content: center;
         }
 
-        .logo-icon {
-            color: var(--primary-500);
+        .brand-logo img {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
         }
 
         /* =========================================
@@ -720,7 +784,7 @@
     <nav class="glass-nav">
         <div class="container nav-container">
             <div class="brand-logo">
-                <i class="fas fa-layer-group logo-icon"></i> ImgCraft
+                <img src="../static/image/Logo.jpg" alt="ImgCraft Logo">
             </div>
         </div>
     </nav>

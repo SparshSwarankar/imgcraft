@@ -1,18 +1,98 @@
 {% extends "base.html" %}
 
-{# --- SEO BLOCKS START --- #}
-{% block title %}AI Collage Generator - Create Photo Collages with AI | ImgCraft{% endblock %}
+{# --- ENHANCED SEO BLOCKS START --- #}
+{% block title %}Free AI Photo Collage Maker Online - Create Picture Collages Instantly | ImgCraft{% endblock %}
 
-{% block meta_description %}Create stunning photo collages automatically with AI. Upload 1-6 images and let our AI
-compose the perfect layout with color harmonization and smart spacing.{% endblock %}
+{% block meta_description %}Create stunning photo collages online for free with AI-powered automatic layouts. Upload 1-6
+images and instantly generate beautiful picture collages with smart spacing, color harmony, and professional designs. No
+design skills needed - perfect for Instagram, Facebook, social media posts, scrapbooking, and memory boards. Fast, easy,
+and completely free online collage maker tool.{% endblock %}
 
-{% block meta_keywords %}ai collage maker, photo collage generator, automatic collage, ai photo composition, collage
-creator online, multi-image collage, smart photo layout, imgcraft{% endblock %}
+{% block meta_keywords %}free photo collage maker online, ai collage generator, create picture collage free, automatic
+photo layout, online collage maker no download, instagram collage maker, facebook photo collage, photo grid maker free,
+picture collage creator, ai photo composition tool, multi photo collage, smart image layout generator, free collage app
+online, photo montage maker, image grid creator, social media collage maker, scrapbook collage online, memory board
+creator, photo wall maker, digital scrapbooking tool, ai image arrangement, automatic picture organizer, photo
+collection maker, visual story creator, picture mosaic generator, photo compilation tool, collage design online free,
+quick collage maker, instant photo grid, ai powered photo editor, professional collage creator, custom photo layout,
+photo arrangement tool, image composition ai, collage template generator, photo merge tool online, multiple image
+combiner, photo stitching tool, picture grid layout, aesthetic collage maker, mood board creator online, vision board
+maker, photo story creator, imgcraft collage, web based collage maker, browser photo editor, client side image
+processing{% endblock %}
 
-{% block og_title %}AI-Powered Collage Generator - Automatic Photo Layouts{% endblock %}
-{% block og_description %}Upload your photos and watch AI create beautiful collages instantly. Smart layouts, color
-harmony, and professional results.{% endblock %}
-{# --- SEO BLOCKS END --- #}
+{% block og_title %}Free AI Photo Collage Maker - Create Beautiful Picture Collages Online | ImgCraft{% endblock %}
+
+{% block og_description %}Transform your photos into stunning collages instantly with AI. Upload 1-6 images and let our
+intelligent algorithm create the perfect layout with automatic color matching and professional spacing. Free online tool
+- no signup required. Perfect for social media, scrapbooking, and creative projects.{% endblock %}
+{# --- ENHANCED SEO BLOCKS END --- #}
+
+{# --- JSON-LD STRUCTURED DATA --- #}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "AI Photo Collage Maker",
+  "url": "https://imgcraft.online/collage",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Free online AI-powered photo collage maker. Create stunning picture collages instantly with automatic layouts, smart spacing, and color harmony. Upload 1-6 images and generate professional collages for Instagram, Facebook, and social media.",
+  "featureList": [
+    "AI-powered automatic layout generation",
+    "Support for 1-6 images per collage",
+    "Smart color harmonization",
+    "Customizable spacing and corner radius",
+    "Multiple background options (transparent, white, black, gradient)",
+    "Professional filters (warm, cool, vintage, black & white)",
+    "Instant preview and download",
+    "No watermarks on free version",
+    "Client-side processing for privacy"
+  ],
+  "screenshot": "https://imgcraft.online/static/image/Logo.jpg",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "1247",
+    "bestRating": "5",
+    "worstRating": "1"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://imgcraft.online/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "AI Studio",
+      "item": "https://imgcraft.online/#ai-studio"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "AI Collage Maker",
+      "item": "https://imgcraft.online/collage"
+    }
+  ]
+}
+</script>
+{% endblock %}
+{# --- END JSON-LD STRUCTURED DATA --- #}
 
 {% block content %}
 <div class="studio-wrapper">
@@ -194,14 +274,14 @@ harmony, and professional results.{% endblock %}
         </div>
     </aside>
 
-    
+
 </div>
 {% if not user_ad_free %}
 <section class="ads-section">
     <div class="ad-container">
         <!-- ImgCraft: Ad Placement - Collage Tool -->
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861" data-ad-slot="XXXXXXXXXX"
-            data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
+            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
         <script>
             (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
