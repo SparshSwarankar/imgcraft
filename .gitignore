@@ -30,15 +30,13 @@ wheels/
 logs/
 *.log
 
-# Uploads
+# Uploads (user-generated content only)
 uploads/
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.webp
-*.ico
+uploads/**/*
+
+# Allow static assets (logo, favicon, icons, etc.)
+!static/image/
+!static/image/**/*
 
 # IDE
 .vscode/
