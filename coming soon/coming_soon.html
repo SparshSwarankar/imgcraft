@@ -30,11 +30,11 @@
     <meta name="title" content="ImgCraft - Intelligent Image Toolkit | Coming Soon">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://imgcraft.com">
+    <link rel="canonical" href="https://imgcraft.online">
 
     <!-- Open Graph / Facebook Meta Tags -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://imgcraft.com">
+    <meta property="og:url" content="https://imgcraft.online">
     <meta property="og:title" content="ImgCraft - Intelligent Image Toolkit | Coming Soon">
     <meta property="og:description"
         content="The complete suite for web creators. From AI Upscaling and Background Removal to EXIF Data management, Smart Compression, and many more powerful image tools. Launching December 21, 2025.">
@@ -46,16 +46,21 @@
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://imgcraft.com">
+    <meta name="twitter:url" content="https://imgcraft.online">
     <meta name="twitter:title" content="ImgCraft - Intelligent Image Toolkit | Coming Soon">
     <meta name="twitter:description"
         content="The complete suite for web creators. From AI Upscaling and Background Removal to EXIF Data management, Smart Compression, and many more powerful image tools.">
     <meta name="twitter:image" content="https://imgcraft.online/static/image/Logo.jpg">
     <meta name="twitter:creator" content="@ImgCraft">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/static/image/favicon.png">
-    <link rel="apple-touch-icon" href="/static/image/favicon.png">
+    <!-- Favicon - Multiple formats for better browser support -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/image/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/image/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="/static/image/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/image/favicon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/image/favicon.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/image/favicon.png">
+    <link rel="manifest" href="/static/manifest.json">
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -63,7 +68,7 @@
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "ImgCraft",
-      "url": "https://imgcraft.com",
+      "url": "https://imgcraft.online",
       "logo": "https://imgcraft.online/static/image/Logo.jpg",
       "description": "The complete suite for web creators. From AI Upscaling and Background Removal to EXIF Data management, Smart Compression, and many more powerful image tools.",
       "foundingDate": "2025",
@@ -79,11 +84,11 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "ImgCraft",
-      "url": "https://imgcraft.com",
+      "url": "https://imgcraft.online",
       "description": "Intelligent Image Toolkit - AI Upscale, Background Removal, Compression, and More",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://imgcraft.com/search?q={search_term_string}",
+        "target": "https://imgcraft.online/search?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     }
@@ -182,11 +187,11 @@
        3. NAVIGATION
        ========================================= */
         .glass-nav {
-            position: absolute;
-            top: 0;
+            position: relative;
+            top: 50px;
             left: 0;
             width: 100%;
-            padding: 1.5rem 0;
+            /* padding: 1.5rem 0; */
             z-index: 50;
         }
 
