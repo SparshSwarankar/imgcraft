@@ -894,27 +894,24 @@ def inject_config():
 # ROUTES - PAGE RENDERING
 # ============================================================================
 
+def _coming_soon_response():
+    """Serve static coming soon page with noindex for crawlers."""
+    response = send_file('coming soon/coming_soon.html')
+    response.headers['X-Robots-Tag'] = 'noindex, nofollow'
+    return response
+
+
 @app.route('/')
 def index():
-    """
-    Main landing page with launch date logic
-    Shows coming soon page before Dec 21, 2025
-    Shows main website after Dec 21, 2025
-    """
-    from datetime import datetime
-    
-    # Set launch date to December 21, 2025 at midnight IST
-    LAUNCH_DATE = datetime(2025, 12, 21, 0, 0, 0)
-    current_date = datetime.now()
-    
-    # Check if we're before the launch date
-    if current_date < LAUNCH_DATE:
-        logger.debug("Rendering coming soon page (before launch date)")
-        # Serve the coming soon page from the 'coming soon' folder
-        return send_file('coming soon/coming_soon.html')
-    else:
-        logger.debug("Rendering main index page (after launch date)")
-        return render_template('index.html')
+    """Main landing page; gated by COMING_SOON_MODE toggle."""
+    preview_mode = request.args.get('preview') == '1'
+
+    if config.COMING_SOON_MODE and not preview_mode:
+        logger.debug("COMING_SOON_MODE active; serving placeholder")
+        return _coming_soon_response()
+
+    logger.debug("Rendering main index page")
+    return render_template('index.html')
 
 @app.route('/favicon.png')
 @app.route('/favicon.ico')
@@ -1022,17 +1019,19 @@ def api_health():
 @allow_guest_access('resize')
 @log_request
 def api_resize(current_user):
-    # Resize is a FREE tool - no credit deduction even for logged-in users
+    # Resize is a FREE tool - cost is 0
+    cost = 0
+    
     if 'image' not in request.files:
         logger.warning("Resize request missing image file")
-        return 'No image uploaded', 400
+        return jsonify({'success': False, 'error': 'No image uploaded'}), 400
     
     file = request.files['image']
     mode = request.form.get('mode')
     
     # Define safe limits to prevent memory errors
-    MAX_DIMENSION = 10000  # Maximum width or height
-    MAX_TOTAL_PIXELS = 100000000  # 100 megapixels (10000 x 10000)
+    MAX_DIMENSION = 10000
+    MAX_TOTAL_PIXELS = 100000000
     
     try:
         img = Image.open(file)
@@ -1046,36 +1045,22 @@ def api_resize(current_user):
             width = int(img.width * scale)
             height = int(img.height * scale)
         
-        # Validate dimensions BEFORE attempting resize
+        # Validate dimensions
         if width > MAX_DIMENSION or height > MAX_DIMENSION:
-            error_msg = f"Image dimensions too large! Maximum allowed: {MAX_DIMENSION}x{MAX_DIMENSION} pixels. Requested: {width}x{height}"
-            logger.warning(f"Resize rejected: {error_msg}")
-            return jsonify({
-                'success': False,
-                'error': error_msg,
-                'max_dimension': MAX_DIMENSION,
-                'requested_width': width,
-                'requested_height': height
-            }), 400
+            error_msg = f"Dimensions too large! Max: {MAX_DIMENSION}x{MAX_DIMENSION}"
+            return jsonify({'success': False, 'error': error_msg}), 400
         
-        # Check total pixel count
         total_pixels = width * height
         if total_pixels > MAX_TOTAL_PIXELS:
-            error_msg = f"Total pixel count too large! Maximum: {MAX_TOTAL_PIXELS:,} pixels ({MAX_DIMENSION}x{MAX_DIMENSION}). Requested: {total_pixels:,} pixels ({width}x{height})"
-            logger.warning(f"Resize rejected: {error_msg}")
-            return jsonify({
-                'success': False,
-                'error': error_msg,
-                'max_pixels': MAX_TOTAL_PIXELS,
-                'requested_pixels': total_pixels
-            }), 400
+            error_msg = f"Total pixels too large! Max: {MAX_TOTAL_PIXELS}"
+            return jsonify({'success': False, 'error': error_msg}), 400
         
         logger.info(f"Resizing image: {original_size} -> {width}x{height} (mode: {mode})")
         
-        # Resize using LANCZOS for high quality
+        # Resize
         resized_img = img.resize((width, height), Image.Resampling.LANCZOS)
         
-        # Save to buffer
+        # Save
         img_io = io.BytesIO()
         fmt = img.format if img.format else 'PNG'
         
@@ -1087,7 +1072,12 @@ def api_resize(current_user):
         img_io.seek(0)
         
         logger.info(f"Resize completed successfully: {fmt} format")
-        return send_file(img_io, mimetype=f'image/{fmt.lower()}')
+        
+        # --- RESPONSE WITH HEADERS ---
+        response = make_response(send_file(img_io, mimetype=f'image/{fmt.lower()}'))
+        response.headers['X-Credits-Cost'] = str(cost)
+        response.headers['X-Resized-Dimensions'] = f"{width}x{height}" # <--- NEW HEADER
+        return response
         
     except Exception as e:
         logger.error(f"Resize operation failed: {str(e)}")
@@ -1910,164 +1900,134 @@ def api_watermark(current_user):
     if not deduct_result['success']:
         return jsonify(deduct_result), 402
 
-    """Apply watermark to image (text or image-based)"""
     if 'image' not in request.files:
-        logger.warning("Watermark request missing image file")
         return 'No image uploaded', 400
     
     file = request.files['image']
     watermark_type = request.form.get('watermark_type', 'text')
     
     try:
-        # Load base image
         img = Image.open(file).convert('RGBA')
-        logger.info(f"Processing watermark: type={watermark_type}, size={img.width}x{img.height}")
         
-        # Get common parameters
         opacity = int(request.form.get('opacity', 70))
         scale = int(request.form.get('scale', 100)) / 100
         rotation = int(request.form.get('rotation', 0))
         pos_x_percent = float(request.form.get('position_x', 50))
         pos_y_percent = float(request.form.get('position_y', 50))
         
-        # Debug logging
-        logger.info(f"Watermark parameters: opacity={opacity}, scale={scale}, rotation={rotation}, pos=({pos_x_percent}%, {pos_y_percent}%)")
-        if watermark_type == 'text':
-            logger.info(f"Text watermark: text={request.form.get('text')}, font={request.form.get('font_family')}, size={request.form.get('font_size')}, color={request.form.get('color')}")
-        
-        # Calculate actual position
+        # Calculate pixel position
         pos_x = int(img.width * pos_x_percent / 100)
         pos_y = int(img.height * pos_y_percent / 100)
         
-        # Create watermark overlay
-        watermark_layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        # Create transparent overlay
+        watermark_layer = Image.new('RGBA', img.size, (0,0,0,0))
         draw = ImageDraw.Draw(watermark_layer)
         
         if watermark_type == 'text':
-            # Get text parameters
             text = request.form.get('text', '© ImgCraft')
             font_family = request.form.get('font_family', 'Arial')
             font_size = int(request.form.get('font_size', 40))
-            font_bold = request.form.get('font_bold', 'false').lower() == 'true'
-            font_italic = request.form.get('font_italic', 'false').lower() == 'true'
             color = request.form.get('color', '#ffffff')
             
-            # Convert hex color to RGB
-            color_rgb = tuple(int(color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+            # --- FONT LOADING LOGIC ---
+            # 1. Map Names to Files (Assuming you have these in static/fonts/)
+            # If not, it falls back to default.
+            font_map = {
+                'Arial': 'arial.ttf',
+                'Times New Roman': 'times.ttf',
+                'Courier New': 'courier.ttf',
+                'Verdana': 'verdana.ttf',
+                'Impact': 'impact.ttf',
+                'Georgia': 'georgia.ttf'
+            }
             
-            # Scale font size
+            font_file = font_map.get(font_family, 'arial.ttf')
+            # Look in static folder (Standard for Flask)
+            font_path = os.path.join(app.static_folder, 'fonts', font_file)
+            
             scaled_font_size = int(font_size * scale)
             
-            # Try to load font
             try:
-                # Try different font paths
-                font_paths = [
-                    f"C:/Windows/Fonts/{font_family.replace(' ', '')}.ttf",
-                    f"C:/Windows/Fonts/{font_family.replace(' ', '')}bd.ttf" if font_bold else None,
-                    f"C:/Windows/Fonts/{font_family.replace(' ', '')}i.ttf" if font_italic else None,
-                    f"C:/Windows/Fonts/arial.ttf",  # Fallback
-                ]
-                
-                font = None
-                for font_path in font_paths:
-                    if font_path and os.path.exists(font_path):
-                        font = ImageFont.truetype(font_path, scaled_font_size)
-                        break
-                
-                if not font:
+                # Try loading from static/fonts
+                font = ImageFont.truetype(font_path, scaled_font_size)
+            except OSError:
+                try:
+                    # Fallback: Try loading system font by name (works on Linux/Mac/Win sometimes)
+                    font = ImageFont.truetype(font_family, scaled_font_size)
+                except OSError:
+                    # Final Fallback: Default PIL font (bitmap, size ignored)
+                    logger.warning("Font not found, using default")
                     font = ImageFont.load_default()
-                    logger.warning(f"Could not load font {font_family}, using default")
-                    
-            except Exception as e:
-                logger.warning(f"Font loading error: {e}, using default font")
-                font = ImageFont.load_default()
             
-            # Create text image for rotation
+            # Draw Text
+            color_rgb = tuple(int(color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+            
+            # Get text size
             bbox = draw.textbbox((0, 0), text, font=font)
-            text_width = bbox[2] - bbox[0]
-            text_height = bbox[3] - bbox[1]
+            w = bbox[2] - bbox[0]
+            h = bbox[3] - bbox[1]
             
-            # Create temporary image for text
-            text_img = Image.new('RGBA', (text_width + 20, text_height + 20), (0, 0, 0, 0))
-            text_draw = ImageDraw.Draw(text_img)
-            text_draw.text((10, 10), text, font=font, fill=color_rgb + (255,))
+            # Create text image for rotation/opacity
+            txt_img = Image.new('RGBA', (w + 20, h + 20), (0,0,0,0))
+            d = ImageDraw.Draw(txt_img)
+            d.text((10, 10), text, font=font, fill=color_rgb + (255,))
             
-            # Apply rotation
+            # Rotate
             if rotation != 0:
-                text_img = text_img.rotate(rotation, expand=True, resample=Image.BICUBIC)
-            
-            # Apply opacity
+                txt_img = txt_img.rotate(rotation, expand=True, resample=Image.BICUBIC)
+                
+            # Opacity
             if opacity < 100:
-                alpha = text_img.split()[3]
+                alpha = txt_img.split()[3]
                 alpha = ImageEnhance.Brightness(alpha).enhance(opacity / 100)
-                text_img.putalpha(alpha)
-            
-            # Paste text onto watermark layer
-            paste_x = pos_x - text_img.width // 2
-            paste_y = pos_y - text_img.height // 2
-            watermark_layer.paste(text_img, (paste_x, paste_y), text_img)
-            
-            logger.info(f"Applied text watermark: '{text}' at ({pos_x}, {pos_y})")
-            
+                txt_img.putalpha(alpha)
+                
+            # Paste (Centered on pos_x, pos_y)
+            paste_x = pos_x - txt_img.width // 2
+            paste_y = pos_y - txt_img.height // 2
+            watermark_layer.paste(txt_img, (paste_x, paste_y), txt_img)
+
         elif watermark_type == 'image':
-            # Get watermark image
-            if 'watermark_image' not in request.files:
-                logger.warning("Image watermark requested but no watermark image provided")
-                return 'No watermark image uploaded', 400
-            
-            watermark_file = request.files['watermark_image']
-            watermark_img = Image.open(watermark_file).convert('RGBA')
-            
-            # Scale watermark
-            new_width = int(watermark_img.width * scale)
-            new_height = int(watermark_img.height * scale)
-            watermark_img = watermark_img.resize((new_width, new_height), Image.LANCZOS)
-            
-            # Apply rotation
-            if rotation != 0:
-                watermark_img = watermark_img.rotate(rotation, expand=True, resample=Image.BICUBIC)
-            
-            # Apply opacity
-            if opacity < 100:
-                alpha = watermark_img.split()[3]
-                alpha = ImageEnhance.Brightness(alpha).enhance(opacity / 100)
-                watermark_img.putalpha(alpha)
-            
-            # Paste watermark onto layer
-            paste_x = pos_x - watermark_img.width // 2
-            paste_y = pos_y - watermark_img.height // 2
-            watermark_layer.paste(watermark_img, (paste_x, paste_y), watermark_img)
-            
-            logger.info(f"Applied image watermark at ({pos_x}, {pos_y})")
+             if 'watermark_image' in request.files:
+                wm_file = request.files['watermark_image']
+                wm_img = Image.open(wm_file).convert('RGBA')
+                
+                # Scale
+                new_w = int(wm_img.width * scale)
+                new_h = int(wm_img.height * scale)
+                wm_img = wm_img.resize((new_w, new_h), Image.LANCZOS)
+                
+                # Rotate
+                if rotation != 0:
+                    wm_img = wm_img.rotate(rotation, expand=True, resample=Image.BICUBIC)
+                
+                # Opacity
+                if opacity < 100:
+                    alpha = wm_img.split()[3]
+                    alpha = ImageEnhance.Brightness(alpha).enhance(opacity / 100)
+                    wm_img.putalpha(alpha)
+                
+                # Paste
+                paste_x = pos_x - wm_img.width // 2
+                paste_y = pos_y - wm_img.height // 2
+                watermark_layer.paste(wm_img, (paste_x, paste_y), wm_img)
         
-        # Composite watermark onto base image
+        # Composite
         result = Image.alpha_composite(img, watermark_layer)
         
-        # Convert back to RGB if needed
-        if result.mode == 'RGBA':
-            # Create white background
-            background = Image.new('RGB', result.size, (255, 255, 255))
-            background.paste(result, mask=result.split()[3])
-            result = background
-        
-        # Save to bytes
+        # Save
         output = io.BytesIO()
-        result.save(output, format='PNG', optimize=True)
+        result.save(output, format='PNG')
         output.seek(0)
         
-        logger.info("Watermark applied successfully")
-        
-        return send_file(
-            output,
-            mimetype='image/png',
-            as_attachment=True,
-            download_name='watermarked_image.png'
-        )
-        
+        response = make_response(send_file(output, mimetype='image/png'))
+        response.headers['X-Credits-Cost'] = str(cost)
+        return response
+
     except Exception as e:
-        logger.error(f"Watermark processing failed: {str(e)}")
+        logger.error(f"Watermark failed: {str(e)}")
         logger.error(traceback.format_exc())
-        return f'Error applying watermark: {str(e)}', 500
+        return str(e), 500
 
 # ============================================================================
 # COLLAGE LAYOUT TEMPLATES

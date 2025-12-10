@@ -30,18 +30,22 @@
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ImgCraft">
     <meta name="apple-mobile-web-app-status-bar" content="black-translucent">
 
     <!-- Favicon - Multiple formats for better browser support -->
+    <!-- Favicon (served from static) -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/image/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/image/favicon.png">
     <link rel="shortcut icon" type="image/png" href="/static/image/favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/image/favicon.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/static/image/favicon.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/static/image/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/image/Logo.jpg">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/image/Logo.jpg">
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/image/Logo.jpg">
+    <meta name="msapplication-TileColor" content="#0F172A">
+    <meta name="msapplication-TileImage" content="/static/image/icon-512x512.png">
     <meta name="theme-color" content="#F97316">
     <meta name="description"
         content="ImgCraft - Professional AI-powered image editing suite. Works offline with PWA technology.">
@@ -52,7 +56,7 @@
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
     <meta property="og:image" content="{{ url_for('static', filename='image/favicon.png', _external=True) }}">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/review-modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ads.css') }}">
@@ -217,7 +221,10 @@
                         <span>ImgCraft</span>
                     </div>
                     <p class="footer-tagline">Professional AI-powered image editing suite. Transform your images with
-                        premium quality tools.</p>
+                        premium quality tools. Try our <a href="/compress" class="internal-link"
+                            title="Compress images online">image compressor</a>, <a href="/remove-bg"
+                            class="internal-link" title="Remove background with AI">background remover</a>, or <a
+                            href="/upscale" class="internal-link" title="Enhance image quality">AI upscaler</a>.</p>
 
                     <!-- Social Media Icons -->
                     <div class="footer-social">
@@ -240,12 +247,16 @@
                 <div class="footer-section">
                     <h3 class="footer-title">Explore Tools</h3>
                     <ul class="footer-links">
-                        <li><a href="/resize">Image Resize</a></li>
-                        <li><a href="/compress">Image Compress</a></li>
-                        <li><a href="/convert">Format Converter</a></li>
-                        <li><a href="/filter">Filters & Effects</a></li>
-                        <li><a href="/remove-bg">Background Remover</a></li>
-                        <li><a href="/upscale">AI Upscaler</a></li>
+                        <li><a href="/resize" title="Resize images online">Resize Images</a></li>
+                        <li><a href="/compress" title="Compress images without quality loss">Compress Images</a></li>
+                        <li><a href="/convert" title="Convert image formats">Format Converter</a></li>
+                        <li><a href="/filter" title="Apply photo filters">Filters & Effects</a></li>
+                        <li><a href="/remove-bg" title="Remove background with AI">AI Background Remover</a></li>
+                        <li><a href="/upscale" title="Upscale images with AI">AI Image Upscaler</a></li>
+                        <li><a href="/crop" title="Crop images precisely">Precision Crop Tool</a></li>
+                        <li><a href="/watermark" title="Add watermark to images">Watermark Studio</a></li>
+                        <li><a href="/palette" title="Extract color palette">Color Palette Generator</a></li>
+                        <li><a href="/exif" title="View and remove EXIF data">EXIF Data Manager</a></li>
                     </ul>
                 </div>
 

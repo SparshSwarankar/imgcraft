@@ -131,11 +131,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.CreditManager) CreditManager.refreshCredits();
 
             } else {
-                showToast('Conversion failed', 'error');
+                const errorBody = await response.text();
+                let errorMessage = 'Conversion failed. Please try again.';
+                try {
+                    const parsed = JSON.parse(errorBody);
+                    if (parsed?.error) {
+                        errorMessage = parsed.error;
+                        if (parsed?.request_id) {
+                            errorMessage += ` (Request ID: ${parsed.request_id})`;
+                        }
+                    }
+                } catch (_) {
+                    if (errorBody) {
+                        errorMessage = errorBody.substring(0, 140);
+                    }
+                }
+                showToast(errorMessage, 'error');
             }
         } catch (error) {
             console.error(error);
-            showToast('Network error', 'error');
+            showToast(`Network error: ${error.message}`, 'error');
         } finally {
             loadingOverlay.style.display = 'none';
             convertBtn.disabled = false;

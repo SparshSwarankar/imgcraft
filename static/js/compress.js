@@ -159,7 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.CreditManager) CreditManager.refreshCredits();
 
             } else {
-                showToast('Compression failed', 'error');
+                const errorMessage = await parseErrorResponse(response, 'Compression failed. Please try again.');
+                showToast(errorMessage, 'error');
             }
         } catch (error) {
             console.error(error);
@@ -180,6 +181,25 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('btn-loading');
         setTimeout(() => btn.classList.remove('btn-loading'), 2500);
     });
+
+    async function parseErrorResponse(response, fallbackMessage) {
+        try {
+            const text = await response.text();
+            if (!text) return fallbackMessage;
+            const data = JSON.parse(text);
+            if (data?.error) {
+                let message = data.error;
+                if (data.request_id) {
+                    message += ` (Request ID: ${data.request_id})`;
+                }
+                return message;
+            }
+            return text.substring(0, 180) || fallbackMessage;
+        } catch (err) {
+            console.warn('Compression error parse failed', err);
+            return fallbackMessage;
+        }
+    }
 
     function showToast(msg, type = 'info') {
         if (window.showToast) window.showToast(msg, type);

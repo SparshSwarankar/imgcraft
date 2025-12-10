@@ -207,7 +207,7 @@ VALUES (
     (
         'upscale',
         'Image Upscale',
-        5,
+        8,
         'AI-powered image upscaling',
         true
     ) ON CONFLICT (tool_name) DO NOTHING;

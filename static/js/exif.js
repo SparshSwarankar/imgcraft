@@ -130,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Credit refresh (if backend deducted)
                 if (window.CreditManager) CreditManager.refreshCredits();
             } else {
-                const err = await response.json();
-                showToast(err.error || 'Failed to load metadata', 'error');
+                const errorMessage = await parseErrorResponse(response, 'Failed to load metadata');
+                showToast(errorMessage, 'error');
             }
         } catch (error) {
             console.error(error);
@@ -257,7 +257,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (window.CreditManager) CreditManager.refreshCredits();
             } else {
-                showToast('Failed to remove metadata', 'error');
+                const errorMessage = await parseErrorResponse(response, 'Failed to remove metadata');
+                showToast(errorMessage, 'error');
             }
         } catch (error) {
             console.error(error);
@@ -275,6 +276,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    async function parseErrorResponse(response, fallbackMessage) {
+        try {
+            const text = await response.text();
+            if (!text) return fallbackMessage;
+            const data = JSON.parse(text);
+            if (data?.error) {
+                let message = data.error;
+                if (data.request_id) {
+                    message += ` (Request ID: ${data.request_id})`;
+                }
+                return message;
+            }
+            return text.substring(0, 180) || fallbackMessage;
+        } catch (err) {
+            console.warn('EXIF error parse failed', err);
+            return fallbackMessage;
+        }
     }
 
     function showToast(msg, type = 'info') {

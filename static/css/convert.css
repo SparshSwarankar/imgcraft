@@ -7,7 +7,7 @@
     --primary-hover: #EA580C;
     --secondary: #E11D48;
     --dark-bg: #020617;
-    /* --card-bg: #0F172A; */
+    --card-bg: #0F172A;
     --text-main: #F8FAFC;
     --text-muted: #94A3B8;
     --primary-rgb: 249, 115, 22;
@@ -1011,4 +1011,92 @@
     .action-stack {
         gap: 8px;
     }
+}
+/* =========================================
+   INTERNAL LINK STYLES - SEO & UX
+   ========================================= */
+.internal-link,
+a.internal-link {
+    color: var(--primary);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px;
+}
+
+.internal-link:hover,
+a.internal-link:hover {
+    color: var(--primary-hover);
+    border-bottom-color: var(--primary);
+}
+
+.internal-link:focus,
+a.internal-link:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Inline content links (within paragraphs) */
+p .internal-link,
+.tool-desc .internal-link,
+.footer-tagline .internal-link {
+    font-weight: 500;
+    border-bottom: 1px dotted rgba(249, 115, 22, 0.4);
+}
+
+p .internal-link:hover,
+.tool-desc .internal-link:hover,
+.footer-tagline .internal-link:hover {
+    border-bottom-style: solid;
+    border-bottom-color: var(--primary);
+}
+
+/* Related tools section */
+.related-tools {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(249, 115, 22, 0.05);
+    border-left: 3px solid var(--primary);
+    border-radius: 8px;
+}
+
+.related-tools h3 {
+    font-size: 1rem;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.related-tools-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.related-tool-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(249, 115, 22, 0.1);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 20px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.related-tool-link:hover {
+    background: rgba(249, 115, 22, 0.2);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.related-tool-link i {
+    font-size: 0.875rem;
+    color: var(--primary);
 }

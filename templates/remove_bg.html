@@ -92,8 +92,6 @@ perfect results.{% endblock %}
                             <div class="handle-line"></div>
                             <div class="handle-button"><i class="fas fa-arrows-alt-h"></i></div>
                         </div>
-
-                        <div class="ai-scan-overlay" id="scanOverlay"></div>
                     </div>
                 </div>
 
@@ -107,10 +105,7 @@ perfect results.{% endblock %}
 
                 <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
                     <div class="loader-spinner"></div>
-                    <p class="progress-text" id="progressText">Processing...</p>
-                    <div class="progress-bar-container" style="margin-top: 10px; width: 150px;">
-                        <div class="progress-bar" id="progressBar"></div>
-                    </div>
+                    <p class="progress-text" id="progressText">Removing Background...</p>
                 </div>
 
                 <img id="previewSimple" class="preview-image" src="" alt="Preview"
@@ -199,7 +194,7 @@ perfect results.{% endblock %}
                 </div>
 
                 <button class="btn btn-primary btn-full" id="removeBtn" disabled>
-                    Remove Background
+                    <i class="fas fa-eraser"></i> Remove Background
                 </button>
 
                 <div id="resultButtons" class="action-stack" style="display: none;">
@@ -224,6 +219,32 @@ perfect results.{% endblock %}
     </aside>
 
 </div>
+
+<!-- Related Tools Section -->
+<div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
+    <div class="related-tools">
+        <h3><i class="fas fa-tools"></i> Perfect Pairings</h3>
+        <div class="related-tools-list">
+            <a href="/watermark" class="related-tool-link" title="Protect your transparent images">
+                <i class="fas fa-copyright"></i>
+                <span>Add Watermark</span>
+            </a>
+            <a href="/resize" class="related-tool-link" title="Resize transparent images">
+                <i class="fas fa-expand-arrows-alt"></i>
+                <span>Resize Images</span>
+            </a>
+            <a href="/compress" class="related-tool-link" title="Compress PNG files">
+                <i class="fas fa-compress-arrows-alt"></i>
+                <span>Compress PNG</span>
+            </a>
+            <a href="/filter" class="related-tool-link" title="Enhance background-free images">
+                <i class="fas fa-magic"></i>
+                <span>Photo Filters</span>
+            </a>
+        </div>
+    </div>
+</div>
+
 {% if not user_ad_free %}
 <section class="ads-section">
     <div class="ad-container">

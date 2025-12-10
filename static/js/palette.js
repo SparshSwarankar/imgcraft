@@ -124,7 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.CreditManager) CreditManager.refreshCredits();
 
             } else {
-                showToast('Failed to generate palette', 'error');
+                const errorMessage = await parseErrorResponse(response, 'Failed to generate palette');
+                showToast(errorMessage, 'error');
                 generateBtn.disabled = false;
             }
         } catch (error) {
@@ -188,6 +189,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    async function parseErrorResponse(response, fallbackMessage) {
+        try {
+            const text = await response.text();
+            if (!text) return fallbackMessage;
+            const data = JSON.parse(text);
+            if (data?.error) {
+                let message = data.error;
+                if (data.request_id) {
+                    message += ` (Request ID: ${data.request_id})`;
+                }
+                return message;
+            }
+            return text.substring(0, 180) || fallbackMessage;
+        } catch (err) {
+            console.warn('Palette error parse failed', err);
+            return fallbackMessage;
+        }
     }
 
     function showToast(msg, type = 'info') {

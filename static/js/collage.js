@@ -363,10 +363,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.CreditManager) CreditManager.refreshCredits();
 
             } else {
-                showToast('Generation failed.', 'error');
                 if (progressContainer) progressContainer.style.display = 'none';
                 if (scanOverlay) scanOverlay.classList.remove('active');
                 if (generateBtn) generateBtn.disabled = false;
+
+                const blob = xhr.response;
+                if (blob && blob.type === 'application/json') {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        let message = 'Collage generation failed.';
+                        try {
+                            const parsed = JSON.parse(reader.result);
+                            if (parsed?.error) {
+                                message = parsed.error;
+                                if (parsed?.request_id) {
+                                    message += ` (Request ID: ${parsed.request_id})`;
+                                }
+                            }
+                        } catch (err) {
+                            console.warn('Failed to parse collage error', err);
+                        }
+                        showToast(message, 'error');
+                    };
+                    reader.onerror = () => showToast('Collage generation failed.', 'error');
+                    reader.readAsText(blob);
+                } else {
+                    showToast('Collage generation failed.', 'error');
+                }
             }
         };
         xhr.send(formData);

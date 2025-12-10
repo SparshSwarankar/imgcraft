@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {# --- ENHANCED SEO BLOCKS START --- #}
-{% block title %}Free Image Resizer Online - Resize Photos by Pixels or Percentage | ImgCraft{% endblock %}
+{% block title %}Image Resizer Online - Resize Photos by Pixels or Percentage | ImgCraft{% endblock %}
 
-{% block meta_description %}Resize images online for free in seconds. Change photo dimensions by pixels or percentage
+{% block meta_description %}Resize images online in seconds. Change photo dimensions by pixels or percentage
 while maintaining quality. Perfect for social media (Instagram, Facebook, Twitter), websites, and email. Supports JPG,
 PNG, WebP. Maintain aspect ratio or custom dimensions. Fast, secure, no watermarks.{% endblock %}
 
-{% block meta_keywords %}resize image online free, change image size, photo resizer tool, resize picture dimensions,
+{% block meta_keywords %}resize image online, change image size, photo resizer tool, resize picture dimensions,
 image dimension changer, resize for instagram, resize for facebook, resize photo for twitter, social media image
 resizer, resize by pixels, resize by percentage, maintain aspect ratio, scale image online, reduce image dimensions,
 increase image size, resize jpg online, resize png online, resize webp, batch image resizer, thumbnail creator, resize
@@ -16,145 +16,203 @@ without losing quality, custom image dimensions, resize for website, resize for 
 resize square image, resize landscape photo, resize portrait image, professional image resizer, quick photo resize,
 instant image scaler, imgcraft resize{% endblock %}
 
-{% block og_title %}Free Online Image Resizer - Resize by Pixel or Percentage | ImgCraft{% endblock %}
+{% block og_title %}Online Image Resizer - Resize by Pixel or Percentage | ImgCraft{% endblock %}
 
 {% block og_description %}Resize your photos to perfect dimensions in seconds. Change image size by pixels or
-percentage. Ideal for Instagram posts, Facebook covers, Twitter headers, and website optimization. Free tool with no
+percentage. Ideal for Instagram posts, Facebook covers, Twitter headers, and website optimization. Professional tool with no
 watermarks - maintain quality while resizing.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
-<div class="tool-layout">
-    <div class="tool-sidebar glass-panel p-4 rounded-lg">
-        <h1 class="text-xl font-bold mb-4">Resize Settings</h1>
+<div class="studio-wrapper">
 
-        <div class="control-group">
-            <label class="control-label">Resize Mode</label>
-            <div class="flex gap-2 mb-4">
-                <button class="btn btn-sm active" id="modePixel" onclick="setMode('pixel')"
-                    aria-label="Resize by Pixels">Pixels</button>
-                <button class="btn btn-sm" id="modePercent" onclick="setMode('percent')"
-                    aria-label="Resize by Percentage">Percentage</button>
-            </div>
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-info-circle"></i> Source File</h3>
         </div>
 
-        <div id="pixelControls">
-            <div class="control-group">
-                <label class="control-label" for="widthInput">Width (px)</label>
-                <div class="input-group">
-                    <button class="spin-btn" onclick="adjustValue('widthInput', -1)" aria-label="Decrease Width"><i
-                            class="fas fa-minus"></i></button>
-                    <input type="number" id="widthInput" class="search-input text-center" placeholder="Width"
-                        aria-label="Width in Pixels">
-                    <button class="spin-btn" onclick="adjustValue('widthInput', 1)" aria-label="Increase Width"><i
-                            class="fas fa-plus"></i></button>
+        <div class="panel-content custom-scrollbar">
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info-section">
+                    <div class="file-info-row">
+                        <span class="file-info-label">Name:</span>
+                        <span class="file-info-value" id="fileName">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Original Size:</span>
+                        <span class="file-info-value" id="fileSize">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Dimensions:</span>
+                        <span class="file-info-value" id="fileDimensions">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Type:</span>
+                        <span class="file-info-value" id="fileType">-</span>
+                    </div>
+                    <div class="file-info-row" id="resizedSizeRow" style="display: none;">
+                        <span class="file-info-label">Resized Size:</span>
+                        <span class="file-info-value" id="resizedSize" style="color: #22c55e; font-weight: 600;">-</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="control-group">
-                <label class="control-label" for="heightInput">Height (px)</label>
-                <div class="input-group">
-                    <button class="spin-btn" onclick="adjustValue('heightInput', -1)" aria-label="Decrease Height"><i
-                            class="fas fa-minus"></i></button>
-                    <input type="number" id="heightInput" class="search-input text-center" placeholder="Height"
-                        aria-label="Height in Pixels">
-                    <button class="spin-btn" onclick="adjustValue('heightInput', 1)" aria-label="Increase Height"><i
-                            class="fas fa-plus"></i></button>
+            <div class="info-box-empty" id="startInfoLeft">
+                <i class="fas fa-file-image"></i>
+                <p>Upload image to resize</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-expand"></i></div>
+                    <h2>Resize Image</h2>
+                    <p class="text-muted">Drag & drop JPG, PNG, or WebP</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
                 </div>
             </div>
-        </div>
 
-        <div id="percentControls" style="display: none;">
-            <div class="control-group">
-                <label class="control-label" for="scaleRange">Scale Percentage</label>
-                <input type="range" id="scaleRange" class="range-slider" min="1" max="200" value="100"
-                    aria-label="Scale Percentage Slider">
-                <div class="text-right mt-2 text-sm text-muted"><span id="scaleValue">100</span>%</div>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" id="aspectRatio" checked aria-label="Maintain Aspect Ratio">
-                <span class="text-sm">Maintain Aspect Ratio</span>
-            </label>
-        </div>
-
-        <button class="btn btn-primary btn-full mt-4" id="resizeBtn" aria-label="Start Resizing">
-            <i class="fas fa-expand-arrows-alt"></i> Resize Image
-        </button>
-
-        <div id="progressContainer" class="mt-4" style="display: none;">
-            <div class="progress-wrapper">
-                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
-            </div>
-            <div id="progressText" class="text-center text-sm text-muted mt-2">Uploading... 0%</div>
-        </div>
-
-        <div id="downloadArea" class="success-card mt-4" style="display: none;">
-            <div class="success-icon-wrapper">
-                <div class="success-icon-bg"></div>
-                <i class="fas fa-check-circle success-icon"></i>
-            </div>
-            <h3 class="success-title">Success!</h3>
-            <p class="success-message">Your image has been resized successfully</p>
-            <a id="downloadBtn" class="btn btn-primary btn-full" aria-label="Download Resized Image">
-                <i class="fas fa-download"></i> Download
-            </a>
-        </div>
-    </div>
-
-    <div class="tool-main">
-        <div class="upload-area" id="dropZone">
-            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-            <h3>Drag & Drop or Click to Upload</h3>
-            <p class="text-muted">Supports JPG, PNG, WEBP</p>
-            <input type="file" id="fileInput" hidden accept="image/*" aria-label="Upload Image to Resize">
-        </div>
-
-        <div class="preview-container" id="previewContainer" style="display: none;">
-            <div id="fileInfo" class="file-info-card glass-panel" style="display: none;">
-                <i class="fas fa-image file-icon"></i>
-                <div class="file-details">
-                    <span id="fileName" class="file-name">filename.jpg</span>
-                    <span id="fileSize" class="file-size">0 MB</span>
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+                <div class="resize-preview-wrapper">
+                    <img id="previewImage" class="resize-image" src="" alt="Preview">
                 </div>
-                <button class="btn-icon" onclick="document.getElementById('fileInput').click()" title="Change Image">
-                    <i class="fas fa-pen"></i>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text" id="progressText">Resizing...</p>
+                    <div class="progress-bar-container" style="margin-top: 10px; width: 150px;">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Settings</h3>
+            <div class="badge badge-free">FREE</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="resizeControls" style="display: none;">
+
+                <div class="control-section">
+                    <label class="section-label">Resize Mode</label>
+                    <div class="mode-switcher">
+                        <button class="mode-btn active" id="modePixel" onclick="setMode('pixel')">Pixels</button>
+                        <button class="mode-btn" id="modePercent" onclick="setMode('percent')">Percentage</button>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div id="pixelControls">
+                    <div class="control-section">
+                        <label class="section-label">Dimensions</label>
+
+                        <div class="input-group mb-3">
+                            <label>Width</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="widthInput" placeholder="Width">
+                                <span class="unit">px</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Height</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="heightInput" placeholder="Height">
+                                <span class="unit">px</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="percentControls" style="display: none;">
+                    <div class="control-section">
+                        <label class="section-label">Scale</label>
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>Percentage</span>
+                                <span class="slider-val" id="scaleValue">100%</span>
+                            </div>
+                            <input type="range" id="scaleRange" class="range-slider" min="1" max="200" value="100">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="toggle-switch-wrapper">
+                        <span class="toggle-label">Maintain Aspect Ratio</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="aspectRatio" checked>
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
+
+            </div>
+
+            <div class="info-box-empty" id="startInfoRight">
+                <i class="fas fa-ruler"></i>
+                <p>Controls will appear here</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn btn-primary btn-full" id="resizeBtn" disabled>
+                Resize Image
+            </button>
+
+            <div id="successArea" class="action-stack" style="display: none; margin-top: 16px;">
+                <a id="downloadBtn" class="btn btn-primary btn-full btn-glow">
+                    <i class="fas fa-download"></i> Download
+                </a>
+                <button class="btn btn-text mt-2" style="width:100%; text-align:center;" onclick="location.reload()">
+                    Resize Another
                 </button>
             </div>
-
-            <img id="previewImage" class="preview-image" src="" alt="Preview">
-            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-                <div class="spinner"></div>
-            </div>
         </div>
+    </aside>
 
-        <div class="seo-content mt-8 p-4 glass-panel rounded-lg">
-            <h2 class="text-lg font-bold mb-2">How to Resize Images Online?</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <h3 class="text-sm font-bold text-primary">Pixel Mode</h3>
-                    <p class="text-xs text-muted mb-2">
-                        Enter exact <strong>Width</strong> and <strong>Height</strong> values. Use "Maintain Aspect
-                        Ratio" to prevent stretching.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-sm font-bold text-primary">Percentage Mode</h3>
-                    <p class="text-xs text-muted mb-2">
-                        Quickly scale an image down (e.g., 50% for thumbnails) or upscale it using our smart resizing
-                        algorithm.
-                    </p>
-                </div>
-            </div>
-            <p class="text-sm text-muted mt-4">
-                <strong>Pro Tip:</strong> Resizing images is crucial for faster website loading speeds and optimizing
-                photos for social media profiles like Instagram, Twitter, and LinkedIn.
-            </p>
-        </div>
+</div>
+
+<!-- Related Tools Section -->
+<div class="related-tools">
+    <h3><i class="fas fa-tools"></i> You might also need</h3>
+    <div class="related-tools-list">
+        <a href="/compress" class="related-tool-link" title="Compress images after resizing">
+            <i class="fas fa-compress-arrows-alt"></i>
+            <span>Compress Images</span>
+        </a>
+        <a href="/convert" class="related-tool-link" title="Convert image format">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Format Converter</span>
+        </a>
+        <a href="/crop" class="related-tool-link" title="Crop images to specific dimensions">
+            <i class="fas fa-crop-alt"></i>
+            <span>Crop Tool</span>
+        </a>
+        <a href="/watermark" class="related-tool-link" title="Add watermark to resized images">
+            <i class="fas fa-copyright"></i>
+            <span>Add Watermark</span>
+        </a>
     </div>
-
 </div>
 {% if not user_ad_free %}
 <section class="ads-section">
@@ -172,332 +230,5 @@ watermarks - maintain quality while resizing.{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/resize.js') }}"></script>
-<style>
-    /* REQUESTED STYLE CHANGE */
-    .seo-content {
-        margin-bottom: 50px;
-    }
-
-    /* PRESERVED STYLES */
-    .btn-sm {
-        padding: 8px 16px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid transparent;
-        border-radius: 6px;
-        color: var(--text-muted);
-        cursor: pointer;
-        flex: 1;
-    }
-
-    .btn-sm.active {
-        background: var(--primary);
-        color: white;
-    }
-
-    .flex {
-        display: flex;
-    }
-
-    .gap-2 {
-        gap: 8px;
-    }
-
-    .mb-4 {
-        margin-bottom: 16px;
-    }
-
-    .mt-4 {
-        margin-top: 16px;
-    }
-
-    .p-4 {
-        padding: 24px;
-    }
-
-    .rounded-lg {
-        border-radius: var(--radius-lg);
-    }
-
-    .text-xl {
-        font-size: 1.25rem;
-    }
-
-    .font-bold {
-        font-weight: 700;
-    }
-
-    .items-center {
-        align-items: center;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-    }
-
-    .text-sm {
-        font-size: 0.875rem;
-    }
-
-    .text-right {
-        text-align: right;
-    }
-
-    .loading-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(4px);
-    }
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-top-color: var(--primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Input Group with Spin Buttons */
-    .input-group {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-    }
-
-    .spin-btn {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: var(--text-main);
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        flex-shrink: 0;
-    }
-
-    .spin-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: var(--primary);
-        color: var(--primary);
-        transform: scale(1.05);
-    }
-
-    .spin-btn:active {
-        transform: scale(0.95);
-    }
-
-    .spin-btn i {
-        font-size: 0.75rem;
-    }
-
-    .text-center {
-        text-align: center;
-    }
-
-    /* Override search-input for number inputs in this context */
-    .input-group .search-input {
-        flex: 1;
-        text-align: center;
-        font-weight: 500;
-        font-size: 1rem;
-    }
-
-    /* Remove number input arrows */
-    .input-group input[type="number"]::-webkit-inner-spin-button,
-    .input-group input[type="number"]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        appearance: none;
-        margin: 0;
-    }
-
-    .input-group input[type="number"] {
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
-
-    /* Added SEO layout styles */
-    .mt-8 {
-        margin-top: 32px;
-    }
-
-    .grid {
-        display: grid;
-    }
-
-    .grid-cols-2 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .gap-4 {
-        gap: 16px;
-    }
-
-    .text-xs {
-        font-size: 0.75rem;
-    }
-
-    /* ===== MODERN SLIDER STYLES (from compress.html) ===== */
-
-    /* Enhanced Control Group */
-    .control-group {
-        margin-bottom: 24px;
-        padding: 20px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-        border-radius: var(--radius-md);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        position: relative;
-        overflow: visible;
-    }
-
-    .control-group::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--primary), transparent);
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-
-    .control-group:hover::before {
-        opacity: 1;
-    }
-
-    .control-group:hover {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
-        border-color: rgba(var(--primary-rgb), 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Enhanced Control Label */
-    .control-label {
-        display: block;
-        margin-bottom: 12px;
-        color: var(--text-main);
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: relative;
-        padding-left: 12px;
-    }
-
-    .control-label::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 16px;
-        background: linear-gradient(180deg, var(--primary), var(--secondary));
-        border-radius: 2px;
-    }
-
-    /* Enhanced Range Slider */
-    .range-slider {
-        width: 100%;
-        height: 8px;
-        background: linear-gradient(90deg,
-                rgba(239, 68, 68, 0.3) 0%,
-                rgba(245, 158, 11, 0.3) 33%,
-                rgba(34, 197, 94, 0.3) 66%,
-                rgba(34, 197, 94, 0.5) 100%);
-        border-radius: 4px;
-        outline: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        position: relative;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-        cursor: pointer;
-    }
-
-    .range-slider::-webkit-slider-track {
-        width: 100%;
-        height: 8px;
-        background: transparent;
-    }
-
-    .range-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 24px;
-        height: 24px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 50%;
-        cursor: grab;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4),
-            0 0 0 6px rgba(var(--primary-rgb), 0.2),
-            inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        position: relative;
-    }
-
-    .range-slider::-webkit-slider-thumb:hover {
-        transform: scale(1.3);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5),
-            0 0 0 10px rgba(var(--primary-rgb), 0.3),
-            inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .range-slider:active::-webkit-slider-thumb {
-        cursor: grabbing;
-        transform: scale(1.2);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5),
-            0 0 0 12px rgba(var(--primary-rgb), 0.35);
-    }
-
-    .range-slider::-moz-range-thumb {
-        width: 24px;
-        height: 24px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 50%;
-        cursor: grab;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        transition: all 0.2s;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-    }
-
-    .range-slider::-moz-range-thumb:hover {
-        transform: scale(1.3);
-    }
-
-    #scaleValue {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 800;
-        font-size: 1.1rem;
-        display: inline-block;
-        min-width: 45px;
-        text-align: center;
-        padding: 2px 8px;
-        border-radius: 8px;
-        background: rgba(var(--primary-rgb), 0.15);
-        -webkit-text-fill-color: var(--primary);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/resize.css') }}?v=1">
 {% endblock %}

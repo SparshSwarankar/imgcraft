@@ -26,84 +26,190 @@ automatically. Free online tool.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
-<div class="tool-layout">
-    <div class="tool-sidebar glass-panel p-4 rounded-lg">
-        <h1 class="text-xl font-bold mb-4">AI Upscale Settings</h1>
+<div class="studio-wrapper">
 
-        <div class="control-group">
-            <label class="control-label">Upscale Factor</label>
-            <div class="flex gap-2 mb-4">
-                <button class="btn btn-sm active" id="factor2x" onclick="setFactor(2)"
-                    aria-label="Upscale 2x">2x</button>
-                <button class="btn btn-sm" id="factor4x" onclick="setFactor(4)" aria-label="Upscale 4x">4x</button>
-            </div>
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-info-circle"></i> Source Details</h3>
         </div>
 
-        <div class="control-group">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" id="enhance" checked aria-label="Enhance Quality">
-                <span class="text-sm">Enhance Quality (Sharpen)</span>
-            </label>
-        </div>
-
-        <button class="btn btn-primary btn-full mt-4" id="upscaleBtn" disabled aria-label="Start Upscaling">
-            <i class="fas fa-level-up-alt"></i> Upscale Image
-        </button>
-
-        <a id="downloadBtn" class="btn btn-full mt-4" style="display: none; background: var(--secondary);"
-            aria-label="Download Upscaled Image">
-            <i class="fas fa-download"></i> Download
-        </a>
-    </div>
-
-    <div class="tool-main">
-        <div class="upload-area" id="dropZone">
-            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-            <h3>Drag & Drop or Click to Upload</h3>
-            <p class="text-muted">Supports JPG, PNG, WEBP</p>
-            <input type="file" id="fileInput" hidden accept="image/*" aria-label="Upload Image to Upscale">
-        </div>
-
-        <div class="preview-container" id="previewContainer" style="display: none;">
-            <div class="compare-slider">
-                <img id="previewOriginal" class="preview-image" src="" alt="Original Low-Res Image">
-                <img id="previewUpscaled" class="preview-image" src="" alt="Upscaled High-Res Image"
-                    style="display: none;">
-            </div>
-            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-                <div class="spinner"></div>
-                <div class="text-white mt-4 font-medium">Upscaling...</div>
-            </div>
-        </div>
-
-        <div class="seo-content mt-8 p-4 glass-panel rounded-lg">
-            <h2 class="text-lg font-bold mb-2">Why Use AI Upscaling?</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <h3 class="text-sm font-bold text-primary">Fix Pixelation</h3>
-                    <p class="text-xs text-muted mb-2">
-                        Turn low-quality, blocky images into smooth, high-definition photos. Perfect for printing or
-                        large screens.
-                    </p>
+        <div class="panel-content custom-scrollbar">
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info-section">
+                    <div class="file-info-row">
+                        <span class="file-info-label">Name:</span>
+                        <span class="file-info-value" id="fileName">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Current Size:</span>
+                        <span class="file-info-value" id="fileDim">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">File Weight:</span>
+                        <span class="file-info-value" id="fileSize">-</span>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-sm font-bold text-primary">Recover Details</h3>
-                    <p class="text-xs text-muted mb-2">
-                        Our neural networks predict and reconstruct missing details, making blurry faces and textures
-                        sharp again.
-                    </p>
+
+                <hr class="panel-divider">
+
+                <div class="info-card-small">
+                    <i class="fas fa-search-plus"
+                        style="color: var(--primary); font-size: 1.2rem; margin-bottom: 8px;"></i>
+                    <p><strong>Estimated Output:</strong><br><span id="estimatedDim" class="highlight-text">-</span></p>
                 </div>
             </div>
 
-            <h3 class="text-sm font-bold mt-4 mb-2">Best For:</h3>
-            <ul class="text-xs text-muted list-disc pl-4 grid grid-cols-2 gap-2">
-                <li>Old Family Photos</li>
-                <li>E-commerce Products</li>
-                <li>Anime & Cartoons</li>
-                <li>Low-Res Web Assets</li>
-            </ul>
+            <div class="info-box-empty" id="startInfoLeft">
+                <i class="fas fa-image"></i>
+                <p>Upload image to enhance</p>
+            </div>
         </div>
-    </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-expand-arrows-alt"></i></div>
+                    <h2>AI Image Upscaler</h2>
+                    <p class="text-muted">Drag & drop JPG, PNG, or WebP</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+
+                <div class="compare-wrapper" id="compareWrapper">
+                    <div class="compare-container checkerboard-bg">
+                        <img id="previewProcessed" class="preview-image img-processed" src="" alt="Upscaled">
+
+                        <div class="img-wrapper-original" id="imgWrapperOriginal">
+                            <img id="previewOriginal" class="preview-image img-original" src="" alt="Original">
+                        </div>
+
+                        <div class="slider-handle" id="sliderHandle">
+                            <div class="handle-line"></div>
+                            <div class="handle-button"><i class="fas fa-arrows-alt-h"></i></div>
+                        </div>
+
+                        <div class="ai-scan-overlay" id="scanOverlay"></div>
+                    </div>
+                </div>
+
+                <div class="comparison-toggle">
+                    <button class="toggle-btn" id="viewToggle" title="Reset View">
+                        <i class="fas fa-compress"></i> Reset View
+                    </button>
+                </div>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text">Enhancing Resolution...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Configuration</h3>
+            <div class="badge badge-pro">PRO</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="upscaleControls" style="display: none;">
+
+                <div class="control-section">
+                    <label class="section-label">Upscale Factor</label>
+                    <div class="factor-grid">
+                        <button class="factor-btn active" data-factor="2">
+                            <span class="factor-lg">2x</span>
+                            <span class="factor-sm">HD</span>
+                        </button>
+                        <button class="factor-btn" data-factor="4">
+                            <span class="factor-lg">4x</span>
+                            <span class="factor-sm">Ultra</span>
+                        </button>
+                        <button class="factor-btn" data-factor="8">
+                            <span class="factor-lg">8x</span>
+                            <span class="factor-sm">Max</span>
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="section-label">Fine Tune</label>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Sharpness</span> <span class="val" id="sharpnessVal">0</span>
+                        </div>
+                        <input type="range" id="sharpness" class="range-slider" min="0" max="100" value="20">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Detail Enhancement</span> <span class="val"
+                                id="contrastVal">0</span></div>
+                        <input type="range" id="contrast" class="range-slider" min="0" max="50" value="0">
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="section-label">Output Format</label>
+                    <div class="custom-input-group">
+                        <div class="custom-select" id="formatDropdown">
+                            <div class="select-trigger">
+                                <span>PNG (Lossless)</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="select-options">
+                                <div class="option selected" data-value="PNG">PNG (Lossless - Best Quality)</div>
+                                <div class="option" data-value="JPEG">JPEG (Compressed - Smaller Size)</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="formatSelect" value="PNG">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="info-box-empty" id="startInfoRight">
+                <i class="fas fa-cogs"></i>
+                <p>Settings will appear here</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <div class="cost-indicator">
+                <i class="fas fa-coins"></i> <span id="costDisplay">8</span> credits
+            </div>
+
+            <button class="btn btn-primary btn-full" id="upscaleBtn" disabled>
+                Upscale Image
+            </button>
+
+            <div id="downloadArea" class="action-stack" style="display: none; margin-top: 10px;">
+                <a id="downloadBtn" class="btn btn-primary btn-full btn-glow">
+                    <i class="fas fa-download"></i> Download Result
+                </a>
+                <button class="btn btn-text mt-2" style="width:100%;" onclick="location.reload()">
+                    Upscale Another
+                </button>
+            </div>
+        </div>
+    </aside>
 
 </div>
 {% if not user_ad_free %}
@@ -121,194 +227,6 @@ automatically. Free online tool.{% endblock %}
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/upscale.js') }}"></script>
-<style>
-    /* PRESERVED STYLES */
-    .p-4 {
-        padding: 24px;
-    }
-
-    .rounded-lg {
-        border-radius: var(--radius-lg);
-    }
-
-    .text-xl {
-        font-size: 1.25rem;
-    }
-
-    .font-bold {
-        font-weight: 700;
-    }
-
-    .mt-4 {
-        margin-top: 16px;
-    }
-
-    .mb-4 {
-        margin-bottom: 16px;
-    }
-
-    .flex {
-        display: flex;
-    }
-
-    .gap-2 {
-        gap: 8px;
-    }
-
-    .items-center {
-        align-items: center;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-    }
-
-    .text-sm {
-        font-size: 0.875rem;
-    }
-
-    .text-white {
-        color: white;
-    }
-
-    .btn-sm {
-        padding: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid transparent;
-        border-radius: 6px;
-        color: var(--text-muted);
-        cursor: pointer;
-        flex: 1;
-    }
-
-    .btn-sm.active {
-        background: var(--primary);
-        color: white;
-    }
-
-    .loading-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(4px);
-        z-index: 10;
-    }
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-top-color: var(--primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* ADDED FOR SEO CONTENT */
-    .mt-8 {
-        margin-top: 32px;
-    }
-
-    .grid {
-        display: grid;
-    }
-
-    .grid-cols-2 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .gap-4 {
-        gap: 16px;
-    }
-
-    .text-xs {
-        font-size: 0.75rem;
-    }
-
-    .list-disc {
-        list-style-type: disc;
-    }
-
-    .pl-4 {
-        padding-left: 1rem;
-    }
-
-    .seo-content {
-        margin-bottom: 50px;
-    }
-
-
-    /* ===== MODERN CONTROL GROUP STYLES (from compress.html) ===== */
-
-    /* Enhanced Control Group */
-    .control-group {
-        margin-bottom: 24px;
-        padding: 20px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-        border-radius: var(--radius-md);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        position: relative;
-        overflow: visible;
-    }
-
-    .control-group::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--primary), transparent);
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-
-    .control-group:hover::before {
-        opacity: 1;
-    }
-
-    .control-group:hover {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
-        border-color: rgba(var(--primary-rgb), 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Enhanced Control Label */
-    .control-label {
-        display: block;
-        margin-bottom: 12px;
-        color: var(--text-main);
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: relative;
-        padding-left: 12px;
-    }
-
-    .control-label::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 16px;
-        background: linear-gradient(180deg, var(--primary), var(--secondary));
-        border-radius: 2px;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upscale.css') }}?v=1">
+<script src="{{ url_for('static', filename='js/upscale.js') }}?v=1"></script>
 {% endblock %}

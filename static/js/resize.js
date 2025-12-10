@@ -1,262 +1,248 @@
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const previewContainer = document.getElementById('previewContainer');
-const previewImage = document.getElementById('previewImage');
-const widthInput = document.getElementById('widthInput');
-const heightInput = document.getElementById('heightInput');
-const scaleRange = document.getElementById('scaleRange');
-const scaleValue = document.getElementById('scaleValue');
-const resizeBtn = document.getElementById('resizeBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const loadingOverlay = document.getElementById('loadingOverlay');
-const aspectRatioCheckbox = document.getElementById('aspectRatio');
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Resize Tool Loaded - Studio Version");
 
-let currentFile = null;
-let originalWidth = 0;
-let originalHeight = 0;
-let currentMode = 'pixel';
+    // --- DOM Elements ---
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImage = document.getElementById('previewImage');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-// UI Helpers
-function setMode(mode) {
-    currentMode = mode;
-    document.getElementById('modePixel').classList.toggle('active', mode === 'pixel');
-    document.getElementById('modePercent').classList.toggle('active', mode === 'percent');
-    document.getElementById('pixelControls').style.display = mode === 'pixel' ? 'block' : 'none';
-    document.getElementById('percentControls').style.display = mode === 'percent' ? 'block' : 'none';
-}
+    // Panels
+    const fileInfoSection = document.getElementById('fileInfoSection');
+    const startInfoLeft = document.getElementById('startInfoLeft');
+    const startInfoRight = document.getElementById('startInfoRight');
+    const resizeControls = document.getElementById('resizeControls');
+    
+    // Info Fields
+    const fileNameSpan = document.getElementById('fileName');
+    const fileSizeSpan = document.getElementById('fileSize');
+    const fileDimSpan = document.getElementById('fileDimensions');
+    const fileTypeSpan = document.getElementById('fileType');
+    const resizedSizeSpan = document.getElementById('resizedSize');
+    const resizedSizeRow = document.getElementById('resizedSizeRow');
 
-// File Handling
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('dragover');
-});
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+    // Controls
+    const widthInput = document.getElementById('widthInput');
+    const heightInput = document.getElementById('heightInput');
+    const scaleRange = document.getElementById('scaleRange');
+    const scaleValue = document.getElementById('scaleValue');
+    const aspectRatioCheckbox = document.getElementById('aspectRatio');
+    
+    // Mode Buttons
+    const modePixelBtn = document.getElementById('modePixel');
+    const modePercentBtn = document.getElementById('modePercent');
+    const pixelControls = document.getElementById('pixelControls');
+    const percentControls = document.getElementById('percentControls');
 
-function handleFile(file) {
-    if (!file || !file.type.startsWith('image/')) return;
-
-    currentFile = file;
-
-    // Update File Info
-    const fileName = document.getElementById('fileName');
-    const fileSize = document.getElementById('fileSize');
-    const fileInfo = document.getElementById('fileInfo');
-
-    if (fileName) fileName.textContent = file.name;
-    if (fileSize) fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-    if (fileInfo) fileInfo.style.display = 'flex';
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        previewImage.src = e.target.result;
-        previewContainer.style.display = 'flex';
-        dropZone.style.display = 'none';
-
-        // Get original dimensions
-        const img = new Image();
-        img.onload = () => {
-            originalWidth = img.width;
-            originalHeight = img.height;
-            widthInput.value = originalWidth;
-            heightInput.value = originalHeight;
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-// Aspect Ratio Logic
-widthInput.addEventListener('input', () => {
-    if (aspectRatioCheckbox.checked && originalWidth > 0) {
-        const ratio = originalHeight / originalWidth;
-        heightInput.value = Math.round(widthInput.value * ratio);
-    }
-});
-
-heightInput.addEventListener('input', () => {
-    if (aspectRatioCheckbox.checked && originalWidth > 0) {
-        const ratio = originalWidth / originalHeight;
-        widthInput.value = Math.round(heightInput.value * ratio);
-    }
-});
-
-scaleRange.addEventListener('input', (e) => {
-    scaleValue.textContent = e.target.value;
-});
-
-// Spin Button Logic
-window.adjustValue = function (inputId, delta) {
-    const input = document.getElementById(inputId);
-    let newValue = (parseInt(input.value) || 0) + delta;
-    if (newValue < 1) newValue = 1;
-    input.value = newValue;
-
-    // Trigger input event to update aspect ratio if needed
-    input.dispatchEvent(new Event('input'));
-};
-
-// Resize Action
-resizeBtn.addEventListener('click', () => {
-    if (!currentFile) {
-        showToast('Please upload an image first!', 'error');
-        return;
-    }
-
-    // Define safe limits (matching backend)
-    const MAX_DIMENSION = 10000;
-    const MAX_TOTAL_PIXELS = 100000000; // 100 megapixels
-
-    // Calculate target dimensions
-    let targetWidth, targetHeight;
-    if (currentMode === 'pixel') {
-        targetWidth = parseInt(widthInput.value) || 0;
-        targetHeight = parseInt(heightInput.value) || 0;
-    } else {
-        const scale = parseInt(scaleRange.value) / 100;
-        targetWidth = Math.round(originalWidth * scale);
-        targetHeight = Math.round(originalHeight * scale);
-    }
-
-    // Validate dimensions BEFORE sending request
-    if (targetWidth > MAX_DIMENSION || targetHeight > MAX_DIMENSION) {
-        showToast(`⚠️ Dimensions too large! Maximum: ${MAX_DIMENSION.toLocaleString()}x${MAX_DIMENSION.toLocaleString()} pixels. Requested: ${targetWidth.toLocaleString()}x${targetHeight.toLocaleString()}`, 'error');
-        return;
-    }
-
-    const totalPixels = targetWidth * targetHeight;
-    if (totalPixels > MAX_TOTAL_PIXELS) {
-        showToast(`⚠️ Image too large! Maximum: ${MAX_TOTAL_PIXELS.toLocaleString()} pixels. Requested: ${totalPixels.toLocaleString()} pixels (${targetWidth.toLocaleString()}x${targetHeight.toLocaleString()})`, 'error');
-        return;
-    }
-
-    // Show warning for very large images (above 50 megapixels)
-    if (totalPixels > 50000000) {
-        const proceed = confirm(
-            `⚠️ WARNING: Large Image Resize\n\n` +
-            `You are about to resize to ${targetWidth.toLocaleString()}x${targetHeight.toLocaleString()} (${(totalPixels / 1000000).toFixed(1)}MP)\n\n` +
-            `This may:\n` +
-            `• Take a long time to process\n` +
-            `• Use significant memory\n` +
-            `• Result in a very large file\n\n` +
-            `Do you want to continue?`
-        );
-
-        if (!proceed) {
-            return;
-        }
-    }
-
-    // Auth & Credit Check (only for logged-in users)
-    if (window.AuthManager && AuthManager.user) {
-        if (window.CreditManager && !CreditManager.hasCredits(1)) {
-            showToast('Insufficient credits! Please purchase more.', 'error');
-            return;
-        }
-    }
-
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const downloadArea = document.getElementById('downloadArea');
+    // Actions
+    const resizeBtn = document.getElementById('resizeBtn');
+    const downloadArea = document.getElementById('successArea');
     const downloadBtn = document.getElementById('downloadBtn');
 
-    // Reset UI
-    progressContainer.style.display = 'block';
-    downloadArea.style.display = 'none';
-    progressBar.style.width = '0%';
-    progressBar.classList.remove('processing');
-    progressText.textContent = 'Uploading... 0%';
-    resizeBtn.disabled = true;
+    // State
+    let currentFile = null;
+    let originalWidth = 0;
+    let originalHeight = 0;
+    let currentMode = 'pixel';
 
-    const formData = new FormData();
-    formData.append('image', currentFile);
-    formData.append('mode', currentMode);
-
-    if (currentMode === 'pixel') {
-        formData.append('width', widthInput.value);
-        formData.append('height', heightInput.value);
-    } else {
-        formData.append('scale', scaleRange.value);
+    // --- File Handling ---
+    if(dropZone) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+    }
+    if(fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            if(e.target.files.length) handleFile(e.target.files[0]);
+        });
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/resize', true);
-
-    // Add Auth Header
-    if (window.AuthManager) {
-        const headers = AuthManager.getAuthHeaders();
-        if (headers.Authorization) {
-            xhr.setRequestHeader('Authorization', headers.Authorization);
+    function handleFile(file) {
+        if (!file.type.startsWith('image/')) {
+            showToast('Please upload a valid image', 'error');
+            return;
         }
-    }
+        currentFile = file;
 
-    xhr.responseType = 'blob';
+        // Update Left Panel
+        fileNameSpan.textContent = file.name.length > 20 ? file.name.substring(0, 15) + '...' : file.name;
+        fileSizeSpan.textContent = formatBytes(file.size);
+        fileTypeSpan.textContent = file.type.split('/')[1].toUpperCase();
 
-    // Upload Progress
-    xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            progressBar.style.width = percentComplete + '%';
-            progressText.textContent = `Uploading... ${Math.round(percentComplete)}%`;
-
-            if (percentComplete >= 100) {
-                progressText.textContent = 'Resizing Image...';
-                progressBar.classList.add('processing');
-            }
-        }
-    };
-
-    xhr.onload = () => {
-        if (xhr.status === 200) {
-            const blob = xhr.response;
-            const url = URL.createObjectURL(blob);
-
-            downloadBtn.href = url;
-            downloadBtn.download = `resized_${currentFile.name}`;
-
-            // Show Success UI
-            progressContainer.style.display = 'none';
-            downloadArea.style.display = 'block';
-
-            resizeBtn.textContent = 'Resize Another';
-            resizeBtn.disabled = false;
-            showToast('Image resized successfully!', 'success');
-
-            // Refresh credits
-            if (window.CreditManager) {
-                CreditManager.refreshCredits();
-            }
-        } else {
-            // Handle error response
-            progressContainer.style.display = 'none';
-            resizeBtn.disabled = false;
-
-            // Try to parse error message from JSON response
-            const reader = new FileReader();
-            reader.onload = () => {
-                try {
-                    const errorData = JSON.parse(reader.result);
-                    showToast(errorData.error || 'Error resizing image', 'error');
-                } catch (e) {
-                    showToast('Error resizing image', 'error');
-                }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                originalWidth = img.width;
+                originalHeight = img.height;
+                
+                fileDimSpan.textContent = `${originalWidth} x ${originalHeight}`;
+                
+                // Initialize Inputs
+                widthInput.value = originalWidth;
+                heightInput.value = originalHeight;
+                
+                // Switch UI
+                dropZone.style.display = 'none';
+                previewContainer.style.display = 'flex';
+                
+                startInfoLeft.style.display = 'none';
+                fileInfoSection.style.display = 'block';
+                
+                startInfoRight.style.display = 'none';
+                resizeControls.style.display = 'block';
+                
+                resizeBtn.disabled = false;
             };
-            reader.readAsText(xhr.response);
+            img.src = e.target.result;
+            previewImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- Mode Switching ---
+    // Expose setMode to window if onclick is used in HTML
+    window.setMode = function(mode) {
+        currentMode = mode;
+        
+        modePixelBtn.classList.toggle('active', mode === 'pixel');
+        modePercentBtn.classList.toggle('active', mode === 'percent');
+        
+        pixelControls.style.display = mode === 'pixel' ? 'block' : 'none';
+        percentControls.style.display = mode === 'percent' ? 'block' : 'none';
+    };
+    
+    // Bind listeners in case JS loads after HTML onclick setup
+    modePixelBtn.addEventListener('click', () => window.setMode('pixel'));
+    modePercentBtn.addEventListener('click', () => window.setMode('percent'));
+
+
+    // --- Dimension Logic ---
+    widthInput.addEventListener('input', () => {
+        if (aspectRatioCheckbox.checked && originalWidth > 0) {
+            const ratio = originalHeight / originalWidth;
+            heightInput.value = Math.round(widthInput.value * ratio);
         }
-    };
+    });
 
-    xhr.onerror = () => {
-        progressContainer.style.display = 'none';
-        resizeBtn.disabled = false;
-        showToast('Network error occurred', 'error');
-    };
+    heightInput.addEventListener('input', () => {
+        if (aspectRatioCheckbox.checked && originalWidth > 0) {
+            const ratio = originalWidth / originalHeight;
+            widthInput.value = Math.round(heightInput.value * ratio);
+        }
+    });
 
-    xhr.send(formData);
+    scaleRange.addEventListener('input', (e) => {
+        scaleValue.textContent = e.target.value + '%';
+    });
+
+    // --- API Call ---
+    resizeBtn.addEventListener('click', async () => {
+        if (!currentFile) return;
+
+        loadingOverlay.style.display = 'flex';
+        resizeBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('image', currentFile);
+        formData.append('mode', currentMode);
+
+        if (currentMode === 'pixel') {
+            formData.append('width', widthInput.value);
+            formData.append('height', heightInput.value);
+        } else {
+            formData.append('scale', scaleRange.value);
+        }
+
+        try {
+            // Guest access allowed, token optional
+            const token = window.AuthManager ? window.AuthManager.getToken() : null;
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch('/api/resize', {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            });
+
+            if (response.ok) {
+                // Resize is free, so cost might be 0
+                const cost = response.headers.get('X-Credits-Cost');
+                
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                // Show resized file size in green
+                resizedSizeSpan.textContent = formatBytes(blob.size);
+                resizedSizeRow.style.display = 'flex';
+
+                // Show Download
+                downloadArea.style.display = 'block';
+                downloadBtn.href = url;
+                downloadBtn.download = `resized_${currentFile.name}`;
+                resizeBtn.style.display = 'none';
+
+                let msg = 'Image resized!';
+                // Only show credit deduction if cost > 0
+                if (cost && cost !== '0') msg += ` (-${cost} Credits)`;
+                
+                showToast(msg, 'success');
+
+                // Refresh credits if logged in
+                if (window.CreditManager && cost && cost !== '0') {
+                    CreditManager.refreshCredits();
+                }
+            } else {
+                const errorMessage = await parseErrorResponse(response, 'Failed to resize image');
+                showToast(errorMessage, 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('Network error', 'error');
+        } finally {
+            loadingOverlay.style.display = 'none';
+            resizeBtn.disabled = false;
+        }
+    });
+
+    // Helper
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    async function parseErrorResponse(response, fallbackMessage) {
+        try {
+            const text = await response.text();
+            if (!text) return fallbackMessage;
+            const data = JSON.parse(text);
+            if (data?.error) {
+                let message = data.error;
+                if (data.request_id) {
+                    message += ` (Request ID: ${data.request_id})`;
+                }
+                return message;
+            }
+            return text.substring(0, 180) || fallbackMessage;
+        } catch (err) {
+            console.warn('Resize error parse failed', err);
+            return fallbackMessage;
+        }
+    }
+
+    function showToast(msg, type = 'info') {
+        if (window.showToast) window.showToast(msg, type);
+        else console.log(`[${type}] ${msg}`);
+    }
 });

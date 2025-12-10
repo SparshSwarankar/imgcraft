@@ -1,9 +1,15 @@
 class ParticleNetwork {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) {
+            console.warn('Background canvas not found');
+            return;
+        }
         this.ctx = this.canvas.getContext('2d');
         this.particles = [];
         this.mouse = { x: null, y: null };
+        this.animationId = null;
+        this.isVisible = true;
         this.config = {
             particleCount: 100,
             connectionDistance: 150,
@@ -24,8 +30,33 @@ class ParticleNetwork {
     }
 
     resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+        // Use a stable viewport height for mobile browsers
+        let vw = window.innerWidth;
+        let vh;
+        
+        // Prefer visualViewport API if available (for mobile browsers)
+        if (window.visualViewport) {
+            vh = Math.max(
+                window.visualViewport.height,
+                document.documentElement.clientHeight,
+                window.innerHeight
+            );
+        } else {
+            vh = Math.max(document.documentElement.clientHeight, window.innerHeight);
+        }
+        
+        // For desktop, use standard window height
+        if (vw > 1024) {
+            vh = window.innerHeight;
+        }
+        
+        // Set canvas dimensions
+        this.canvas.width = vw;
+        this.canvas.height = vh;
+        
+        // Also update CSS for consistency
+        this.canvas.style.width = vw + 'px';
+        this.canvas.style.height = vh + 'px';
     }
 
     createParticles() {
@@ -44,11 +75,26 @@ class ParticleNetwork {
     }
 
     addEventListeners() {
-        window.addEventListener('resize', () => {
-            this.resize();
-            this.createParticles();
-        });
+        let resizeTimeout;
+        
+        // Debounced resize handler for better performance
+        const resizeHandler = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.resize();
+                this.createParticles();
+            }, 150);
+        };
+        
+        window.addEventListener('resize', resizeHandler);
+        window.addEventListener('orientationchange', resizeHandler);
+        
+        // On mobile, also listen to visualViewport resize if available
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', resizeHandler);
+        }
 
+        // Mouse tracking
         window.addEventListener('mousemove', (e) => {
             this.mouse.x = e.x;
             this.mouse.y = e.y;
@@ -58,6 +104,34 @@ class ParticleNetwork {
             this.mouse.x = null;
             this.mouse.y = null;
         });
+        
+        // Visibility API - pause when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.pauseAnimation();
+            } else {
+                this.resumeAnimation();
+            }
+        });
+        
+        // Pause when page is not in focus (performance optimization)
+        window.addEventListener('blur', () => this.pauseAnimation());
+        window.addEventListener('focus', () => this.resumeAnimation());
+    }
+
+    pauseAnimation() {
+        this.isVisible = false;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+    }
+
+    resumeAnimation() {
+        if (!this.isVisible) {
+            this.isVisible = true;
+            this.animate();
+        }
     }
 
     drawLines(p1, p2, distance) {
@@ -76,9 +150,16 @@ class ParticleNetwork {
             p.x += p.vx;
             p.y += p.vy;
 
-            // Bounce off edges
-            if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
-            if (p.y < 0 || p.y > this.canvas.height) p.vy *= -1;
+            // Bounce off edges with buffer to prevent sticking
+            const buffer = 5;
+            if (p.x < buffer || p.x > this.canvas.width - buffer) {
+                p.vx *= -1;
+                p.x = Math.max(buffer, Math.min(this.canvas.width - buffer, p.x));
+            }
+            if (p.y < buffer || p.y > this.canvas.height - buffer) {
+                p.vy *= -1;
+                p.y = Math.max(buffer, Math.min(this.canvas.height - buffer, p.y));
+            }
 
             // Mouse interaction (Antigravity/Repulsion)
             if (this.mouse.x != null) {
@@ -110,7 +191,9 @@ class ParticleNetwork {
     }
 
     draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Clear with slight fade for motion trail effect (optional)
+        this.ctx.fillStyle = 'rgba(2, 6, 23, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         for (let i = 0; i < this.particles.length; i++) {
             const p = this.particles[i];
@@ -136,13 +219,30 @@ class ParticleNetwork {
     }
 
     animate() {
+        if (!this.isVisible) return;
+        
         this.update();
         this.draw();
-        requestAnimationFrame(() => this.animate());
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+    
+    destroy() {
+        this.pauseAnimation();
+        window.removeEventListener('resize', this.resize);
+        window.removeEventListener('mousemove', this.mousemove);
+        window.removeEventListener('mouseleave', this.mouseleave);
     }
 }
 
-// Initialize when DOM is ready
+// Initialize when DOM is ready with error handling
 document.addEventListener('DOMContentLoaded', () => {
-    new ParticleNetwork('bg-canvas');
+    try {
+        const bgCanvas = document.getElementById('bg-canvas');
+        if (bgCanvas) {
+            new ParticleNetwork('bg-canvas');
+            console.log('✓ Background animation initialized');
+        }
+    } catch (error) {
+        console.error('Background animation failed to initialize:', error);
+    }
 });

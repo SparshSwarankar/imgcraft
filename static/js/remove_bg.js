@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInfo = document.getElementById('fileInfo');
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
-    const scanOverlay = document.getElementById('scanOverlay');
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const toastContainer = document.getElementById('toast-container'); // NEW
 
     // Slider Elements
@@ -125,8 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log("Starting background removal...");
 
-            // UI Updates
-            if (progressContainer) progressContainer.style.display = 'block';
+            // UI Updates - Show loading overlay
+            if (loadingOverlay) loadingOverlay.style.display = 'flex';
+            if (removeBtn) {
+                removeBtn.disabled = true;
+                removeBtn.style.opacity = '0.7';
+            }
             const formData = new FormData();
             formData.append('image', currentFile);
 
@@ -142,20 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             xhr.responseType = 'blob';
-
-            // 1. UPLOAD PROGRESS (Only updates bar)
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    const percent = (e.loaded / e.total) * 100;
-                    if (progressBar) progressBar.style.width = percent + '%';
-                    if (progressText) progressText.textContent = `Uploading... ${Math.round(percent)}%`;
-
-                    if (percent >= 100) {
-                        if (progressText) progressText.textContent = 'Processing... (AI Magic)';
-                        if (progressBar) progressBar.classList.add('processing');
-                    }
-                }
-            };
 
             // 2. RESPONSE HANDLER (Runs when server is done)
             xhr.onload = () => {
@@ -206,11 +196,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         downloadBtn.download = `${originalName}_nobg.png`;
                     }
 
-                    if (progressContainer) progressContainer.style.display = 'none';
+                    if (loadingOverlay) loadingOverlay.style.display = 'none';
                     if (downloadArea) downloadArea.style.display = 'block';
-                    removeBtn.style.display = 'none';
-                    if (scanOverlay) scanOverlay.style.display = 'none';
-                    if (compareContainer) compareContainer.classList.remove('scanning-active');
+                    if (removeBtn) {
+                        removeBtn.style.display = 'none';
+                        removeBtn.disabled = false;
+                        removeBtn.style.opacity = '1';
+                    }
 
                     // --- UPDATE: SUCCESS NOTIFICATION WITH CREDITS ---
                     showToast('success', 'Success!', `Background removed successfully.${costMsg}`);
@@ -235,10 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function failUI() {
-        if (progressContainer) progressContainer.style.display = 'none';
-        if (scanOverlay) scanOverlay.style.display = 'none';
-        if (compareContainer) compareContainer.classList.remove('scanning-active');
-        removeBtn.disabled = false;
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (removeBtn) {
+            removeBtn.disabled = false;
+            removeBtn.style.opacity = '1';
+        }
     }
 
     // --- Helper: Draggable Element (File Info) ---

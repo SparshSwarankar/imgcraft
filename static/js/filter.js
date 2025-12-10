@@ -291,7 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (window.CreditManager) CreditManager.refreshCredits();
                 } else {
-                    showToast('Failed to apply filters', 'error');
+                    const errorMessage = await parseErrorResponse(response, 'Failed to apply filters');
+                    showToast(errorMessage, 'error');
                 }
             } catch (error) {
                 console.error(error);
@@ -301,6 +302,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyBtn.disabled = false;
             }
         });
+    }
+
+    async function parseErrorResponse(response, fallbackMessage) {
+        try {
+            const text = await response.text();
+            if (!text) return fallbackMessage;
+            const data = JSON.parse(text);
+            if (data?.error) {
+                let message = data.error;
+                if (data.request_id) {
+                    message += ` (Request ID: ${data.request_id})`;
+                }
+                return message;
+            }
+            return text.substring(0, 180) || fallbackMessage;
+        } catch (err) {
+            console.warn('Filter error parse failed', err);
+            return fallbackMessage;
+        }
     }
 
     function showToast(msg, type = 'info') {

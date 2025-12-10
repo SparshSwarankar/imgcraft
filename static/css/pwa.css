@@ -200,7 +200,6 @@ button:active::after,
 .navbar a,
 .nav-link {
   position: relative;
-  transition: color 0.2s var(--transition-easing);
 }
 
 .navbar a::after,
