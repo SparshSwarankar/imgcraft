@@ -210,6 +210,20 @@ VALUES (
         8,
         'AI-powered image upscaling',
         true
+    ),
+    (
+        'collage',
+        'AI Collage Creator',
+        7,
+        'Auto-generate professional photo collages with smart layouts',
+        true
+    ),
+    (
+        'annotation',
+        'Image Annotation',
+        6,
+        'Professional annotation with bounding boxes, polygons, and metadata export',
+        true
     ) ON CONFLICT (tool_name) DO NOTHING;
 -- ============================================
 -- 7. CREATE FUNCTION TO AUTO-CREATE USER PROFILE

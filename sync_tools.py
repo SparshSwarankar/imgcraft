@@ -98,7 +98,7 @@ TOOL_DEFINITIONS = [
     {
         'tool_name': 'upscale',
         'display_name': 'Image Upscale',
-        'credit_cost': 5,
+        'credit_cost': 8,
         'description': 'AI-powered image upscaling',
         'is_active': True,
         'is_free': False
@@ -111,6 +111,14 @@ TOOL_DEFINITIONS = [
         'is_active': True,
         'is_free': False
     },
+    {
+        'tool_name': 'annotation',
+        'display_name': 'AI Annotation Studio',
+        'credit_cost': 15,
+        'description': 'Professional annotation with bounding boxes, polygons, and metadata export',
+        'is_active': True,
+        'is_free': False
+    }
 ]
 
 

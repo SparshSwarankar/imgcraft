@@ -997,6 +997,11 @@ def collage_tool():
     logger.debug("Rendering collage tool page")
     return render_template('collage.html')
 
+@app.route('/annotation')
+def annotation_tool():
+    logger.debug("Rendering annotation tool page")
+    return render_template('annotation.html')
+
 # ============================================================================
 # API ROUTES - HEALTH CHECK
 # ============================================================================
