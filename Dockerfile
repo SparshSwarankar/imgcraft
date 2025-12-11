@@ -26,12 +26,11 @@ COPY . .
 # Create uploads directory
 RUN mkdir -p uploads
 
-# Expose port
-EXPOSE 8080
+# Expose port (Render will use $PORT env variable, typically 10000)
+EXPOSE $PORT
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8080
 
-# Run gunicorn
+# Run gunicorn - Port is set by Render via $PORT environment variable
 CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 app:app
