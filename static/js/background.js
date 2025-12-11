@@ -11,7 +11,7 @@ class ParticleNetwork {
         this.animationId = null;
         this.isVisible = true;
         this.config = {
-            particleCount: 100,
+            particleCount: 50,
             connectionDistance: 150,
             mouseDistance: 200,
             baseSpeed: 0.5,

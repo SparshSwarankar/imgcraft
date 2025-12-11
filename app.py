@@ -2151,6 +2151,42 @@ def api_collage(current_user):
         logger.error(traceback.format_exc())
         return str(e), 500
 
+@app.route('/api/annotation', methods=['POST'])
+@require_auth
+@log_request
+def api_annotation(current_user):
+    """
+    AI Annotation Studio - Export annotations as JSON or Image
+    15 credits per export operation
+    """
+    # Get cost from database
+    cost = get_tool_cost('annotation')
+    
+    # Deduct credits
+    deduct_result = credit_manager.deduct_credits(current_user['id'], 'annotation', cost)
+    if not deduct_result['success']:
+        return jsonify(deduct_result), 402
+    
+    try:
+        data = request.get_json()
+        export_type = data.get('export_type', 'json')  # 'json' or 'image'
+        
+        logger.info(f"Annotation export: type={export_type}")
+        
+        # Return success with cost header
+        response = make_response(jsonify({
+            'success': True,
+            'message': f'Credits deducted for {export_type} export',
+            'export_type': export_type
+        }))
+        response.headers['X-Credits-Cost'] = str(cost)
+        return response
+        
+    except Exception as e:
+        logger.error(f"Annotation export failed: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 def create_template_collage(images, template, spacing, background, corner_radius):
     """
     Creates a collage based on a normalized grid template (0.0-1.0 coords).

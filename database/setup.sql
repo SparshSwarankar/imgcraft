@@ -220,9 +220,9 @@ VALUES (
     ),
     (
         'annotation',
-        'Image Annotation',
-        6,
-        'Professional annotation with bounding boxes, polygons, and metadata export',
+        'AI Annotation Studio',
+        15,
+        'Professional AI-powered annotation with bounding boxes, polygons, and metadata export',
         true
     ) ON CONFLICT (tool_name) DO NOTHING;
 -- ============================================

@@ -3,13 +3,21 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}AI Image Annotation & Tagging Tool - Professional Metadata Editor | ImgCraft{% endblock %}
 
-{% block meta_description %}Professional image annotation tool with AI-powered tagging. Draw bounding boxes, create polygons, add labels and metadata. Export annotations as JSON for machine learning, computer vision, and dataset creation. Perfect for AI training, object detection, image classification, and professional photography workflows.{% endblock %}
+{% block meta_description %}Professional image annotation tool with AI-powered tagging. Draw bounding boxes, create
+polygons, add labels and metadata. Export annotations as JSON for machine learning, computer vision, and dataset
+creation. Perfect for AI training, object detection, image classification, and professional photography workflows.{%
+endblock %}
 
-{% block meta_keywords %}image annotation tool, ai annotation, bounding box tool, image tagging software, metadata editor, polygon annotation, object detection annotation, computer vision tool, dataset annotation, image labeling, ml annotation tool, ai training data, annotation export json, professional image tagger, visual annotation, image markup tool, photo metadata editor, annotation software online, machine learning annotation, object tagging tool, ai dataset creator, image classification tool, annotation platform, visual tagging system, imgcraft annotation{% endblock %}
+{% block meta_keywords %}image annotation tool, ai annotation, bounding box tool, image tagging software, metadata
+editor, polygon annotation, object detection annotation, computer vision tool, dataset annotation, image labeling, ml
+annotation tool, ai training data, annotation export json, professional image tagger, visual annotation, image markup
+tool, photo metadata editor, annotation software online, machine learning annotation, object tagging tool, ai dataset
+creator, image classification tool, annotation platform, visual tagging system, imgcraft annotation{% endblock %}
 
 {% block og_title %}AI Image Annotation & Tagging Tool - Professional Metadata Editor | ImgCraft{% endblock %}
 
-{% block og_description %}Create professional image annotations with bounding boxes, polygons, and custom tags. Export to JSON for AI/ML workflows. Advanced metadata management for computer vision projects.{% endblock %}
+{% block og_description %}Create professional image annotations with bounding boxes, polygons, and custom tags. Export
+to JSON for AI/ML workflows. Advanced metadata management for computer vision projects.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block head %}
@@ -25,20 +33,16 @@
 {% block content %}
 <div class="studio-wrapper">
 
-    <!-- LEFT PANEL: Image Info & Drawing Tools -->
     <aside class="studio-panel studio-panel-left glass-panel">
         <div class="panel-header">
-            <h3><i class="fas fa-draw-polygon"></i> Drawing Tools</h3>
-            <div class="premium-badge-small">
-                <i class="fas fa-crown"></i> Premium
-            </div>
+            <h3><i class="fas fa-pencil-alt"></i> Tools</h3>
+            <div class="badge badge-premium"><i class="fas fa-crown"></i> PRO</div>
         </div>
 
         <div class="panel-content custom-scrollbar">
-            <!-- Image Info Section -->
+
             <div id="fileInfoSection" style="display: none;">
-                <div class="info-section">
-                    <h4><i class="fas fa-image"></i> Image Details</h4>
+                <div class="file-info-section">
                     <div class="file-info-row">
                         <span class="file-info-label">Name:</span>
                         <span class="file-info-value" id="fileName">-</span>
@@ -48,33 +52,30 @@
                         <span class="file-info-value" id="fileSize">-</span>
                     </div>
                     <div class="file-info-row">
-                        <span class="file-info-label">Dimensions:</span>
-                        <span class="file-info-value" id="imageDimensions">-</span>
+                        <span class="file-info-label">Dim:</span>
+                        <span class="file-info-value" id="fileDimensions">-</span>
                     </div>
                 </div>
 
                 <hr class="panel-divider">
 
-                <!-- Drawing Tools -->
-                <div class="tool-section">
-                    <h4><i class="fas fa-pencil-ruler"></i> Annotation Tools</h4>
-                    <p class="section-hint">Select a tool to start annotating</p>
-                    
-                    <div class="tool-buttons">
-                        <button class="tool-btn-item" id="selectTool" title="Select & Move Annotations">
+                <div class="control-section">
+                    <label class="section-label">Annotation Mode</label>
+                    <div class="tool-grid-2x2">
+                        <button class="tool-card active" id="selectTool" title="Select/Edit Mode (V)">
                             <i class="fas fa-mouse-pointer"></i>
                             <span>Select</span>
                         </button>
-                        <button class="tool-btn-item active" id="rectangleTool" title="Draw Bounding Boxes">
-                            <i class="fas fa-vector-square"></i>
-                            <span>Rectangle</span>
+                        <button class="tool-card" id="rectTool" title="Rectangle Mode (R)">
+                            <i class="far fa-square"></i>
+                            <span>Box</span>
                         </button>
-                        <button class="tool-btn-item" id="polygonTool" title="Draw Polygon Regions">
+                        <button class="tool-card" id="polygonTool" title="Polygon Mode (P)">
                             <i class="fas fa-draw-polygon"></i>
-                            <span>Polygon</span>
+                            <span>Poly</span>
                         </button>
-                        <button class="tool-btn-item" id="pointTool" title="Add Point Markers">
-                            <i class="fas fa-map-pin"></i>
+                        <button class="tool-card" id="pointTool" title="Point Mode (M)">
+                            <i class="fas fa-map-marker-alt"></i>
                             <span>Point</span>
                         </button>
                     </div>
@@ -82,219 +83,138 @@
 
                 <hr class="panel-divider">
 
-                <!-- Active Annotation Settings -->
-                <div class="tool-section" id="activeAnnotationSettings" style="display: none;">
-                    <h4><i class="fas fa-cog"></i> Active Annotation</h4>
-                    <div class="form-group">
-                        <label for="annotationLabel">Label/Tag</label>
-                        <input type="text" id="annotationLabel" class="form-input" placeholder="e.g., Person, Car, Tree">
+                <div id="activeProps" style="display: none;">
+                    <label class="section-label">Selected Item</label>
+                    <div class="properties-box">
+                        <div class="input-group mb-2">
+                            <label>Label / Class</label>
+                            <input type="text" id="activeLabel" class="dark-input" placeholder="e.g. Car, Person">
+                        </div>
+                        <div class="input-group mb-2">
+                            <label>Color Tag</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="activeColor" value="#F97316">
+                                <span id="colorHex">#F97316</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm w-100" id="deleteActiveBtn">
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label for="annotationColor">Color</label>
-                        <input type="color" id="annotationColor" class="form-input-color" value="#F97316">
-                    </div>
-                    <button class="btn btn-danger btn-sm" id="deleteAnnotation">
-                        <i class="fas fa-trash"></i> Delete Annotation
-                    </button>
                 </div>
 
-                <!-- Helper Info -->
-                <div class="info-card-premium">
-                    <i class="fas fa-lightbulb"></i>
-                    <p><strong>Pro Tip:</strong> Click on any annotation to edit its label, color, or delete it. Use the tools above to create new annotations.</p>
-                </div>
-
-                <!-- EXIF Tool Link -->
-                <div class="info-card-link">
-                    <i class="fas fa-info-circle"></i>
-                    <p>Want to check full EXIF metadata? Try our <a href="/exif" class="inline-link">EXIF Tool</a></p>
+                <div class="info-card-small mt-3">
+                    <i class="fas fa-keyboard" style="color: var(--primary);"></i>
+                    <p><strong>Shortcuts:</strong><br><b>Del</b> to remove<br><b>Ctrl+Z</b> to Undo</p>
                 </div>
             </div>
 
-            <!-- Empty State -->
             <div class="info-box-empty" id="startInfoLeft">
-                <i class="fas fa-file-upload"></i>
-                <p>Upload an image to begin annotation</p>
+                <i class="fas fa-draw-polygon"></i>
+                <p>Upload image to start annotating</p>
             </div>
         </div>
     </aside>
 
-    <!-- CENTER: Canvas Area -->
+
     <main class="studio-canvas">
         <div class="canvas-container">
 
-            <!-- Upload Area (Initial State) -->
             <div class="upload-area-large" id="dropZone">
                 <div class="upload-content">
-                    <div class="upload-icon-large floating-anim">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    <h2>Image Annotation & Tagging Tool</h2>
-                    <p class="text-muted">Upload an image to start annotating</p>
-                    <p class="tool-cost-display">
-                        <i class="fas fa-coins"></i> This tool costs <strong>6 credits</strong>
-                    </p>
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-tag"></i></div>
+                    <h2>AI Annotation Studio</h2>
+                    <p class="text-muted">Drag & drop JPG, PNG for labeling</p>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 8px;"><i class="fas fa-info-circle"></i> Upload free • 15 credits per export</p>
                     <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-upload"></i> Choose Image
+                        Browse Files
                     </button>
                     <input type="file" id="fileInput" hidden accept="image/*">
                 </div>
             </div>
 
-            <!-- Canvas Stage (After Upload) -->
-            <div class="canvas-stage" id="canvasStage" style="display: none;">
-                <div class="canvas-wrapper" id="canvasWrapper">
-                    <!-- Fabric.js Canvas will be inserted here -->
-                    <canvas id="annotationCanvas"></canvas>
+            <div class="preview-stage" id="editorStage" style="display: none;">
+                <div class="annotation-wrapper" id="canvasWrapper">
+                    <canvas id="c"></canvas>
                 </div>
 
-                <!-- Canvas Controls -->
-                <div class="canvas-controls">
-                    <button class="control-btn" id="zoomIn" title="Zoom In">
-                        <i class="fas fa-search-plus"></i>
-                    </button>
-                    <button class="control-btn" id="zoomOut" title="Zoom Out">
-                        <i class="fas fa-search-minus"></i>
-                    </button>
-                    <button class="control-btn" id="zoomReset" title="Reset Zoom">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                    <button class="control-btn" id="changeImage" title="Change Image">
-                        <i class="fas fa-image"></i> Change Image
-                    </button>
+                <div class="canvas-floating-controls">
+                    <button class="float-btn" id="zoomOutBtn" title="Zoom Out"><i class="fas fa-minus"></i></button>
+                    <span class="zoom-text" id="zoomLevel">100%</span>
+                    <button class="float-btn" id="zoomInBtn" title="Zoom In"><i class="fas fa-plus"></i></button>
+                    <div class="divider"></div>
+                    <button class="float-btn" id="panTool" title="Pan Canvas (Space)"><i
+                            class="fas fa-hand-paper"></i></button>
+                    <button class="float-btn" id="resetViewBtn" title="Fit to Screen"><i
+                            class="fas fa-compress"></i></button>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- RIGHT PANEL: Annotations List & Export -->
+
     <aside class="studio-panel studio-panel-right glass-panel">
         <div class="panel-header">
-            <h3><i class="fas fa-list"></i> Annotations</h3>
-            <span class="badge-count" id="annotationCount">0</span>
+            <h3><i class="fas fa-layer-group"></i> Data</h3>
+            <span class="badge-count" id="objectCount">0 Objects</span>
         </div>
 
         <div class="panel-content custom-scrollbar">
-            
-            <!-- Global Metadata -->
-            <div id="metadataSection" style="display: none;">
-                <div class="metadata-section">
-                    <h4><i class="fas fa-database"></i> Image Metadata</h4>
-                    <div class="form-group">
-                        <label for="imageTitle">Title</label>
-                        <input type="text" id="imageTitle" class="form-input" placeholder="Image title">
-                    </div>
-                    <div class="form-group">
-                        <label for="imageDescription">Description</label>
-                        <textarea id="imageDescription" class="form-input" rows="3" placeholder="Image description"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="imageTags">Global Tags (comma-separated)</label>
-                        <input type="text" id="imageTags" class="form-input" placeholder="e.g., outdoor, landscape, nature">
+
+            <div id="dataSection" style="display: none;">
+
+                <div class="control-section">
+                    <label class="section-label collapsible" onclick="toggleMeta()">Global Metadata <i
+                            class="fas fa-chevron-down"></i></label>
+                    <div id="metaForm" class="meta-form">
+                        <input type="text" id="metaTitle" class="dark-input mb-2" placeholder="Image Title">
+                        <input type="text" id="metaTags" class="dark-input" placeholder="Tags (comma separated)">
                     </div>
                 </div>
 
                 <hr class="panel-divider">
 
-                <!-- Annotations List -->
-                <div class="annotations-list-section">
-                    <h4><i class="fas fa-tags"></i> Annotation List</h4>
-                    <p class="section-hint">Click to select and edit</p>
-                    <div id="annotationsList" class="annotations-list">
-                        <!-- Dynamically populated -->
+                <div class="control-section" style="flex: 1; display: flex; flex-direction: column;">
+                    <label class="section-label">Objects List</label>
+                    <div class="annotations-list-container custom-scrollbar" id="annotationsList">
                     </div>
-                    <div id="emptyAnnotationsList" class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>No annotations yet. Start drawing!</p>
+                    <div id="emptyListMsg" class="text-muted text-center mt-4 text-sm">
+                        No annotations yet.
                     </div>
                 </div>
 
-                <hr class="panel-divider">
-
-                <!-- Export/Import Section -->
-                <div class="export-section">
-                    <h4><i class="fas fa-file-export"></i> Export & Import</h4>
-                    <button class="btn btn-primary btn-full" id="exportJSON">
-                        <i class="fas fa-download"></i> Export Annotations (JSON)
-                    </button>
-                    <button class="btn btn-secondary btn-full mt-2" id="importJSON">
-                        <i class="fas fa-upload"></i> Import Annotations (JSON)
-                    </button>
-                    <input type="file" id="jsonFileInput" hidden accept=".json">
-                </div>
-
-                <div class="info-card-premium mt-3">
-                    <i class="fas fa-code"></i>
-                    <p><strong>JSON Export:</strong> Exported data includes all annotations, labels, coordinates, colors, and metadata. Perfect for AI/ML workflows!</p>
-                </div>
             </div>
 
-            <!-- Empty State -->
             <div class="info-box-empty" id="startInfoRight">
-                <i class="fas fa-list-ul"></i>
-                <p>Annotations will appear here</p>
+                <i class="fas fa-code"></i>
+                <p>Output data will appear here</p>
             </div>
 
+        </div>
+
+        <div class="panel-footer">
+            <div id="exportActions" style="display: none;">
+                <div class="btn-group-vertical">
+                    <button class="btn btn-primary btn-full" id="exportJsonBtn">
+                        <i class="fas fa-file-code"></i> Export JSON <span style="opacity: 0.8; font-size: 0.85em;">(15 credits)</span>
+                    </button>
+                    <button class="btn btn-outline btn-full mt-2" id="exportImageBtn">
+                        <i class="fas fa-image"></i> Export Image <span style="opacity: 0.8; font-size: 0.85em;">(15 credits)</span>
+                    </button>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn-link-danger" id="clearAllBtn">Clear All</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" disabled id="dummyExportBtn">Export Data</button>
         </div>
     </aside>
 
 </div>
+{% endblock %}
 
-<!-- Include JavaScript -->
-<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
-<script src="{{ url_for('static', filename='js/credits.js') }}"></script>
-<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/annotation.js') }}"></script>
-
-<script>
-    // Toast notification helper
-    function showToast(message, type = 'info') {
-        const container = document.getElementById('toast-container') || createToastContainer();
-        
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        
-        const icons = {
-            success: 'fa-check-circle',
-            error: 'fa-exclamation-circle',
-            warning: 'fa-exclamation-triangle',
-            info: 'fa-info-circle'
-        };
-        
-        toast.innerHTML = `
-            <div class="toast-icon">
-                <i class="fas ${icons[type]}"></i>
-            </div>
-            <div class="toast-content">
-                <div class="toast-message">${message}</div>
-            </div>
-            <button class="toast-close">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="toast-progress"></div>
-        `;
-        
-        container.appendChild(toast);
-        
-        setTimeout(() => toast.classList.add('show'), 10);
-        
-        const closeBtn = toast.querySelector('.toast-close');
-        closeBtn.addEventListener('click', () => removeToast(toast));
-        
-        setTimeout(() => removeToast(toast), 5000);
-        
-        function removeToast(toast) {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }
-    }
-    
-    function createToastContainer() {
-        const container = document.createElement('div');
-        container.id = 'toast-container';
-        document.body.appendChild(container);
-        return container;
-    }
-</script>
 {% endblock %}

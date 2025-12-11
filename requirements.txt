@@ -10,6 +10,10 @@ MarkupSafe==2.1.3
 itsdangerous==2.1.2
 click==8.1.7
 
+# Required for razorpay and other packages
+setuptools>=65.0.0
+wheel
+
 # WSGI Server for Production
 gunicorn==21.2.0
 
