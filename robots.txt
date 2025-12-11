@@ -35,7 +35,7 @@ Allow: /favicon.ico
 Allow: /favicon.png
 
 # Sitemap location
-Sitemap: https://imgcraft.in/sitemap.xml
+Sitemap: https://imgcraft.online/sitemap.xml
 
 # Specific bots
 User-agent: Googlebot
