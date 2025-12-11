@@ -139,9 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Export
             this.ui.btnExportJson.addEventListener('click', () => this.exportJSON());
             this.ui.btnExportImage.addEventListener('click', () => this.exportImage());
-            this.ui.btnClear.addEventListener('click', () => {
-                if (confirm("Clear all annotations?")) this.clearAll();
-            });
+            this.ui.btnClear.addEventListener('click', () => this.showClearAllModal());
 
             // Keyboard Shortcuts
             document.addEventListener('keydown', (e) => {
@@ -573,6 +571,44 @@ document.addEventListener('DOMContentLoaded', () => {
             this.updateCount();
         },
 
+        showClearAllModal() {
+            const count = this.ui.annotationsList.children.length;
+            if (count === 0) {
+                showToast('No annotations to clear', 'info');
+                return;
+            }
+
+            // Ensure modal is ready
+            const showModal = () => {
+                if (window.showConfirmModal) {
+                    window.showConfirmModal(
+                        'Clear All Annotations?',
+                        `Are you sure you want to delete all ${count} annotation${count > 1 ? 's' : ''}? This action cannot be undone.`,
+                        () => {
+                            this.clearAll();
+                            showToast('All annotations cleared', 'success');
+                        },
+                        () => {
+                            // Cancel - do nothing
+                        }
+                    );
+                } else {
+                    // Fallback to confirm
+                    if (confirm(`Clear all ${count} annotations? This cannot be undone.`)) {
+                        this.clearAll();
+                        showToast('All annotations cleared', 'success');
+                    }
+                }
+            };
+
+            // Small delay to ensure modal.js is loaded
+            if (!window.showConfirmModal) {
+                setTimeout(showModal, 100);
+            } else {
+                showModal();
+            }
+        },
+
         // ============================================================
         // TOOLS & UTILS
         // ============================================================
@@ -765,12 +801,79 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Export canvas as image (with annotations burned in)
-            const dataURL = this.canvas.toDataURL({
-                format: 'png',
-                quality: 1,
-                multiplier: 1 // Export at canvas resolution
+            // Export only the image with annotations (not the canvas background)
+            // Create a temporary canvas with just the image and annotations
+            const tempCanvas = document.createElement('canvas');
+            const ctx = tempCanvas.getContext('2d');
+            
+            // Get background image dimensions
+            const bgImage = this.canvas.backgroundImage;
+            if (!bgImage) {
+                showToast('No image to export', 'error');
+                return;
+            }
+            
+            // Set temp canvas to original image size
+            const imgWidth = this.originalImage.width;
+            const imgHeight = this.originalImage.height;
+            tempCanvas.width = imgWidth;
+            tempCanvas.height = imgHeight;
+            
+            // Draw original image
+            ctx.drawImage(this.originalImage, 0, 0);
+            
+            // Calculate scale factor from canvas to original image
+            const scaleFactor = 1 / this.imageScale;
+            
+            // Get canvas center offset
+            const canvasCenterX = this.canvas.width / 2;
+            const canvasCenterY = this.canvas.height / 2;
+            const imgCenterX = imgWidth / 2;
+            const imgCenterY = imgHeight / 2;
+            
+            // Draw annotations on top
+            const objects = this.canvas.getObjects().filter(o => o.id);
+            objects.forEach(obj => {
+                ctx.save();
+                
+                // Adjust position from canvas coords to image coords
+                const offsetX = (obj.left - canvasCenterX) * scaleFactor + imgCenterX;
+                const offsetY = (obj.top - canvasCenterY) * scaleFactor + imgCenterY;
+                
+                ctx.strokeStyle = obj.stroke || '#F97316';
+                ctx.fillStyle = obj.fill || 'rgba(249, 115, 22, 0.2)';
+                ctx.lineWidth = 2;
+                
+                if (obj.type === 'rect') {
+                    const w = obj.width * obj.scaleX * scaleFactor;
+                    const h = obj.height * obj.scaleY * scaleFactor;
+                    ctx.fillRect(offsetX, offsetY, w, h);
+                    ctx.strokeRect(offsetX, offsetY, w, h);
+                } else if (obj.type === 'circle' || obj.type === 'point') {
+                    const r = obj.radius * scaleFactor;
+                    ctx.beginPath();
+                    ctx.arc(offsetX, offsetY, r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (obj.type === 'polygon') {
+                    if (obj.points && obj.points.length > 0) {
+                        ctx.beginPath();
+                        obj.points.forEach((point, i) => {
+                            const px = (point.x - canvasCenterX) * scaleFactor + imgCenterX;
+                            const py = (point.y - canvasCenterY) * scaleFactor + imgCenterY;
+                            if (i === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
+                        });
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                }
+                
+                ctx.restore();
             });
+            
+            const dataURL = tempCanvas.toDataURL('image/png', 1.0);
 
             const link = document.createElement('a');
             link.download = 'annotated_image.png';

@@ -622,3 +622,47 @@ class ModalManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.modalManager = new ModalManager();
 });
+
+// ============================================================================
+// CONFIRM MODAL - Global Helper Function
+// ============================================================================
+window.showConfirmModal = function(title, message, onConfirm, onCancel) {
+    const confirmContent = `
+        <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 3rem; color: #ef4444; margin-bottom: 20px;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 style="margin: 0 0 15px 0; color: #fff; font-size: 1.5rem;">${title}</h2>
+            <p style="color: #94A3B8; margin-bottom: 30px; line-height: 1.6;">${message}</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="confirmCancel" class="btn btn-outline" style="min-width: 120px;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button id="confirmOk" class="btn btn-danger" style="min-width: 120px;">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Show modal
+    if (window.modalManager) {
+        window.modalManager.showCustomModal(confirmContent, 'confirm-modal');
+
+        // Add event listeners
+        setTimeout(() => {
+            const cancelBtn = document.getElementById('confirmCancel');
+            const okBtn = document.getElementById('confirmOk');
+
+            cancelBtn?.addEventListener('click', () => {
+                window.modalManager.close();
+                if (onCancel) onCancel();
+            });
+
+            okBtn?.addEventListener('click', () => {
+                window.modalManager.close();
+                if (onConfirm) onConfirm();
+            });
+        }, 100);
+    }
+};
