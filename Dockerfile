@@ -32,5 +32,8 @@ EXPOSE $PORT
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Run gunicorn - Port is set by Render via $PORT environment variable
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 app:app
+# Run gunicorn - Optimized for 512MB RAM
+# - Only 1 worker to prevent OOM (Free tier has limited RAM)
+# - Increased timeout for model loading
+# - Preload disabled to prevent startup OOM
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 300 --max-requests 100 --max-requests-jitter 10 app:app

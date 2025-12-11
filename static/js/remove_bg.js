@@ -18,12 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressContainer = document.getElementById('progressContainer');
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
-    const downloadArea = document.getElementById('downloadArea');
-    const fileInfo = document.getElementById('fileInfo');
+    const resultButtons = document.getElementById('resultButtons');
+    const fileInfoSection = document.getElementById('fileInfoSection');
+    const startInfoLeft = document.getElementById('startInfoLeft');
+    const startInfoRight = document.getElementById('startInfoRight');
+    const successInfo = document.getElementById('successInfo');
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const toastContainer = document.getElementById('toast-container'); // NEW
+    const toastContainer = document.getElementById('toast-container');
+
+    // Control Panel Elements
+    const mainControls = document.getElementById('mainControls');
+    const editorTools = document.getElementById('editorTools');
+    const mainFooter = document.getElementById('mainFooter');
+    const editorFooter = document.getElementById('editorFooter');
 
     // Slider Elements
     const sliderHandle = document.getElementById('sliderHandle');
@@ -32,10 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentFile = null;
 
-    // --- 1. Initialize Draggable File Info ---
-    if (fileInfo) makeDraggable(fileInfo);
-
-    // --- 2. Initialize Slider Logic (Immediately) ---
+    // --- 1. Initialize Slider Logic ---
     if (sliderHandle && compareContainer) initCompareSlider();
 
     // --- File Handling ---
@@ -66,7 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Info Text
         if (fileName) fileName.textContent = file.name;
         if (fileSize) fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-        if (fileInfo) fileInfo.style.display = 'flex';
+        
+        // Show file info, hide empty state
+        if (fileInfoSection) fileInfoSection.style.display = 'block';
+        if (startInfoLeft) startInfoLeft.style.display = 'none';
+        if (startInfoRight) startInfoRight.style.display = 'none';
 
         // FORCE DISPLAY IMMEDIATELY
         if (previewContainer) {
@@ -94,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 4. Hide Success/Progress Areas
-            if (downloadArea) downloadArea.style.display = 'none';
+            if (resultButtons) resultButtons.style.display = 'none';
+            if (successInfo) successInfo.style.display = 'none';
             if (progressContainer) progressContainer.style.display = 'none';
         };
         reader.readAsDataURL(file);
@@ -197,7 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (loadingOverlay) loadingOverlay.style.display = 'none';
-                    if (downloadArea) downloadArea.style.display = 'block';
+                    if (resultButtons) resultButtons.style.display = 'block';
+                    if (successInfo) successInfo.style.display = 'block';
                     if (removeBtn) {
                         removeBtn.style.display = 'none';
                         removeBtn.disabled = false;
@@ -393,11 +405,23 @@ document.addEventListener('DOMContentLoaded', () => {
         isEditing = true;
         logEvent('enter_edit_mode');
 
+        // Validate images exist
+        if (!previewProcessed || !previewProcessed.src || !previewOriginal || !previewOriginal.src) {
+            showToast('error', 'Error', 'Images not loaded. Please process the image first.');
+            return;
+        }
+
         // Hide Comparison, Show Editor
         compareWrapper.style.display = 'none';
         editorContainer.style.display = 'flex';
         manualFixBtn.style.display = 'none';
-        downloadArea.style.display = 'none';
+        resultButtons.style.display = 'none';
+
+        // Switch Control Panels
+        if (mainControls) mainControls.style.display = 'none';
+        if (editorTools) editorTools.style.display = 'block';
+        if (mainFooter) mainFooter.style.display = 'none';
+        if (editorFooter) editorFooter.style.display = 'block';
 
         // Load Images
         editImage.src = previewProcessed.src;
@@ -409,24 +433,68 @@ document.addEventListener('DOMContentLoaded', () => {
             ghostOverlay.src = previewOriginal.src;
         }
 
+        // Wait for BOTH images to load
+        let processedLoaded = false;
+        let sourceLoaded = false;
+
+        const checkBothLoaded = () => {
+            if (processedLoaded && sourceLoaded) {
+                initializeCanvas();
+            }
+        };
+
         editImage.onload = () => {
-            // Setup Canvas
-            canvas.width = editImage.naturalWidth;
-            canvas.height = editImage.naturalHeight;
+            processedLoaded = true;
+            checkBothLoaded();
+        };
 
-            // Initial Draw
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(editImage, 0, 0);
+        sourceImage.onload = () => {
+            sourceLoaded = true;
+            checkBothLoaded();
+        };
 
-            // Reset History
-            history = [];
-            historyStep = -1;
-            saveState();
+        // Error handling
+        editImage.onerror = () => {
+            showToast('error', 'Error', 'Failed to load processed image.');
+            exitEditMode(false);
+        };
 
-            // Reset Zoom
+        sourceImage.onerror = () => {
+            showToast('error', 'Error', 'Failed to load original image.');
+            exitEditMode(false);
+        };
+    }
+
+    function initializeCanvas() {
+        if (!canvas || !ctx || !editImage) return;
+
+        // Setup Canvas dimensions
+        canvas.width = editImage.naturalWidth;
+        canvas.height = editImage.naturalHeight;
+
+        console.log('Canvas initialized:', canvas.width, 'x', canvas.height);
+
+        // Reset canvas style to ensure visibility
+        canvas.style.display = 'block';
+
+        // Clear and draw the processed image
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(editImage, 0, 0, canvas.width, canvas.height);
+
+        // Verify the image was drawn
+        const imageData = ctx.getImageData(0, 0, 1, 1);
+        console.log('Canvas pixel check:', imageData.data);
+
+        // Reset History
+        history = [];
+        historyStep = -1;
+        saveState();
+
+        // Reset Zoom and Fit - use timeout to ensure DOM is ready
+        setTimeout(() => {
             fitCanvas();
             updateBrushCursor();
-        };
+        }, 50);
     }
 
     function exitEditMode(apply = false) {
@@ -434,7 +502,13 @@ document.addEventListener('DOMContentLoaded', () => {
         editorContainer.style.display = 'none';
         compareWrapper.style.display = 'flex';
         manualFixBtn.style.display = 'inline-block';
-        downloadArea.style.display = 'block';
+        resultButtons.style.display = 'block';
+
+        // Switch Control Panels Back
+        if (mainControls) mainControls.style.display = 'block';
+        if (editorTools) editorTools.style.display = 'none';
+        if (mainFooter) mainFooter.style.display = 'block';
+        if (editorFooter) editorFooter.style.display = 'none';
 
         if (apply) {
             logEvent('apply_edits');
@@ -461,10 +535,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function fitCanvas() {
+        if (!canvas || !canvasWrapper) return;
+
         const wrapperRect = canvasWrapper.getBoundingClientRect();
+        
+        // Ensure wrapper has dimensions
+        if (wrapperRect.width === 0 || wrapperRect.height === 0) {
+            console.warn('Canvas wrapper not ready, retrying...');
+            setTimeout(fitCanvas, 100);
+            return;
+        }
+
         const scaleX = wrapperRect.width / canvas.width;
         const scaleY = wrapperRect.height / canvas.height;
-        scale = Math.min(scaleX, scaleY) * 0.9; // 90% fit
+        scale = Math.min(scaleX, scaleY, 1) * 0.85; // Max 85% fit, never upscale
 
         // Center
         offsetX = (wrapperRect.width - canvas.width * scale) / 2;
@@ -474,15 +558,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTransform() {
+        if (!canvas) return;
+
         const transformStr = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
         canvas.style.transform = transformStr;
         canvas.style.transformOrigin = '0 0';
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
 
         // Sync Ghost Overlay
         if (ghostOverlay) {
             ghostOverlay.style.width = canvas.width + 'px';
             ghostOverlay.style.height = canvas.height + 'px';
             ghostOverlay.style.transform = transformStr;
+            ghostOverlay.style.transformOrigin = '0 0';
+            ghostOverlay.style.position = 'absolute';
+            ghostOverlay.style.top = '0';
+            ghostOverlay.style.left = '0';
         }
 
         updateBrushCursor();
@@ -497,6 +590,14 @@ document.addEventListener('DOMContentLoaded', () => {
         toolErase.classList.toggle('active', tool === 'erase');
         toolRestore.classList.toggle('active', tool === 'restore');
 
+        // Update Tool Description
+        const toolDesc = document.getElementById('toolDesc');
+        if (toolDesc) {
+            toolDesc.textContent = tool === 'erase' 
+                ? 'Click to remove background' 
+                : 'Click to restore original';
+        }
+
         // Toggle Ghost Overlay Class
         if (canvasWrapper) {
             if (tool === 'restore') {
@@ -510,10 +611,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (brushSizeInput) {
         brushSizeInput.addEventListener('input', (e) => {
             brushSize = parseInt(e.target.value);
+            const brushSizeVal = document.getElementById('brushSizeVal');
+            if (brushSizeVal) brushSizeVal.textContent = brushSize;
             updateBrushCursor();
         });
     }
-    if (brushHardnessInput) brushHardnessInput.addEventListener('input', (e) => brushHardness = parseInt(e.target.value) / 100);
+    if (brushHardnessInput) {
+        brushHardnessInput.addEventListener('input', (e) => {
+            brushHardness = parseInt(e.target.value) / 100;
+            const brushHardnessVal = document.getElementById('brushHardnessVal');
+            if (brushHardnessVal) brushHardnessVal.textContent = e.target.value;
+        });
+    }
 
     if (btnUndo) btnUndo.addEventListener('click', undo);
     if (btnRedo) btnRedo.addEventListener('click', redo);

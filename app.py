@@ -1201,6 +1201,10 @@ def api_convert(current_user):
 @require_auth
 @log_request
 def api_remove_bg(current_user):
+    """
+    Optimized background removal for 512MB RAM environments
+    Uses lightweight u2netp model with smart image resizing
+    """
     # Get cost from database
     cost = get_tool_cost('remove_bg')
     
@@ -1208,6 +1212,7 @@ def api_remove_bg(current_user):
     deduct_result = credit_manager.deduct_credits(current_user['id'], 'remove_bg', cost)
     if not deduct_result['success']:
         return jsonify(deduct_result), 402
+    
     if 'image' not in request.files:
         logger.warning("Remove background request missing image file")
         return 'No image uploaded', 400
@@ -1216,22 +1221,60 @@ def api_remove_bg(current_user):
     
     try:
         input_image = Image.open(file)
-        logger.info(f"Removing background from image: {input_image.size}")
+        original_size = input_image.size
+        logger.info(f"Removing background from image: {original_size}")
         
-        # Remove background
-        output_image = remove(input_image)
+        # --- MEMORY OPTIMIZATION START ---
+        # 1. Define maximum dimensions to prevent OOM on large images
+        MAX_DIMENSION = 1920  # Max width or height
         
+        # 2. Resize if image is too large (preserves aspect ratio)
+        needs_resize = max(input_image.size) > MAX_DIMENSION
+        if needs_resize:
+            ratio = MAX_DIMENSION / max(input_image.size)
+            new_size = tuple(int(dim * ratio) for dim in input_image.size)
+            logger.info(f"Resizing image from {original_size} to {new_size} to prevent OOM")
+            input_image = input_image.resize(new_size, Image.Resampling.LANCZOS)
+        
+        # 3. Import lightweight session model (u2netp - only ~4.7MB model size)
+        from rembg import remove, new_session
+        
+        # 4. Create session with lightweight model
+        # u2netp = portable version, much smaller memory footprint
+        session = new_session("u2netp")
+        
+        # 5. Remove background with optimized settings
+        output_image = remove(
+            input_image,
+            session=session,
+            only_mask=False,  # Return RGBA image, not just mask
+            post_process_mask=True  # Clean up edges
+        )
+        
+        # 6. If we resized, optionally scale back up (or keep optimized size)
+        # For 512MB RAM, it's safer to keep the optimized size
+        # Uncomment below if you want to restore original size:
+        # if needs_resize:
+        #     output_image = output_image.resize(original_size, Image.Resampling.LANCZOS)
+        
+        # --- MEMORY OPTIMIZATION END ---
+        
+        # Save to buffer
         img_io = io.BytesIO()
-        output_image.save(img_io, 'PNG')
+        output_image.save(img_io, 'PNG', optimize=True)
         img_io.seek(0)
+        
+        # Clean up
+        del input_image
+        del output_image
+        del session
         
         logger.info("Background removal completed successfully")
         
-        # --- UPDATE START: Return response with Cost Header ---
+        # Return response with Cost Header
         response = make_response(send_file(img_io, mimetype='image/png'))
         response.headers['X-Credits-Cost'] = str(cost)
         return response
-        # --- UPDATE END ---
         
     except Exception as e:
         logger.error(f"Background removal failed: {str(e)}")
