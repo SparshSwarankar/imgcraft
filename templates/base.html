@@ -47,9 +47,6 @@
     <meta name="msapplication-TileColor" content="#0F172A">
     <meta name="msapplication-TileImage" content="/static/image/icon-512x512.png">
     <meta name="theme-color" content="#F97316">
-    <meta name="description"
-        content="ImgCraft - Professional AI-powered image editing suite. Works offline with PWA technology.">
-
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
@@ -511,6 +508,9 @@
     <!-- PWA Initialization Script - Load early for quick initialization -->
     <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/scrollbar.js') }}"></script>
+
+    <!-- First Visit Welcome Overlay -->
+    <script src="{{ url_for('static', filename='js/welcome-overlay.js') }}"></script>
 
     {% block scripts %}{% endblock %}
 </body>

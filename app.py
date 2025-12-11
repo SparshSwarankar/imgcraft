@@ -894,24 +894,21 @@ def inject_config():
 # ROUTES - PAGE RENDERING
 # ============================================================================
 
-def _coming_soon_response():
-    """Serve static coming soon page with noindex for crawlers."""
-    response = send_file('coming soon/coming_soon.html')
-    response.headers['X-Robots-Tag'] = 'noindex, nofollow'
-    return response
-
-
 @app.route('/')
 def index():
-    """Main landing page; gated by COMING_SOON_MODE toggle."""
-    preview_mode = request.args.get('preview') == '1'
-
-    if config.COMING_SOON_MODE and not preview_mode:
-        logger.debug("COMING_SOON_MODE active; serving placeholder")
-        return _coming_soon_response()
-
+    """Main landing page."""
     logger.debug("Rendering main index page")
     return render_template('index.html')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    """Serve sitemap.xml for SEO."""
+    return send_file('sitemap.xml', mimetype='application/xml')
+
+@app.route('/robots.txt')
+def robots():
+    """Serve robots.txt for search engines."""
+    return send_file('robots.txt', mimetype='text/plain')
 
 @app.route('/favicon.png')
 @app.route('/favicon.ico')
@@ -3126,6 +3123,33 @@ def health_check():
         'version': APP_VERSION
     }), 200
 
+
+@app.route('/api/check-first-visit', methods=['POST'])
+def check_first_visit():
+    """Check if this is user's first visit based on IP address"""
+    try:
+        # Get client IP address
+        if request.headers.get('X-Forwarded-For'):
+            client_ip = request.headers.get('X-Forwarded-For').split(',')[0].strip()
+        else:
+            client_ip = request.remote_addr
+        
+        # Check if IP exists in our tracking (using cookies as fallback)
+        has_visited = request.cookies.get('imgcraft_visited')
+        
+        if has_visited:
+            return jsonify({'isFirstVisit': False}), 200
+        
+        # Mark as visited
+        response = jsonify({'isFirstVisit': True})
+        response.set_cookie('imgcraft_visited', 'true', max_age=365*24*60*60)  # 1 year
+        
+        logger.info(f"First visit detected for IP: {client_ip}")
+        return response, 200
+        
+    except Exception as e:
+        logger.error(f"Error checking first visit: {e}")
+        return jsonify({'isFirstVisit': False}), 200
 
 
 

@@ -57,8 +57,7 @@ class Config:
     # Ads / Misc
     GOOGLE_PUBLISHER_ID: str = os.getenv('GOOGLE_PUBLISHER_ID', 'ca-pub-5547900968688861')
 
-    # Launch / rollout controls
-    COMING_SOON_MODE: bool = _to_bool(os.getenv('COMING_SOON_MODE', 'false'))
+    # Launch / rollout controls - COMING_SOON_MODE removed, site is live
 
     # Derived
     MAX_CONTENT_LENGTH: int = field(init=False)

@@ -1,0 +1,65 @@
+# Robots.txt for ImgCraft - Intelligent Image Toolkit
+# Updated: December 11, 2025
+
+User-agent: *
+Allow: /
+Allow: /compress
+Allow: /resize
+Allow: /crop
+Allow: /convert
+Allow: /watermark
+Allow: /filter
+Allow: /remove_bg
+Allow: /upscale
+Allow: /exif
+Allow: /palette
+Allow: /collage
+Allow: /annotation
+Allow: /auth
+Allow: /billing
+
+# Block private/internal paths
+Disallow: /api/
+Disallow: /uploads/
+Disallow: /admin/
+Disallow: /__pycache__/
+Disallow: /static/image/
+Disallow: /logs/
+Disallow: /database/
+
+# Allow static assets for better indexing
+Allow: /static/css/
+Allow: /static/js/
+Allow: /static/manifest.json
+Allow: /favicon.ico
+Allow: /favicon.png
+
+# Sitemap location
+Sitemap: https://imgcraft.in/sitemap.xml
+
+# Specific bots
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /uploads/
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Crawl-delay: 10
