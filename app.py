@@ -1002,19 +1002,6 @@ def annotation_tool():
     logger.debug("Rendering annotation tool page")
     return render_template('annotation.html')
 
-# ============================================================================
-# API ROUTES - HEALTH CHECK
-# ============================================================================
-
-@app.route('/api/health', methods=['GET'])
-def api_health():
-    """Health check endpoint for frontend status verification"""
-    logger.debug("Health check requested")
-    return {
-        'status': 'healthy',
-        'service': 'ImgCraft Backend',
-        'version': '1.0.0'
-    }, 200
 
 # ============================================================================
 # API ROUTES - IMAGE PROCESSING
