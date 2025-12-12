@@ -913,17 +913,14 @@ def robots():
 
 @app.route('/favicon.ico')
 def favicon_ico():
-    """Serve favicon.ico directly (important for crawlers and browsers)."""
-    response = make_response(send_file('static/image/favicon.ico', mimetype='image/x-icon'))
-    # Help browsers update quickly when favicon changes
-    response.headers['Cache-Control'] = 'public, max-age=0, must-revalidate'
-    return response
+    """Compatibility route: redirect /favicon.ico to the static favicon file."""
+    return redirect('/static/favicon.ico', code=301)
 
 
 @app.route('/favicon.png')
 def favicon_png_redirect():
     """Backward-compat: redirect png favicon requests to the .ico favicon."""
-    return redirect('/favicon.ico', code=301)
+    return redirect('/static/favicon.ico', code=301)
 
 @app.route('/ping', methods=['GET'])
 def ping():

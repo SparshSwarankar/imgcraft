@@ -3,7 +3,7 @@
 // Comprehensive offline support, caching, background sync, and updates
 // ============================================================================
 
-const CACHE_VERSION = 'imgcraft-v1';
+const CACHE_VERSION = 'imgcraft-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const API_CACHE = `${CACHE_VERSION}-api`;
@@ -25,7 +25,7 @@ const STATIC_ASSETS = [
   '/static/js/background.js',
   '/static/js/pwa.js',
   '/static/image/Logo.jpg',
-  '/favicon.ico',
+  '/static/favicon.ico',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
@@ -127,17 +127,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Favicon - treat all /favicon.ico variations (including ?v=) as the same cache key
-  if (url.pathname === '/favicon.ico') {
+  // Favicon - treat all favicon variations (including ?v=) as the same cache key
+  if (url.pathname === '/favicon.ico' || url.pathname === '/static/favicon.ico') {
     event.respondWith(
       (async () => {
         const cache = await caches.open(STATIC_CACHE);
-        const cached = await cache.match('/favicon.ico');
+        const canonicalKey = '/static/favicon.ico';
+        const cached = await cache.match(canonicalKey);
         if (cached) return cached;
 
-        const response = await fetch('/favicon.ico', { cache: 'no-store' });
+        const response = await fetch(canonicalKey, { cache: 'no-store' });
         if (response && response.status === 200) {
-          cache.put('/favicon.ico', response.clone());
+          cache.put(canonicalKey, response.clone());
         }
         return response;
       })()
