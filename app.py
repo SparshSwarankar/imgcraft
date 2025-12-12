@@ -887,6 +887,7 @@ def inject_config():
         'SUPABASE_URL': config.SUPABASE_URL,
         'SUPABASE_ANON_KEY': config.SUPABASE_ANON_KEY,
         'RAZORPAY_KEY_ID': config.RAZORPAY_KEY_ID,
+        'APP_VERSION': app.config.get('APP_VERSION', APP_VERSION),
         'user_ad_free': ad_free  # Available in all templates
     }
 
@@ -910,14 +911,19 @@ def robots():
     """Serve robots.txt for search engines."""
     return send_file('robots.txt', mimetype='text/plain')
 
-@app.route('/favicon.png')
 @app.route('/favicon.ico')
-def favicon():
-    """
-    Redirect favicon requests to static image
-    Browsers automatically request /favicon.ico or /favicon.png
-    """
-    return redirect('/static/image/favicon.ico', code=301)
+def favicon_ico():
+    """Serve favicon.ico directly (important for crawlers and browsers)."""
+    response = make_response(send_file('static/image/favicon.ico', mimetype='image/x-icon'))
+    # Help browsers update quickly when favicon changes
+    response.headers['Cache-Control'] = 'public, max-age=0, must-revalidate'
+    return response
+
+
+@app.route('/favicon.png')
+def favicon_png_redirect():
+    """Backward-compat: redirect png favicon requests to the .ico favicon."""
+    return redirect('/favicon.ico', code=301)
 
 @app.route('/ping', methods=['GET'])
 def ping():

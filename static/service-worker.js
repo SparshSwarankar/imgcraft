@@ -25,7 +25,7 @@ const STATIC_ASSETS = [
   '/static/js/background.js',
   '/static/js/pwa.js',
   '/static/image/Logo.jpg',
-  '/static/image/favicon.ico',
+  '/favicon.ico',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
@@ -124,6 +124,24 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests, external resources, and certain URLs
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // Favicon - treat all /favicon.ico variations (including ?v=) as the same cache key
+  if (url.pathname === '/favicon.ico') {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(STATIC_CACHE);
+        const cached = await cache.match('/favicon.ico');
+        if (cached) return cached;
+
+        const response = await fetch('/favicon.ico', { cache: 'no-store' });
+        if (response && response.status === 200) {
+          cache.put('/favicon.ico', response.clone());
+        }
+        return response;
+      })()
+    );
     return;
   }
 
