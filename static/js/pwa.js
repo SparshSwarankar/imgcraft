@@ -11,6 +11,8 @@ class ImgCraftPWA {
     this.deferredPrompt = null;
     this.db = null;
     this.theme = this.loadTheme();
+
+    this._installPromptShownThisPage = false;
   }
 
   // ========================================================================
@@ -115,13 +117,32 @@ class ImgCraftPWA {
    * Show custom install prompt to user
    */
   showInstallPrompt() {
-    // Check if we should show the prompt (not too frequently)
-    const lastPrompt = localStorage.getItem('imgcraft_install_prompt_time');
+    // Never show if already installed
+    if (this.isInstalled || this.checkIfInstalled()) {
+      return;
+    }
+
+    // Only show if the browser actually allows installation right now
+    if (!this.deferredPrompt) {
+      return;
+    }
+
+    // Avoid duplicate prompts on the same page load
+    if (this._installPromptShownThisPage) {
+      return;
+    }
+
+    // Check if we should show the prompt (only cooldown after explicit dismiss)
+    // Backwards-compat: if old key exists, treat it as last-dismissed time.
+    const lastPrompt = localStorage.getItem('imgcraft_install_prompt_dismissed_time') ||
+                       localStorage.getItem('imgcraft_install_prompt_time');
     const now = Date.now();
 
     if (lastPrompt && now - parseInt(lastPrompt) < 86400000) {
       return; // Don't show more than once per 24 hours
     }
+
+    this._installPromptShownThisPage = true;
 
     // Create custom install prompt
     const promptDiv = document.createElement('div');
@@ -171,13 +192,22 @@ class ImgCraftPWA {
     const cancelBtn = promptDiv.querySelector('.install-prompt-cancel');
     const installBtn = promptDiv.querySelector('.install-prompt-install');
 
-    const closePrompt = () => {
+    const closePrompt = (wasExplicitDismiss = false) => {
       promptDiv.classList.add('hide');
       setTimeout(() => promptDiv.remove(), 300);
+
+      // Only start the 24h cooldown if the user explicitly dismissed it.
+      // If it auto-hides (no interaction), we allow showing again on next visit.
+      if (wasExplicitDismiss) {
+        localStorage.setItem('imgcraft_install_prompt_dismissed_time', now.toString());
+
+        // Legacy key kept for older code paths
+        localStorage.setItem('imgcraft_install_prompt_time', now.toString());
+      }
     };
 
-    closeBtn.addEventListener('click', closePrompt);
-    cancelBtn.addEventListener('click', closePrompt);
+    closeBtn.addEventListener('click', () => closePrompt(true));
+    cancelBtn.addEventListener('click', () => closePrompt(true));
 
     installBtn.addEventListener('click', async () => {
       if (this.deferredPrompt) {
@@ -187,16 +217,14 @@ class ImgCraftPWA {
         // App install handled
         
         this.deferredPrompt = null;
-        closePrompt();
+        closePrompt(false);
       }
     });
-
-    localStorage.setItem('imgcraft_install_prompt_time', now.toString());
 
     // Auto-hide after 5 seconds if not interacted
     setTimeout(() => {
       if (promptDiv.parentElement) {
-        closePrompt();
+        closePrompt(false);
       }
     }, 8000);
   }
@@ -951,7 +979,8 @@ class ImgCraftPWA {
 
   checkIfInstalled() {
     return localStorage.getItem('imgcraft_app_installed') === 'true' ||
-           window.matchMedia('(display-mode: standalone)').matches;
+           window.matchMedia('(display-mode: standalone)').matches ||
+           (typeof window.navigator !== 'undefined' && window.navigator.standalone === true);
   }
 
   /**

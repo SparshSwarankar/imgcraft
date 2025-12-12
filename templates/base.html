@@ -38,9 +38,8 @@
 
     <!-- Favicon - Multiple formats for better browser support -->
     <!-- Favicon (served from static) -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/image/favicon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/image/favicon.png">
-    <link rel="shortcut icon" type="image/png" href="/static/image/favicon.png">
+    <link rel="icon" type="image/x-icon" href="/static/image/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/image/Logo.jpg">
     <link rel="apple-touch-icon" sizes="152x152" href="/static/image/Logo.jpg">
     <link rel="apple-touch-icon" sizes="120x120" href="/static/image/Logo.jpg">
@@ -51,7 +50,7 @@
     <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="{{ url_for('static', filename='image/favicon.png', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='image/favicon.ico', _external=True) }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
@@ -69,7 +68,7 @@
       "url": "https://imgcraft.online",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "Any",
-      "primaryImageOfPage": "{{ url_for('static', filename='image/favicon.png', _external=True) }}",
+    "primaryImageOfPage": "{{ url_for('static', filename='image/favicon.ico', _external=True) }}",
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": "USD",
@@ -502,6 +501,9 @@
 
     <!-- Ad Management System -->
     <script src="{{ url_for('static', filename='js/ads.js') }}"></script>
+
+    <!-- Consistent Loading UI across tools -->
+    <script src="{{ url_for('static', filename='js/busy-ui.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/background.js') }}"></script>
 

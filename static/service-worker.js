@@ -25,7 +25,7 @@ const STATIC_ASSETS = [
   '/static/js/background.js',
   '/static/js/pwa.js',
   '/static/image/Logo.jpg',
-  '/static/image/favicon.png',
+  '/static/image/favicon.ico',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];

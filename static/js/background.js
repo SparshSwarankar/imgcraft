@@ -1,248 +1,115 @@
-class ParticleNetwork {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
-        if (!this.canvas) {
-            console.warn('Background canvas not found');
-            return;
-        }
-        this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
-        this.mouse = { x: null, y: null };
-        this.animationId = null;
-        this.isVisible = true;
-        this.config = {
-            particleCount: 50,
-            connectionDistance: 150,
-            mouseDistance: 200,
-            baseSpeed: 0.5,
-            color: 'rgba(249, 115, 22, 0.5)', // Primary orange with opacity
-            lineColor: 'rgba(249, 115, 22, 0.15)'
-        };
+document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas) return;
 
-        this.init();
-    }
-
-    init() {
-        this.resize();
-        this.createParticles();
-        this.addEventListeners();
-        this.animate();
-    }
-
-    resize() {
-        // Use a stable viewport height for mobile browsers
-        let vw = window.innerWidth;
-        let vh;
-        
-        // Prefer visualViewport API if available (for mobile browsers)
-        if (window.visualViewport) {
-            vh = Math.max(
-                window.visualViewport.height,
-                document.documentElement.clientHeight,
-                window.innerHeight
-            );
-        } else {
-            vh = Math.max(document.documentElement.clientHeight, window.innerHeight);
-        }
-        
-        // For desktop, use standard window height
-        if (vw > 1024) {
-            vh = window.innerHeight;
-        }
-        
-        // Set canvas dimensions
-        this.canvas.width = vw;
-        this.canvas.height = vh;
-        
-        // Also update CSS for consistency
-        this.canvas.style.width = vw + 'px';
-        this.canvas.style.height = vh + 'px';
-    }
-
-    createParticles() {
-        this.particles = [];
-        const count = window.innerWidth < 768 ? 50 : this.config.particleCount;
-
-        for (let i = 0; i < count; i++) {
-            this.particles.push({
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
-                vx: (Math.random() - 0.5) * this.config.baseSpeed,
-                vy: (Math.random() - 0.5) * this.config.baseSpeed,
-                size: Math.random() * 2 + 1
-            });
-        }
-    }
-
-    addEventListeners() {
-        let resizeTimeout;
-        
-        // Debounced resize handler for better performance
-        const resizeHandler = () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                this.resize();
-                this.createParticles();
-            }, 150);
-        };
-        
-        window.addEventListener('resize', resizeHandler);
-        window.addEventListener('orientationchange', resizeHandler);
-        
-        // On mobile, also listen to visualViewport resize if available
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', resizeHandler);
-        }
-
-        // Mouse tracking
-        window.addEventListener('mousemove', (e) => {
-            this.mouse.x = e.x;
-            this.mouse.y = e.y;
-        });
-
-        window.addEventListener('mouseleave', () => {
-            this.mouse.x = null;
-            this.mouse.y = null;
-        });
-        
-        // Visibility API - pause when tab is hidden
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                this.pauseAnimation();
-            } else {
-                this.resumeAnimation();
-            }
-        });
-        
-        // Pause when page is not in focus (performance optimization)
-        window.addEventListener('blur', () => this.pauseAnimation());
-        window.addEventListener('focus', () => this.resumeAnimation());
-    }
-
-    pauseAnimation() {
-        this.isVisible = false;
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-    }
-
-    resumeAnimation() {
-        if (!this.isVisible) {
-            this.isVisible = true;
-            this.animate();
-        }
-    }
-
-    drawLines(p1, p2, distance) {
-        const opacity = 1 - (distance / this.config.connectionDistance);
-        this.ctx.strokeStyle = this.config.lineColor.replace('0.15', opacity * 0.15);
-        this.ctx.lineWidth = 1;
-        this.ctx.beginPath();
-        this.ctx.moveTo(p1.x, p1.y);
-        this.ctx.lineTo(p2.x, p2.y);
-        this.ctx.stroke();
-    }
-
-    update() {
-        this.particles.forEach(p => {
-            // Move particles
-            p.x += p.vx;
-            p.y += p.vy;
-
-            // Bounce off edges with buffer to prevent sticking
-            const buffer = 5;
-            if (p.x < buffer || p.x > this.canvas.width - buffer) {
-                p.vx *= -1;
-                p.x = Math.max(buffer, Math.min(this.canvas.width - buffer, p.x));
-            }
-            if (p.y < buffer || p.y > this.canvas.height - buffer) {
-                p.vy *= -1;
-                p.y = Math.max(buffer, Math.min(this.canvas.height - buffer, p.y));
-            }
-
-            // Mouse interaction (Antigravity/Repulsion)
-            if (this.mouse.x != null) {
-                const dx = this.mouse.x - p.x;
-                const dy = this.mouse.y - p.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < this.config.mouseDistance) {
-                    const forceDirectionX = dx / distance;
-                    const forceDirectionY = dy / distance;
-                    const force = (this.config.mouseDistance - distance) / this.config.mouseDistance;
-
-                    // Push away from cursor
-                    const directionX = forceDirectionX * force * 2;
-                    const directionY = forceDirectionY * force * 2;
-
-                    p.vx -= directionX * 0.05;
-                    p.vy -= directionY * 0.05;
-                }
-            }
-
-            // Friction to stabilize speed
-            const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-            if (speed > this.config.baseSpeed * 2) {
-                p.vx *= 0.95;
-                p.vy *= 0.95;
-            }
-        });
-    }
-
-    draw() {
-        // Clear with slight fade for motion trail effect (optional)
-        this.ctx.fillStyle = 'rgba(2, 6, 23, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        for (let i = 0; i < this.particles.length; i++) {
-            const p = this.particles[i];
-
-            // Draw particle
-            this.ctx.fillStyle = this.config.color;
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            // Connect particles
-            for (let j = i + 1; j < this.particles.length; j++) {
-                const p2 = this.particles[j];
-                const dx = p.x - p2.x;
-                const dy = p.y - p2.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < this.config.connectionDistance) {
-                    this.drawLines(p, p2, distance);
-                }
-            }
-        }
-    }
-
-    animate() {
-        if (!this.isVisible) return;
-        
-        this.update();
-        this.draw();
-        this.animationId = requestAnimationFrame(() => this.animate());
-    }
+    const ctx = canvas.getContext('2d');
+    let particles = [];
     
-    destroy() {
-        this.pauseAnimation();
-        window.removeEventListener('resize', this.resize);
-        window.removeEventListener('mousemove', this.mousemove);
-        window.removeEventListener('mouseleave', this.mouseleave);
-    }
-}
+    // --- CONFIGURATION (Adjusted for "Polite but Visible" Motion) ---
+    const particleCount = 15; 
+    const moveSpeed = 0.2;        // Increased: Was 0.08 (invisible), now 0.5 (slow drift)
+    const swaySpeed = 0.005;      // Speed of the "waving" motion
+    const swayAmplitude = 1.5;    // Distance of the sway (Makes it look organic)
 
-// Initialize when DOM is ready with error handling
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        const bgCanvas = document.getElementById('bg-canvas');
-        if (bgCanvas) {
-            new ParticleNetwork('bg-canvas');
-            console.log('✓ Background animation initialized');
-        }
-    } catch (error) {
-        console.error('Background animation failed to initialize:', error);
+    // Get theme colors
+    const rootStyles = getComputedStyle(document.documentElement);
+    const colorPrimary = rootStyles.getPropertyValue('--primary').trim() || '#F97316';
+    const colorSecondary = rootStyles.getPropertyValue('--secondary').trim() || '#E11D48';
+
+    function hexToRgba(hex, alpha) {
+        hex = hex.replace('#', '');
+        let r = parseInt(hex.substring(0, 2), 16);
+        let g = parseInt(hex.substring(2, 4), 16);
+        let b = parseInt(hex.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
+
+    class Particle {
+        constructor() {
+            this.init(true); // true = random start position
+        }
+
+        init(randomStart = false) {
+            // Position
+            this.x = randomStart ? Math.random() * canvas.width : Math.random() * canvas.width;
+            this.y = randomStart ? Math.random() * canvas.height : canvas.height + 100;
+
+            // Movement Velocity (Linear Drift)
+            this.vx = (Math.random() - 0.5) * moveSpeed; 
+            this.vy = (Math.random() - 0.5) * moveSpeed;
+
+            // Size & Look
+            this.radius = Math.random() * 120 + 60; // Big soft orbs
+            this.opacity = Math.random() * 0.15 + 0.05; // Subtle transparency
+            
+            // Oscillation (The "Breathing" logic)
+            this.angle = Math.random() * Math.PI * 2;
+            
+            // Color
+            const baseColor = Math.random() > 0.5 ? colorPrimary : colorSecondary;
+            this.color = hexToRgba(baseColor, this.opacity);
+        }
+
+        update() {
+            // 1. Linear Movement
+            this.x += this.vx;
+            this.y += this.vy;
+
+            // 2. Organic Sway (Sine Wave)
+            // This makes it look like it's floating in water, not just moving straight
+            this.x += Math.sin(this.angle) * swayAmplitude; 
+            this.y += Math.cos(this.angle) * swayAmplitude;
+            this.angle += swaySpeed;
+
+            // 3. Screen Wrap (Infinite Loop)
+            // If it goes off the right, move to left
+            if (this.x - this.radius > canvas.width) this.x = -this.radius;
+            if (this.x + this.radius < 0) this.x = canvas.width + this.radius;
+            
+            // If it goes off the bottom, move to top
+            if (this.y - this.radius > canvas.height) this.y = -this.radius;
+            if (this.y + this.radius < 0) this.y = canvas.height + this.radius;
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            
+            // BLUR EFFECT: This gives it the "Bokeh" look
+            // If the site feels slow on mobile, reduce "60px" to "30px"
+            ctx.filter = "blur(60px)"; 
+            
+            ctx.fill();
+            ctx.filter = "none"; // Reset filter
+            ctx.closePath();
+        }
+    }
+
+    function init() {
+        resize();
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+        animate();
+    }
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resize);
+    init();
 });

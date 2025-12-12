@@ -917,7 +917,7 @@ def favicon():
     Redirect favicon requests to static image
     Browsers automatically request /favicon.ico or /favicon.png
     """
-    return redirect('/static/image/favicon.png', code=301)
+    return redirect('/static/image/favicon.ico', code=301)
 
 @app.route('/ping', methods=['GET'])
 def ping():
