@@ -108,7 +108,8 @@ class ImgCraftPWA {
 
     window.addEventListener('appinstalled', () => {
       this.isInstalled = true;
-      localStorage.setItem('imgcraft_app_installed', 'true');
+      // Clear any dismiss timestamps so prompt doesn't show again
+      localStorage.removeItem('imgcraft_install_prompt_dismissed_time');
       this.trackEvent('app_installed');
     });
   }
@@ -117,8 +118,12 @@ class ImgCraftPWA {
    * Show custom install prompt to user
    */
   showInstallPrompt() {
+    // Check actual install status (not localStorage flag which can be stale)
+    const isActuallyInstalled = window.matchMedia('(display-mode: standalone)').matches ||
+                                (typeof window.navigator !== 'undefined' && window.navigator.standalone === true);
+    
     // Never show if already installed
-    if (this.isInstalled || this.checkIfInstalled()) {
+    if (isActuallyInstalled) {
       return;
     }
 
@@ -133,13 +138,11 @@ class ImgCraftPWA {
     }
 
     // Check if we should show the prompt (only cooldown after explicit dismiss)
-    // Backwards-compat: if old key exists, treat it as last-dismissed time.
-    const lastPrompt = localStorage.getItem('imgcraft_install_prompt_dismissed_time') ||
-                       localStorage.getItem('imgcraft_install_prompt_time');
+    const lastPrompt = localStorage.getItem('imgcraft_install_prompt_dismissed_time');
     const now = Date.now();
 
     if (lastPrompt && now - parseInt(lastPrompt) < 86400000) {
-      return; // Don't show more than once per 24 hours
+      return; // Don't show more than once per 24 hours after explicit dismiss
     }
 
     this._installPromptShownThisPage = true;
@@ -978,8 +981,8 @@ class ImgCraftPWA {
   }
 
   checkIfInstalled() {
-    return localStorage.getItem('imgcraft_app_installed') === 'true' ||
-           window.matchMedia('(display-mode: standalone)').matches ||
+    // Only check actual browser install state, don't rely on localStorage
+    return window.matchMedia('(display-mode: standalone)').matches ||
            (typeof window.navigator !== 'undefined' && window.navigator.standalone === true);
   }
 

@@ -47,12 +47,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "/static/image/icon-180x180.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "platform": "ios"
     }
   ],
   "shortcuts": [
