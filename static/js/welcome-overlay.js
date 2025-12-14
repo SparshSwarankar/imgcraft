@@ -69,6 +69,8 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
+                height: 100vh;
+                height: 100dvh;
                 background: rgba(0, 0, 0, 0.92);
                 backdrop-filter: blur(10px);
                 z-index: 10000;
@@ -76,6 +78,8 @@
                 align-items: center;
                 justify-content: center;
                 animation: fadeIn 0.4s ease;
+                overflow-y: auto;
+                padding: 20px;
             }
 
             .welcome-modal {
@@ -83,7 +87,8 @@
                 border-radius: 24px;
                 padding: 40px;
                 max-width: 520px;
-                width: 90%;
+                width: 100%;
+                margin: auto;
                 border: 2px solid rgba(249, 115, 22, 0.3);
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
                 animation: slideUp 0.5s ease;
@@ -212,37 +217,58 @@
             }
 
             @media (max-width: 600px) {
+                #welcome-overlay {
+                    padding: 15px;
+                }
+
                 .welcome-modal {
-                    padding: 30px 20px;
-                    max-width: 95%;
+                    padding: 25px 20px;
+                    max-width: 100%;
+                }
+
+                .welcome-logo img {
+                    width: 60px;
+                    height: 60px;
                 }
 
                 .welcome-title {
                     font-size: 1.5rem;
+                    margin-bottom: 8px;
                 }
 
                 .welcome-subtitle {
-                    font-size: 1rem;
+                    font-size: 0.95rem;
+                    margin-bottom: 20px;
                 }
 
                 .welcome-features {
                     grid-template-columns: 1fr;
-                    gap: 12px;
+                    gap: 10px;
+                    margin-bottom: 20px;
                 }
 
                 .feature-item {
                     padding: 12px;
                 }
 
+                .welcome-message {
+                    font-size: 0.9rem;
+                    margin-bottom: 20px;
+                }
+
                 .welcome-btn {
                     width: 100%;
                     padding: 12px 30px;
+                    font-size: 1rem;
                 }
             }
         `;
 
         document.head.appendChild(style);
         document.body.appendChild(overlay);
+
+        // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
 
         // Close on background click
         overlay.addEventListener('click', function(e) {
@@ -263,7 +289,11 @@
         const overlay = document.getElementById('welcome-overlay');
         if (overlay) {
             overlay.style.animation = 'fadeOut 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
+            setTimeout(() => {
+                overlay.remove();
+                // Restore body scrolling
+                document.body.style.overflow = '';
+            }, 300);
         }
     };
 })();

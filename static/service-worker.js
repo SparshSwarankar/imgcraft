@@ -3,7 +3,7 @@
 // Comprehensive offline support, caching, background sync, and updates
 // ============================================================================
 
-const CACHE_VERSION = 'imgcraft-v2';
+const CACHE_VERSION = 'imgcraft-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const API_CACHE = `${CACHE_VERSION}-api`;
@@ -25,7 +25,10 @@ const STATIC_ASSETS = [
   '/static/js/background.js',
   '/static/js/pwa.js',
   '/static/image/Logo.jpg',
-  '/static/favicon.ico',
+  '/static/favicon/favicon.ico',
+  '/static/favicon/favicon-96x96.png',
+  '/static/favicon/favicon.svg',
+  '/static/favicon/apple-touch-icon.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
@@ -128,17 +131,16 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Favicon - treat all favicon variations (including ?v=) as the same cache key
-  if (url.pathname === '/favicon.ico' || url.pathname === '/static/favicon.ico') {
+  if (url.pathname === '/favicon.ico' || url.pathname === '/static/favicon.ico' || url.pathname.startsWith('/static/favicon/')) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(STATIC_CACHE);
-        const canonicalKey = '/static/favicon.ico';
-        const cached = await cache.match(canonicalKey);
+        const cached = await cache.match(request);
         if (cached) return cached;
 
-        const response = await fetch(canonicalKey, { cache: 'no-store' });
+        const response = await fetch(request, { cache: 'no-store' });
         if (response && response.status === 200) {
-          cache.put(canonicalKey, response.clone());
+          cache.put(request, response.clone());
         }
         return response;
       })()
@@ -164,8 +166,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Tool pages and HTML - Network first with cache fallback
-  if (url.pathname.startsWith('/static/') || url.pathname === '/' || TOOL_PAGES.includes(url.pathname)) {
+  // HTML pages (navigation requests) - Network first with offline fallback
+  if (request.mode === 'navigate' || request.destination === 'document' || 
+      url.pathname === '/' || TOOL_PAGES.includes(url.pathname)) {
+    event.respondWith(networkFirstWithOfflineFallback(request));
+    return;
+  }
+
+  // Static assets - Network first with cache fallback
+  if (url.pathname.startsWith('/static/')) {
     event.respondWith(networkFirstStrategy(request, STATIC_CACHE));
     return;
   }
@@ -204,9 +213,12 @@ async function cacheFirstStrategy(request, cacheName) {
   } catch (error) {
     console.error('[ServiceWorker] Cache first error:', error);
 
-    // Return offline page for HTML requests
-    if (request.destination === 'document') {
-      return caches.match(OFFLINE_FALLBACK);
+    // Return offline page for navigation requests
+    if (request.mode === 'navigate' || request.destination === 'document') {
+      const offlinePage = await caches.match(OFFLINE_FALLBACK);
+      if (offlinePage) {
+        return offlinePage;
+      }
     }
 
     return createOfflineResponse();
@@ -248,9 +260,12 @@ async function networkFirstStrategy(request, cacheName) {
       console.error('[ServiceWorker] Cache lookup error:', cacheError);
     }
 
-    // Return offline page for HTML requests
-    if (request.destination === 'document') {
-      return caches.match(OFFLINE_FALLBACK);
+    // Return offline page for navigation requests
+    if (request.mode === 'navigate' || request.destination === 'document') {
+      const offlinePage = await caches.match(OFFLINE_FALLBACK);
+      if (offlinePage) {
+        return offlinePage;
+      }
     }
 
     return createOfflineResponse();
@@ -278,6 +293,20 @@ async function networkFirstWithOfflineFallback(request) {
   } catch (error) {
     console.log('[ServiceWorker] Network first fallback:', error.message);
 
+    // For navigation requests (HTML pages), show offline page
+    if (request.mode === 'navigate' || request.destination === 'document') {
+      try {
+        const offlinePage = await caches.match(OFFLINE_FALLBACK);
+        if (offlinePage) {
+          console.log('[ServiceWorker] Serving offline page');
+          return offlinePage;
+        }
+      } catch (offlineError) {
+        console.error('[ServiceWorker] Could not load offline page:', offlineError);
+      }
+    }
+
+    // For other requests, try cache first
     try {
       const cached = await caches.match(request);
       if (cached) {
@@ -287,10 +316,7 @@ async function networkFirstWithOfflineFallback(request) {
       console.error('[ServiceWorker] Cache lookup error:', cacheError);
     }
 
-    if (request.destination === 'document') {
-      return caches.match(OFFLINE_FALLBACK);
-    }
-
+    // Last resort: return error response
     return createOfflineResponse();
   }
 }

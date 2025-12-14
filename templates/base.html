@@ -8,7 +8,6 @@
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'G-GCC5PDLYPF');
     </script>
 
@@ -19,39 +18,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <!-- =========================================
+         ✅ SEO BLOCKS (Editable per child page)
+    ========================================= -->
     <title>{% block title %}ImgCraft - AI Image Tools, Converter & Editor Online{% endblock %}</title>
+
     <meta name="description"
-        content="{% block meta_description %}ImgCraft is a, ultra-fast online image toolkit. Resize, compress, convert, remove backgrounds with AI, and edit images securely in your browser.{% endblock %}">
+        content="{% block meta_description %}ImgCraft is an ultra-fast online image toolkit. Resize, compress, convert, and edit images securely using AI in your browser.{% endblock %}">
+
     <meta name="keywords"
-        content="{% block meta_keywords %}online image editor, free image converter, ai background remover, image compressor, webp converter, exif remover, image upscaler, imgcraft, photo editor online, image resizer, crop image online, png to jpg converter, jpg to webp, image format converter, bulk image converter, compress images online, reduce image size, optimize images, ai image enhancement, background removal tool, remove photo background, transparent background maker, image watermark tool, add watermark online, color palette generator, image color extractor, exif data viewer, exif metadata remover, ai photo upscaler, enhance image quality, image filters online, photo filters, batch image processing, free photo editor, browser image editor, client-side image processing, secure image editor, privacy-focused image tools, no upload image editor, offline image processing, professional image tools, image editing software, web-based image editor, fast image converter, lossless image compression, image optimization tool, photo enhancement, picture editor, graphic design tools, image manipulation, digital image processing{% endblock %}">
+        content="{% block meta_keywords %}ai image compressor, image converter, remove background online, image upscaler, free image tools, imgcraft{% endblock %}">
+
     <meta name="author" content="ImgCraft Team">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://imgcraft.online{{ request.path }}">
 
-    <!-- PWA Meta Tags -->
+    <!-- =========================================
+         ✅ Open Graph (Social + SEO)
+    ========================================= -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="{{ url_for('static', filename='image/og-banner.jpg', _external=True) }}">
+
+    <!-- =========================================
+         ✅ Schema.org JSON-LD (AI Tool Definition)
+    ========================================= -->
+    {% block schema %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ImgCraft",
+      "url": "https://imgcraft.online",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web",
+      "image": "{{ url_for('static', filename='image/og-banner.jpg', _external=True) }}",
+      "description": "Professional AI-powered image editing suite. Resize, compress, convert, and enhance images with premium quality.",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "lowPrice": "0",
+        "offerCount": "10",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
+    {% endblock %}
+
+    <!-- =========================================
+         ✅ PWA + Appearance
+    ========================================= -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ImgCraft">
-    <meta name="apple-mobile-web-app-status-bar" content="black-translucent">
-
-    <!-- Favicon - Multiple formats for better browser support -->
-    <!-- Favicon (served from static) -->
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v={{ APP_VERSION }}">
-    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico?v={{ APP_VERSION }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/image/Logo.jpg">
-    <link rel="apple-touch-icon" sizes="152x152" href="/static/image/Logo.jpg">
-    <link rel="apple-touch-icon" sizes="120x120" href="/static/image/Logo.jpg">
-    <meta name="msapplication-TileColor" content="#0F172A">
-    <meta name="msapplication-TileImage" content="/static/image/icon-512x512.png">
     <meta name="theme-color" content="#F97316">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
-    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="{{ url_for('static', filename='favicon.ico', _external=True) }}">
 
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon/favicon-96x96.png') }}" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/review-modal.css') }}">
@@ -60,25 +93,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "ImgCraft",
-      "url": "https://imgcraft.online",
-      "applicationCategory": "MultimediaApplication",
-      "operatingSystem": "Any",
-    "primaryImageOfPage": "{{ url_for('static', filename='favicon.ico', _external=True) }}",
-      "offers": {
-        "@type": "AggregateOffer",
-        "priceCurrency": "USD",
-        "lowPrice": "0",
-        "offerCount": "10",
-        "availability": "https://schema.org/InStock"
-      },
-      "description": "Professional AI-powered image editing suite. Resize, compress, and convert images with premium quality. Supports global payments in USD and INR."
-    }
-    </script>
     {% if not user_ad_free %}
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5547900968688861"
         crossorigin="anonymous"></script>
@@ -86,6 +100,7 @@
 
     {% block head %}{% endblock %}
 
+    <!-- Environment Variables -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
@@ -94,6 +109,7 @@
         window.RAZORPAY_KEY_ID = "{{ RAZORPAY_KEY_ID or '' }}";
     </script>
 </head>
+
 
 <body>
     <div id="scroll-progress-container">
