@@ -1,0 +1,1226 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation – ImgCraft{% endblock %}
+
+{% block meta_description %}Complete ImgCraft documentation. Learn to use image tools, manage credits, and troubleshoot common issues.{% endblock %}
+
+{% block og_title %}Documentation – ImgCraft{% endblock %}
+{% block og_description %}Full documentation for all ImgCraft tools. Get started, manage credits, and find troubleshooting help.{% endblock %}
+
+{% block head %}
+<style>
+    /* ========================================
+       WORLD-CLASS DOCS LAYOUT
+       ======================================== */
+
+    .docs-wrapper {
+        margin-top: 100px;
+        display: flex;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+        gap: 0;
+        position: relative;
+    }
+
+    /* Sidebar Navigation */
+    .docs-sidebar {
+        width: 280px;
+        position: sticky;
+        top: 100px;
+        height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding: 2rem 1.5rem;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+    }
+
+    .docs-sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin: 0 0 1.5rem 0;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .docs-nav-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .docs-nav-section-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0 0 0.75rem 0;
+    }
+
+    .docs-nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .docs-nav-list li {
+        margin: 0;
+    }
+
+    .docs-nav-link {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+
+    .docs-nav-link:hover {
+        color: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.05);
+        border-left-color: var(--primary);
+    }
+
+    .docs-nav-link.active {
+        color: var(--primary);
+        background: rgba(249, 115, 22, 0.1);
+        border-left-color: var(--primary);
+        font-weight: 600;
+    }
+
+    /* Main Content Area */
+    .docs-content {
+        flex: 1;
+        padding: 2rem 3rem 4rem 3rem;
+        max-width: 900px;
+        min-width: 0;
+    }
+
+    .docs-header {
+        margin-bottom: 3rem;
+    }
+
+    .docs-header h1 {
+        font-size: 2.75rem;
+        font-weight: 900;
+        margin: 0 0 1rem 0;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1.2;
+    }
+
+    .docs-header-subtitle {
+        font-size: 1.15rem;
+        color: rgba(255, 255, 255, 0.75);
+        margin: 0 0 1.5rem 0;
+        line-height: 1.6;
+    }
+
+    .docs-meta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .docs-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        white-space: nowrap;
+    }
+
+    /* Content Sections */
+    .docs-section {
+        margin: 3rem 0;
+        scroll-margin-top: 120px;
+    }
+
+    .docs-section h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 1.25rem 0;
+        color: rgba(255, 255, 255, 0.95);
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .docs-section h3 {
+        font-size: 1.4rem;
+        font-weight: 750;
+        margin: 2rem 0 1rem 0;
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .docs-section h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.75rem 0;
+        color: rgba(255, 255, 255, 0.88);
+    }
+
+    .docs-section p {
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 1rem 0;
+    }
+
+    .docs-section ul,
+    .docs-section ol {
+        margin: 1rem 0;
+        padding-left: 1.75rem;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .docs-section li {
+        margin: 0.5rem 0;
+    }
+
+    /* Info Boxes */
+    .docs-info-box {
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        margin: 1.5rem 0;
+        border-left: 4px solid;
+    }
+
+    .docs-info-box.info {
+        background: rgba(59, 130, 246, 0.08);
+        border-left-color: #3B82F6;
+    }
+
+    .docs-info-box.success {
+        background: rgba(34, 197, 94, 0.08);
+        border-left-color: #22C55E;
+    }
+
+    .docs-info-box.warning {
+        background: rgba(249, 115, 22, 0.08);
+        border-left-color: #F97316;
+    }
+
+    .docs-info-box.tip {
+        background: rgba(168, 85, 247, 0.08);
+        border-left-color: #A855F7;
+    }
+
+    .docs-info-box-title {
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Tables */
+    .docs-table-wrapper {
+        overflow-x: auto;
+        margin: 1.5rem 0;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .docs-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .docs-table th {
+        text-align: left;
+        padding: 1rem 1.25rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 700;
+    }
+
+    .docs-table td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.85);
+        vertical-align: top;
+    }
+
+    .docs-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .docs-table tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Feature Grid */
+    .docs-feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+        margin: 1.5rem 0;
+    }
+
+    .docs-feature-card {
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        transition: all 0.2s ease;
+    }
+
+    .docs-feature-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .docs-feature-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .docs-feature-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin: 0 0 0.5rem 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .docs-feature-desc {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Mobile Toggle Button */
+    .docs-mobile-toggle {
+        display: none;
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4);
+        cursor: pointer;
+        z-index: 999;
+        transition: transform 0.2s ease;
+    }
+
+    .docs-mobile-toggle:hover {
+        transform: scale(1.05);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+        .docs-wrapper {
+            margin-top: 80px;
+        }
+
+        .docs-sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            height: 100vh;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            border-right: none;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .docs-sidebar.open {
+            left: 0;
+        }
+
+        .docs-mobile-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .docs-content {
+            padding: 1.5rem 1.25rem 4rem 1.25rem;
+        }
+
+        .docs-header h1 {
+            font-size: 2rem;
+        }
+
+        .docs-section h2 {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Scrollbar Styling */
+    .docs-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .docs-sidebar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .docs-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    .docs-sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Link Styles in Content */
+    .docs-content a:not(.btn) {
+        color: var(--primary);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(249, 115, 22, 0.3);
+        transition: border-color 0.2s ease;
+    }
+
+    .docs-content a:not(.btn):hover {
+        border-bottom-color: var(--primary);
+    }
+
+    /* Button Styles for Docs Page */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        gap: 8px;
+        text-decoration: none;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="docs-wrapper">
+    <!-- Sticky Sidebar Navigation -->
+    <aside class="docs-sidebar" id="docsSidebar">
+        <h2 class="docs-sidebar-title"><i class="fas fa-book"></i> Documentation</h2>
+
+        <nav>
+            <div class="docs-nav-section">
+                <div class="docs-nav-section-title">Getting Started</div>
+                <ul class="docs-nav-list">
+                    <li><a href="#introduction" class="docs-nav-link">Introduction</a></li>
+                    <li><a href="#quick-start" class="docs-nav-link">Quick Start</a></li>
+                    <li><a href="#features" class="docs-nav-link">Key Features</a></li>
+                </ul>
+            </div>
+
+            <div class="docs-nav-section">
+                <div class="docs-nav-section-title">Tools</div>
+                <ul class="docs-nav-list">
+                    <li><a href="#tools-overview" class="docs-nav-link">All Tools</a></li>
+                    <li><a href="#free-tools" class="docs-nav-link">Free Tools</a></li>
+                    <li><a href="#premium-tools" class="docs-nav-link">Premium Tools</a></li>
+                    <li><a href="#ai-tools" class="docs-nav-link">AI-Powered Tools</a></li>
+                </ul>
+            </div>
+
+            <div class="docs-nav-section">
+                <div class="docs-nav-section-title">Credits & Billing</div>
+                <ul class="docs-nav-list">
+                    <li><a href="#credits-explained" class="docs-nav-link">Credits Explained</a></li>
+                    <li><a href="#pricing" class="docs-nav-link">Pricing Plans</a></li>
+                    <li><a href="#payments" class="docs-nav-link">Payment Methods</a></li>
+                </ul>
+            </div>
+
+            <div class="docs-nav-section">
+                <div class="docs-nav-section-title">Usage</div>
+                <ul class="docs-nav-list">
+                    <li><a href="#how-to-use" class="docs-nav-link">How to Use Tools</a></li>
+                    <li><a href="#supported-formats" class="docs-nav-link">Supported Formats</a></li>
+                    <li><a href="#limits" class="docs-nav-link">Limits & Restrictions</a></li>
+                </ul>
+            </div>
+
+            <div class="docs-nav-section">
+                <div class="docs-nav-section-title">Help</div>
+                <ul class="docs-nav-list">
+                    <li><a href="#troubleshooting" class="docs-nav-link">Troubleshooting</a></li>
+                    <li><a href="#faq" class="docs-nav-link">FAQ</a></li>
+                    <li><a href="#support" class="docs-nav-link">Contact Support</a></li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Documentation Content -->
+    <main class="docs-content">
+        <!-- Header -->
+        <header class="docs-header">
+            <h1>ImgCraft Documentation</h1>
+            <p class="docs-header-subtitle">
+                Everything you need to know about using ImgCraft's professional image tools.
+                Transform, enhance, and optimize your images with ease.
+            </p>
+            <div class="docs-meta">
+                <span class="docs-badge"><i class="fas fa-code-branch"></i> Version {{ app_version }}</span>
+                {% if max_file_size_mb %}
+                <span class="docs-badge"><i class="fas fa-file-upload"></i> Max {{ max_file_size_mb }}MB</span>
+                {% endif %}
+                <span class="docs-badge"><i class="fas fa-tools"></i> {{ tools|length }} Tools</span>
+            </div>
+        </header>
+
+        <!-- Introduction -->
+        <section class="docs-section" id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                ImgCraft is a comprehensive web-based image processing platform that provides professional-grade tools
+                for editing, optimizing, and transforming your images. Whether you're a designer, developer, content
+                creator,
+                or casual user, ImgCraft offers the tools you need without requiring any software installation.
+            </p>
+
+            <div class="docs-info-box success">
+                <div class="docs-info-box-title"><i class="fas fa-check-circle"></i> What Makes ImgCraft Special</div>
+                <ul>
+                    <li><strong>No Installation Required:</strong> 100% web-based, works directly in your browser</li>
+                    <li><strong>Privacy-First:</strong> Your images are processed securely and never stored</li>
+                    <li><strong>AI-Powered:</strong> Advanced AI models for background removal and upscaling</li>
+                    <li><strong>Lightning Fast:</strong> Optimized processing for instant results</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section class="docs-section" id="quick-start">
+            <h2>Quick Start</h2>
+            <p>Get started with ImgCraft in 3 simple steps:</p>
+
+            <ol>
+                <li>
+                    <strong>Choose a Tool:</strong> Browse our <a href="/">homepage</a> or use the navigation menu to
+                    select the tool you need
+                </li>
+                <li>
+                    <strong>Upload Your Image:</strong> Drag and drop or click to upload your image (supports JPG, PNG,
+                    WebP, and more)
+                </li>
+                <li>
+                    <strong>Process & Download:</strong> Apply your changes and download the processed image instantly
+                </li>
+            </ol>
+
+            <div class="docs-info-box info">
+                <div class="docs-info-box-title"><i class="fas fa-info-circle"></i> First Time User?</div>
+                <p>
+                    Some tools are free (like Resize and Convert), while premium tools require credits.
+                    <a href="/auth">Sign up for free</a> to get started with 50 free credits!
+                </p>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section class="docs-section" id="features">
+            <h2>Key Features</h2>
+
+            <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                    <div class="docs-feature-icon"><i class="fas fa-bolt"></i></div>
+                    <h3 class="docs-feature-title">Ultra-Fast Processing</h3>
+                    <p class="docs-feature-desc">Optimized algorithms ensure your images are processed in milliseconds
+                    </p>
+                </div>
+
+                <div class="docs-feature-card">
+                    <div class="docs-feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3 class="docs-feature-title">Secure & Private</h3>
+                    <p class="docs-feature-desc">Images are processed securely and automatically deleted after</p>
+                </div>
+
+                <div class="docs-feature-card">
+                    <div class="docs-feature-icon"><i class="fas fa-brain"></i></div>
+                    <h3 class="docs-feature-title">AI-Powered</h3>
+                    <p class="docs-feature-desc">Advanced neural networks for background removal and upscaling</p>
+                </div>
+
+                <div class="docs-feature-card">
+                    <div class="docs-feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <h3 class="docs-feature-title">Mobile Friendly</h3>
+                    <p class="docs-feature-desc">Fully responsive design works perfectly on all devices</p>
+                </div>
+
+                <div class="docs-feature-card">
+                    <div class="docs-feature-icon"><i class="fas fa-cloud-download-alt"></i></div>
+                    <h3 class="docs-feature-title">PWA Support</h3>
+                    <p class="docs-feature-desc">Install as an app for offline access and faster performance</p>
+                </div>
+
+                <div class="docs-feature-card">
+                    <div class="docs-feature-icon"><i class="fas fa-infinity"></i></div>
+                    <h3 class="docs-feature-title">No Limits</h3>
+                    <p class="docs-feature-desc">Process as many images as you want with your credit balance</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- All Tools Overview -->
+        <section class="docs-section" id="tools-overview">
+            <h2>All Tools</h2>
+            <p>ImgCraft offers {{ tools|length }} professional image tools. Each tool is optimized for specific tasks:
+            </p>
+
+            <div class="docs-table-wrapper">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>Credits</th>
+                            <th>Description</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tools and tools|length > 0 %}
+                        {% for tool in tools %}
+                        <tr>
+                            <td>
+                                <strong>{{ tool.display_name or tool.tool_name }}</strong>
+                            </td>
+                            <td>
+                                {% if tool.credit_cost is not none %}
+                                {% if tool.credit_cost == 0 %}
+                                <span class="docs-badge"
+                                    style="background: rgba(34, 197, 94, 0.1); border-color: #22C55E;">
+                                    <i class="fas fa-check"></i> Free
+                                </span>
+                                {% else %}
+                                <span class="docs-badge">
+                                    <i class="fas fa-coins"></i> {{ tool.credit_cost }}
+                                </span>
+                                {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>{{ tool.description or '—' }}</td>
+                            <td>
+                                {% if tool.route and tool.route != '#' %}
+                                <a href="{{ tool.route }}" class="btn btn-sm btn-primary">Open</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4">Tool data unavailable</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Free Tools -->
+        <section class="docs-section" id="free-tools">
+            <h2>Free Tools</h2>
+            <p>These tools are completely free to use and don't require credits:</p>
+
+            <div class="docs-info-box success">
+                <div class="docs-info-box-title"><i class="fas fa-gift"></i> 100% Free - No Credits Required</div>
+                <ul>
+                    <li><strong>Resize:</strong> Scale images to any dimension while maintaining quality</li>
+                    <li><strong>Convert:</strong> Convert between JPG, PNG, WebP, and other formats</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Premium Tools -->
+        <section class="docs-section" id="premium-tools">
+            <h2>Premium Tools</h2>
+            <p>Premium tools require credits per use. Credits can be purchased from the <a href="/billing">Billing
+                    page</a>.</p>
+
+            <h3>Essential Tools (1-3 credits)</h3>
+            <ul>
+                <li><strong>Crop (1 credit):</strong> Precise cropping with aspect ratio presets</li>
+                <li><strong>EXIF (1 credit):</strong> View and remove image metadata for privacy</li>
+                <li><strong>Compress (2 credits):</strong> Reduce file size by up to 90% without quality loss</li>
+                <li><strong>Palette (2 credits):</strong> Extract dominant colors and HEX codes</li>
+                <li><strong>Filter (2 credits):</strong> Professional color grading and adjustments</li>
+                <li><strong>Watermark (3 credits):</strong> Add custom text or logo watermarks</li>
+            </ul>
+
+            <h3>Advanced Tools (5-15 credits)</h3>
+            <ul>
+                <li><strong>Upscale (8 credits):</strong> AI-powered resolution enhancement</li>
+                <li><strong>Remove Background (10 credits):</strong> AI background removal with clean edges</li>
+                <li><strong>Collage (13 credits):</strong> Auto-generate photo collages with smart layouts</li>
+                <li><strong>Annotation (15 credits):</strong> Professional image annotation with export</li>
+            </ul>
+        </section>
+
+        <!-- AI Tools -->
+        <section class="docs-section" id="ai-tools">
+            <h2>AI-Powered Tools</h2>
+            <p>These tools use advanced AI models for intelligent image processing:</p>
+
+            <div class="docs-table-wrapper">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>AI Model</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Remove Background</strong></td>
+                            <td>U2-Net (lightweight)</td>
+                            <td>Product photos, portraits, transparent backgrounds</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Upscale</strong></td>
+                            <td>Lanczos + Sharpening</td>
+                            <td>Enhance low-resolution images, print-ready outputs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Collage</strong></td>
+                            <td>Smart Layout Algorithm</td>
+                            <td>Social media posts, photo presentations</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Credits Explained -->
+        <section class="docs-section" id="credits-explained">
+            <h2>Credits Explained</h2>
+            <p>
+                Credits are the internal currency of ImgCraft. Each premium tool deducts a specific number of credits
+                when you use it. Credits never expire and can be used across all tools.
+            </p>
+
+            <div class="docs-info-box tip">
+                <div class="docs-info-box-title"><i class="fas fa-lightbulb"></i> How It Works</div>
+                <ol>
+                    <li>Sign up for a free account</li>
+                    <li>Purchase a credit pack that fits your needs</li>
+                    <li>Use any premium tool - credits are deducted automatically</li>
+                    <li>Check your balance anytime from the navigation bar</li>
+                </ol>
+            </div>
+
+            <h3>Credit Costs</h3>
+            <p>Tool costs are determined by computational complexity and processing time:</p>
+            <ul>
+                <li><strong>0 Credits (Free):</strong> Resize, Convert</li>
+                <li><strong>1-3 Credits:</strong> Basic operations (Crop, Compress, Filters)</li>
+                <li><strong>5-10 Credits:</strong> Advanced operations (Upscale, Background Removal)</li>
+                <li><strong>13-15 Credits:</strong> AI Studio tools (Collage, Annotation)</li>
+            </ul>
+        </section>
+
+        <!-- Pricing Plans -->
+        <section class="docs-section" id="pricing">
+            <h2>Pricing Plans</h2>
+            <p>Choose the credit pack that best fits your usage:</p>
+
+            <div class="docs-table-wrapper">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Credits</th>
+                            <th>Price</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if credit_plans and credit_plans|length > 0 %}
+                        {% for plan in credit_plans %}
+                        <tr>
+                            <td>
+                                <strong>{{ plan.name }}</strong>
+                                {% if plan.popular %}
+                                <span class="docs-badge"
+                                    style="background: rgba(249, 115, 22, 0.2); border-color: var(--primary);">
+                                    <i class="fas fa-star"></i> Popular
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td><span class="docs-badge"><i class="fas fa-coins"></i> {{ plan.credits }}</span></td>
+                            <td><strong>{{ plan.price_display }}</strong></td>
+                            <td>
+                                {% if plan.id == 'starter' %}Trying out premium tools{% endif %}
+                                {% if plan.id == 'basic' %}Casual users{% endif %}
+                                {% if plan.id == 'pro' %}Regular users{% endif %}
+                                {% if plan.id == 'enterprise' %}Heavy users{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4">Pricing unavailable</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="docs-info-box info">
+                <div class="docs-info-box-title"><i class="fas fa-tag"></i> Savings</div>
+                <p>Larger packs offer better value per credit. The Pro and Enterprise plans include up to 25% savings!
+                </p>
+            </div>
+        </section>
+
+        <!-- Payment Methods -->
+        <section class="docs-section" id="payments">
+            <h2>Payment Methods</h2>
+            <p>ImgCraft accepts secure payments through Razorpay, supporting:</p>
+            <ul>
+                <li>Credit/Debit Cards (Visa, Mastercard, Amex)</li>
+                <li>UPI (Google Pay, PhonePe, Paytm)</li>
+                <li>Net Banking</li>
+                <li>Digital Wallets</li>
+            </ul>
+
+            <div class="docs-info-box success">
+                <div class="docs-info-box-title"><i class="fas fa-lock"></i> Secure Payments</div>
+                <p>
+                    All payments are processed through Razorpay's secure infrastructure with industry-standard
+                    encryption.
+                    We never store your payment details.
+                </p>
+            </div>
+        </section>
+
+        <!-- How to Use Tools -->
+        <section class="docs-section" id="how-to-use">
+            <h2>How to Use Tools</h2>
+            <p>Using ImgCraft tools is straightforward:</p>
+
+            <h3>Step-by-Step Guide</h3>
+            <ol>
+                <li>
+                    <strong>Select a Tool:</strong>
+                    <ul>
+                        <li>Browse tools from the homepage</li>
+                        <li>Use the navigation menu dropdowns</li>
+                        <li>Or use the search bar to find specific tools</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Upload Your Image:</strong>
+                    <ul>
+                        <li>Click the upload area or drag and drop</li>
+                        <li>Supported formats: JPG, PNG, WebP, and more</li>
+                        <li>Max file size: {% if max_file_size_mb %}{{ max_file_size_mb }}MB{% else %}check tool page{%
+                            endif %}</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Configure Settings:</strong>
+                    <ul>
+                        <li>Adjust tool-specific settings (e.g., resize dimensions, compression quality)</li>
+                        <li>Preview changes if available</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Process:</strong>
+                    <ul>
+                        <li>Click the "Process" or "Apply" button</li>
+                        <li>Wait for processing (usually instant)</li>
+                        <li>Credits are deducted automatically for premium tools</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Download:</strong>
+                    <ul>
+                        <li>Download button appears after processing</li>
+                        <li>Original filename is preserved with modifications indicated</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="docs-info-box warning">
+                <div class="docs-info-box-title"><i class="fas fa-exclamation-triangle"></i> Important Notes</div>
+                <ul>
+                    <li>Premium tools require sufficient credit balance</li>
+                    <li>Credits are deducted when you click "Process"</li>
+                    <li>Failed operations don't deduct credits</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Supported Formats -->
+        <section class="docs-section" id="supported-formats">
+            <h2>Supported Formats</h2>
+            <p>ImgCraft supports all common image formats:</p>
+
+            <h3>Fully Supported</h3>
+            <ul>
+                <li><strong>JPG/JPEG:</strong> Most common format, ideal for photos</li>
+                <li><strong>PNG:</strong> Lossless format with transparency support</li>
+                <li><strong>WebP:</strong> Modern format with excellent compression</li>
+                <li><strong>BMP:</strong> Uncompressed bitmap format</li>
+                <li><strong>TIFF:</strong> High-quality format for professional use</li>
+            </ul>
+
+            <h3>Format-Specific Notes</h3>
+            <div class="docs-table-wrapper">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Format</th>
+                            <th>Transparency</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>JPG</strong></td>
+                            <td>No</td>
+                            <td>Photos, complex images with many colors</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PNG</strong></td>
+                            <td>Yes</td>
+                            <td>Graphics, logos, images requiring transparency</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WebP</strong></td>
+                            <td>Yes</td>
+                            <td>Web optimization, best compression/quality ratio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BMP</strong></td>
+                            <td>No</td>
+                            <td>Simple images, compatibility with old systems</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Limits & Restrictions -->
+        <section class="docs-section" id="limits">
+            <h2>Limits & Restrictions</h2>
+            <p>To ensure optimal performance for all users, ImgCraft has the following limits:</p>
+
+            <h3>File Upload Limits</h3>
+            <ul>
+                {% if max_file_size_mb %}
+                <li><strong>Maximum file size:</strong> {{ max_file_size_mb }}MB per image</li>
+                {% endif %}
+                <li><strong>Maximum dimensions:</strong> 10,000 × 10,000 pixels</li>
+                <li><strong>Maximum total pixels:</strong> 100 million pixels</li>
+            </ul>
+
+            <h3>Processing Limits</h3>
+            <ul>
+                <li><strong>Timeout:</strong> 30 seconds per operation</li>
+                <li><strong>Concurrent operations:</strong> One at a time per user</li>
+                <li><strong>Rate limiting:</strong> Fair usage policy applies</li>
+            </ul>
+
+            <div class="docs-info-box warning">
+                <div class="docs-info-box-title"><i class="fas fa-info-circle"></i> Why Limits?</div>
+                <p>
+                    These limits ensure fast processing times and prevent server overload. They're generous enough
+                    for 99% of use cases. Need higher limits? Contact us!
+                </p>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section class="docs-section" id="troubleshooting">
+            <h2>Troubleshooting</h2>
+            <p>Common issues and their solutions:</p>
+
+            <h3>Upload Problems</h3>
+            <h4>Error: "File too large"</h4>
+            <p><strong>Solution:</strong> Your image exceeds the {% if max_file_size_mb %}{{ max_file_size_mb }}MB{%
+                else %}size{% endif %} limit. Try compressing it first or use a smaller image.</p>
+
+            <h4>Error: "Unsupported format"</h4>
+            <p><strong>Solution:</strong> Convert your image to JPG, PNG, or WebP format first.</p>
+
+            <h3>Credit Issues</h3>
+            <h4>Problem: "Insufficient credits"</h4>
+            <p><strong>Solution:</strong> Purchase more credits from the <a href="/billing">Billing page</a>. Your
+                balance is shown in the navigation bar.</p>
+
+            <h4>Problem: Credits not updating</h4>
+            <p><strong>Solution:</strong> Refresh the page or check the Billing page. Webhook processing may take a few
+                seconds.</p>
+
+            <h3>Processing Errors</h3>
+            <h4>Error: "Processing failed"</h4>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Try a smaller image</li>
+                <li>Check your internet connection</li>
+                <li>Disable browser extensions that may block requests</li>
+                <li>Try a different browser</li>
+            </ul>
+
+            <h4>Error: "Request timeout"</h4>
+            <p><strong>Solution:</strong> The image is taking too long to process. Try with a smaller file or simpler
+                operation.</p>
+
+            <h3>Account Issues</h3>
+            <h4>Problem: Can't access premium tools</h4>
+            <p><strong>Solution:</strong> Make sure you're logged in and have sufficient credits. Free tools are Resize
+                and Convert only.</p>
+
+            <h4>Problem: Redirected to login page</h4>
+            <p><strong>Solution:</strong> This tool requires authentication. <a href="/auth">Sign up or log in</a> to
+                continue.</p>
+        </section>
+
+        <!-- FAQ -->
+        <section class="docs-section" id="faq">
+            <h2>Frequently Asked Questions</h2>
+
+            <h3>General</h3>
+            <h4>Is ImgCraft free?</h4>
+            <p>
+                Some tools (Resize, Convert) are completely free. Premium tools require credits, which can be purchased
+                in packs starting from ₹99 for 50 credits.
+            </p>
+
+            <h4>Do I need to create an account?</h4>
+            <p>
+                You can use free tools without an account. An account is required for premium tools to track your credit
+                balance.
+            </p>
+
+            <h4>Is my data safe?</h4>
+            <p>
+                Yes! Images are processed securely and automatically deleted. We don't store your images or personal
+                data
+                beyond what's necessary for account management.
+            </p>
+
+            <h3>Credits & Billing</h3>
+            <h4>Do credits expire?</h4>
+            <p>No, credits never expire. Use them whenever you need them.</p>
+
+            <h4>Can I get a refund?</h4>
+            <p>
+                Refunds are handled on a case-by-case basis. Check our refund policy in the footer or contact support.
+            </p>
+
+            <h4>What happens if a tool fails?</h4>
+            <p>
+                If a tool fails to process your image, credits are not deducted. Only successful operations consume
+                credits.
+            </p>
+
+            <h3>Technical</h3>
+            <h4>Can I use ImgCraft on mobile?</h4>
+            <p>
+                Yes! ImgCraft is fully responsive and works great on mobile devices. You can even install it as a PWA
+                for a native app-like experience.
+            </p>
+
+            <h4>Does ImgCraft work offline?</h4>
+            <p>
+                The PWA version caches the interface for offline browsing, but image processing requires an internet
+                connection to our servers.
+            </p>
+
+            <h4>Can I process multiple images at once?</h4>
+            <p>
+                Currently, images must be processed one at a time. Batch processing may be added in future updates.
+            </p>
+        </section>
+
+        <!-- Support -->
+        <section class="docs-section" id="support">
+            <h2>Contact Support</h2>
+            <p>
+                Need help with something not covered here? We're here to help!
+            </p>
+
+            <div class="docs-info-box info">
+                <div class="docs-info-box-title"><i class="fas fa-envelope"></i> Get in Touch</div>
+                <p>
+                    <strong>Email us directly:</strong> 
+                    <a href="#" class="docs-email-link" style="font-weight: 700;">imgcrafthelp@gmail.com</a>
+                </p>
+                <p>
+                    Or visit our <a href="/contact">Contact page</a> to send us a message. We typically respond within
+                    24-48 hours.
+                </p>
+                <p>
+                    For bugs or feature requests, please include:
+                </p>
+                <ul>
+                    <li>Tool name and operation</li>
+                    <li>Browser and device information</li>
+                    <li>Steps to reproduce the issue</li>
+                    <li>Screenshots if applicable</li>
+                </ul>
+            </div>
+
+            <p style="margin-top: 2rem;">
+                <a href="/billing" class="btn btn-primary" style="margin-right: 1rem;">
+                    <i class="fas fa-credit-card"></i> Buy Credits
+                </a>
+                <a href="#" class="btn btn-secondary docs-email-link" style="margin-right: 1rem;">
+                    <i class="fas fa-envelope"></i> Email Support
+                </a>
+                <a href="/contact" class="btn btn-secondary">
+                    <i class="fas fa-paper-plane"></i> Contact Form
+                </a>
+            </p>
+        </section>
+    </main>
+</div>
+
+<!-- Mobile Navigation Toggle -->
+<button class="docs-mobile-toggle" id="docsMobileToggle" aria-label="Toggle navigation">
+    <i class="fas fa-bars"></i>
+</button>
+
+<script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('.docs-nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
+                // Update active link
+                document.querySelectorAll('.docs-nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Close mobile menu
+                if (window.innerWidth <= 1024) {
+                    document.getElementById('docsSidebar').classList.remove('open');
+                }
+            }
+        });
+    });
+
+    // Mobile menu toggle
+    const mobileToggle = document.getElementById('docsMobileToggle');
+    const sidebar = document.getElementById('docsSidebar');
+
+    if (mobileToggle && sidebar) {
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1024 &&
+                !sidebar.contains(e.target) &&
+                !mobileToggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
+
+    // Highlight active section on scroll
+    const observerOptions = {
+        root: null,
+        rootMargin: '-120px 0px -80% 0px',
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                const correspondingLink = document.querySelector(`.docs-nav-link[href="#${id}"]`);
+
+                if (correspondingLink) {
+                    document.querySelectorAll('.docs-nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    correspondingLink.classList.add('active');
+                }
+            }
+        });
+    }, observerOptions);
+
+    // Observe all sections
+    document.querySelectorAll('.docs-section').forEach(section => {
+        observer.observe(section);
+    });
+
+    // Set first link as active by default
+    const firstLink = document.querySelector('.docs-nav-link');
+    if (firstLink) {
+        firstLink.classList.add('active');
+    }
+</script>
+{% endblock %}

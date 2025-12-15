@@ -67,11 +67,6 @@ class ModalManager {
         if (content) {
             this.content.innerHTML = content;
             this.overlay.classList.add('active');
-
-            // Initialize any forms in the modal
-            if (type === 'contact') {
-                this.initContactForm();
-            }
         }
     }
 
@@ -79,8 +74,7 @@ class ModalManager {
         const contents = {
             privacy: this.getPrivacyPolicy(),
             terms: this.getTermsConditions(),
-            refunds: this.getRefundsPolicy(),
-            contact: this.getContactForm()
+            refunds: this.getRefundsPolicy()
         };
 
         return contents[type] || '<p>Content not found</p>';
@@ -476,146 +470,7 @@ class ModalManager {
         `;
     }
 
-    getContactForm() {
-        return `
-            <div class="modal-header">
-                <h2><i class="fas fa-envelope"></i> Contact Us</h2>
-            </div>
-            <div class="modal-body">
-                <p class="contact-intro">Have a question, suggestion, or need help? We'd love to hear from you!</p>
-                
-                <form id="contactForm" class="contact-form">
-                    <div class="form-group">
-                        <label for="contactName">
-                            <i class="fas fa-user"></i> Your Name
-                        </label>
-                        <input 
-                            type="text" 
-                            id="contactName" 
-                            name="name" 
-                            required 
-                            placeholder="Enter your full name"
-                            class="form-input"
-                        >
-                    </div>
 
-                    <div class="form-group">
-                        <label for="contactEmail">
-                            <i class="fas fa-envelope"></i> Email Address
-                        </label>
-                        <input 
-                            type="email" 
-                            id="contactEmail" 
-                            name="email" 
-                            required 
-                            placeholder="your.email@example.com"
-                            class="form-input"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="contactSubject">
-                            <i class="fas fa-tag"></i> Subject
-                        </label>
-                        <select id="contactSubject" name="subject" required class="form-input">
-                            <option value="">Select a topic...</option>
-                            <option value="general">General Inquiry</option>
-                            <option value="technical">Technical Support</option>
-                            <option value="billing">Billing & Payments</option>
-                            <option value="feature">Feature Request</option>
-                            <option value="bug">Report a Bug</option>
-                            <option value="feedback">Feedback</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="contactMessage">
-                            <i class="fas fa-comment-alt"></i> Message
-                        </label>
-                        <textarea 
-                            id="contactMessage" 
-                            name="message" 
-                            required 
-                            rows="6"
-                            placeholder="Tell us more about your inquiry..."
-                            class="form-input"
-                        ></textarea>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary btn-submit">
-                            <i class="fas fa-paper-plane"></i> Send Message
-                        </button>
-                    </div>
-                </form>
-
-                <div class="contact-info">
-                    <p class="contact-note">
-                        <i class="fas fa-info-circle"></i> 
-                        We typically respond within 24-48 hours during business days.
-                    </p>
-                </div>
-            </div>
-        `;
-    }
-
-    initContactForm() {
-        const form = document.getElementById('contactForm');
-
-        if (!form) return;
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const submitBtn = form.querySelector('.btn-submit');
-            const originalText = submitBtn.innerHTML;
-
-            // Disable button and show loading
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-
-            // Get form data
-            const formData = {
-                name: form.name.value,
-                email: form.email.value,
-                subject: form.subject.value,
-                message: form.message.value,
-                timestamp: new Date().toISOString()
-            };
-
-            try {
-                // TODO: Replace with actual backend endpoint
-                // For now, simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                // Success
-                this.close();
-                window.showToast(
-                    'Thank you for contacting us! We\'ll get back to you soon.',
-                    'success',
-                    'Message Sent',
-                    5000
-                );
-
-                // Log to console (remove in production)
-                console.log('Contact form submission:', formData);
-
-            } catch (error) {
-                // Error
-                window.showToast(
-                    'Failed to send message. Please try again or email us directly.',
-                    'error',
-                    'Send Failed',
-                    5000
-                );
-
-                // Re-enable button
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            }
-        });
-    }
 }
 
 // Initialize modal manager when DOM is ready

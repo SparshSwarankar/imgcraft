@@ -93,7 +93,7 @@
       "name": "Remove Background",
       "short_name": "Remove BG",
       "description": "Remove image background with AI",
-      "url": "/remove_bg",
+      "url": "/remove-bg",
       "icons": [
         {
           "src": "/static/image/shortcut-remove-bg-96x96.png",

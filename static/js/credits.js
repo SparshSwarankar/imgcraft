@@ -10,13 +10,14 @@ const CreditManager = {
     },
 
     /**
-     * Update credit display in UI
+     * Update credit display in UI (desktop + mobile)
      */
     updateDisplay(creditData) {
         if (creditData) {
             this.data = creditData;
         }
 
+        // Desktop credit display
         const balanceEl = document.getElementById('creditBalance');
         if (balanceEl) {
             balanceEl.textContent = this.data.remaining_credits;
@@ -26,6 +27,12 @@ const CreditManager = {
             } else {
                 balanceEl.classList.remove('text-warning');
             }
+        }
+
+        // Mobile credit display
+        const balanceMobileEl = document.getElementById('creditBalanceMobile');
+        if (balanceMobileEl) {
+            balanceMobileEl.textContent = this.data.remaining_credits;
         }
 
         const billingBalanceEl = document.getElementById('billingBalance');

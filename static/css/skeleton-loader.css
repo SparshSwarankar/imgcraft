@@ -1,0 +1,667 @@
+/* =========================================
+   SKELETON LOADERS - Professional Loading UI
+   ========================================= */
+
+/* Base Skeleton Loader Animation */
+.skeleton {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 8px;
+    position: relative;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ========================================
+   SKELETON VARIANTS
+   ======================================== */
+
+/* Text/Line Skeleton */
+.skeleton-text {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+.skeleton-text.medium {
+    width: 85%;
+}
+
+.skeleton-text.long {
+    width: 100%;
+}
+
+/* Heading Skeleton */
+.skeleton-heading {
+    height: 1.75rem;
+    margin-bottom: 1rem;
+    width: 70%;
+    border-radius: 6px;
+}
+
+/* Avatar/Image Skeleton */
+.skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.skeleton-avatar.large {
+    width: 100px;
+    height: 100px;
+}
+
+.skeleton-avatar.xl {
+    width: 150px;
+    height: 150px;
+}
+
+/* Rectangular Image Skeleton */
+.skeleton-image {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-image.square {
+    aspect-ratio: 1;
+    height: auto;
+}
+
+.skeleton-image.wide {
+    aspect-ratio: 16 / 9;
+    height: auto;
+}
+
+/* Button Skeleton */
+.skeleton-button {
+    height: 44px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.skeleton-button.small {
+    height: 36px;
+    width: 80px;
+}
+
+.skeleton-button.medium {
+    height: 40px;
+    width: 150px;
+}
+
+/* Card Skeleton */
+.skeleton-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.skeleton-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-card-title {
+    height: 1.5rem;
+    width: 60%;
+    border-radius: 6px;
+}
+
+/* ========================================
+   SKELETON CONTAINERS
+   ======================================== */
+
+/* File Info Skeleton */
+.skeleton-file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.skeleton-file-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.skeleton-file-row .skeleton-text {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.skeleton-file-row .skeleton-text:last-child {
+    flex: 1;
+}
+
+/* Control Slider Skeleton */
+.skeleton-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeleton-slider-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-slider-label .skeleton-text {
+    flex: 1;
+    height: 0.875rem;
+    margin-bottom: 0;
+}
+
+.skeleton-slider-track {
+    height: 6px;
+    border-radius: 3px;
+    width: 100%;
+}
+
+/* Billing Card Skeleton */
+.skeleton-billing-card {
+    background: rgba(249, 115, 22, 0.05);
+    border: 1px solid rgba(249, 115, 22, 0.1);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.skeleton-billing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-billing-price {
+    height: 2rem;
+    width: 40%;
+    border-radius: 8px;
+}
+
+.skeleton-billing-button {
+    height: 44px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+/* Auth Form Skeleton */
+.skeleton-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-form-input {
+    height: 48px;
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-form-label {
+    height: 1rem;
+    width: 30%;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-form-button {
+    height: 48px;
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* Checkbox Skeleton */
+.skeleton-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* Toggle Skeleton */
+.skeleton-toggle {
+    width: 50px;
+    height: 28px;
+    border-radius: 14px;
+}
+
+/* List Skeleton */
+.skeleton-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.skeleton-list-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+}
+
+.skeleton-list-item-avatar {
+    min-width: 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.skeleton-list-item-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.skeleton-list-item-title {
+    height: 1rem;
+    width: 50%;
+}
+
+.skeleton-list-item-subtitle {
+    height: 0.875rem;
+    width: 70%;
+}
+
+/* Table Skeleton */
+.skeleton-table-header {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+}
+
+.skeleton-table-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-table-cell {
+    height: 1rem;
+    border-radius: 4px;
+}
+
+/* ========================================
+   SKELETON PAGE TEMPLATES
+   ======================================== */
+
+/* Tool Page (Compress, Convert, etc.) */
+.skeleton-tool-page {
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.skeleton-tool-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.skeleton-tool-panel-header {
+    height: 1.5rem;
+    width: 60%;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-tool-canvas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 2rem;
+}
+
+/* Canvas Image Skeleton */
+.skeleton-canvas-image {
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 1;
+    border-radius: 12px;
+}
+
+/* Billing Page Skeleton */
+.skeleton-billing-page {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.skeleton-billing-title {
+    height: 2.5rem;
+    width: 40%;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.skeleton-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Auth Page Skeleton */
+.skeleton-auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.skeleton-auth-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.skeleton-auth-header {
+    height: 2rem;
+    width: 50%;
+    border-radius: 8px;
+    margin: 0 auto 2rem;
+}
+
+.skeleton-social-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-social-button {
+    height: 48px;
+    border-radius: 10px;
+}
+
+.skeleton-divider-text {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.skeleton-divider-text::before,
+.skeleton-divider-text::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.skeleton-divider-text .skeleton-text {
+    flex: 0 0 auto;
+    width: 40px;
+    margin-bottom: 0;
+}
+
+/* ========================================
+   MOBILE RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .skeleton-tool-page {
+        grid-template-columns: 1fr;
+    }
+
+    .skeleton-pricing-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .skeleton-social-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   ACCESSIBILITY - REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton {
+        animation: none;
+        opacity: 0.7;
+    }
+
+    @keyframes skeleton-loading {
+
+        0%,
+        100% {
+            opacity: 0.7;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+    }
+}
+
+/* ========================================
+   SKELETON SHOW/HIDE UTILITIES
+   ======================================== */
+
+.skeleton-wrapper {
+    position: relative;
+}
+
+.skeleton-wrapper.loaded {
+    pointer-events: auto;
+}
+
+.skeleton-wrapper.loading .skeleton-content {
+    display: none;
+}
+
+.skeleton-wrapper.loading .skeleton-placeholder {
+    display: block;
+}
+
+.skeleton-wrapper.loaded .skeleton-content {
+    display: block;
+}
+
+.skeleton-wrapper.loaded .skeleton-placeholder {
+    display: none;
+}
+
+/* Fade-in animation when content loads */
+@keyframes fade-in-skeleton {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.skeleton-wrapper.loaded .skeleton-content {
+    animation: fade-in-skeleton 0.3s ease-in-out;
+}
+
+/* ========================================
+   PULSE VARIANT (Alternative to shimmer)
+   ======================================== */
+
+.skeleton.pulse {
+    animation: skeleton-pulse 2s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* ========================================
+   TOOL CARD SKELETON (Grid Display)
+   ======================================== */
+
+.skeleton-tool-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    min-height: 280px;
+    transition: all 0.3s ease;
+}
+
+.skeleton-tool-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-tool-card .skeleton-heading {
+    height: 1.2rem;
+    border-radius: 6px;
+}
+
+.skeleton-tool-card .skeleton-text {
+    width: 100%;
+    height: 0.9rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+}
+
+.skeleton-button {
+    width: 100%;
+    height: 44px;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 12px;
+    margin-top: auto;
+}
+
+/* ========================================
+   AUTH PAGE SKELETON OVERLAY
+   ======================================== */
+
+.skeleton-auth-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: inherit;
+}
+
+@keyframes fade-out-skeleton {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+.skeleton-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-form-label {
+    height: 0.9rem;
+    width: 40%;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 6px;
+}
+
+.skeleton-form-input {
+    height: 2.5rem;
+    width: 100%;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 12px;
+}
+
+.skeleton-form-button {
+    height: 2.7rem;
+    width: 100%;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}

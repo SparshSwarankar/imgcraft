@@ -70,6 +70,19 @@
     return overlay;
   }
 
+  function setLoadingText(text) {
+    const previewRoot = getPreviewRoot();
+    if (!previewRoot) return;
+    
+    const overlay = ensurePreviewOverlay(previewRoot);
+    if (overlay) {
+      const textElement = overlay.querySelector('.imgcraft-preview-loading-text');
+      if (textElement) {
+        textElement.textContent = text;
+      }
+    }
+  }
+
   function setButtonLoading(button, isLoading) {
     if (!button) return;
 
@@ -98,18 +111,44 @@
     }
   }
 
-  function setBusy(isBusy) {
+  function setBusy(isBusy, message) {
     const previewRoot = getPreviewRoot();
     const downloadBtn = getDownloadButton();
 
     // Always show preview-area loading when busy.
     setPreviewBusy(previewRoot, isBusy);
 
+    // Update loading message if provided
+    if (isBusy && message) {
+      setLoadingText(message);
+    }
+
     // Only force download button loading if it is present and visible.
     // (Many tools hide download until processing is complete.)
     if (isVisible(downloadBtn)) {
       setButtonLoading(downloadBtn, isBusy);
     }
+  }
+
+  function disableActionButtons(disable) {
+    // Find and disable/enable all action buttons during processing
+    const actionButtons = document.querySelectorAll(
+      '#convertBtn, #compressBtn, #resizeBtn, #removeBtn, #upscaleBtn, #cropBtn, #generateBtn, #applyBtn, #downloadBtn'
+    );
+    
+    actionButtons.forEach(btn => {
+      if (btn) {
+        if (disable) {
+          btn.disabled = true;
+          btn.classList.add('imgcraft-btn-disabled');
+          btn.setAttribute('aria-disabled', 'true');
+        } else {
+          btn.disabled = false;
+          btn.classList.remove('imgcraft-btn-disabled');
+          btn.removeAttribute('aria-disabled');
+        }
+      }
+    });
   }
 
   function enhanceDownloadButton() {
@@ -125,6 +164,21 @@
       window.setTimeout(() => setButtonLoading(downloadBtn, false), 2500);
     });
   }
+
+  // Expose a comprehensive API for tool scripts to use
+  window.ImgCraftBusyUI = {
+    setBusy,
+    setLoadingText,
+    disableActionButtons,
+    showLoading: (message = 'Processing...') => {
+      disableActionButtons(true);
+      setBusy(true, message);
+    },
+    hideLoading: () => {
+      setBusy(false);
+      disableActionButtons(false);
+    }
+  };
 
   function observeExistingLoadingOverlay() {
     const loadingOverlay = $('#loadingOverlay');
@@ -144,11 +198,6 @@
       attributeFilter: ['style', 'class', 'hidden', 'aria-hidden']
     });
   }
-
-  // Expose a tiny API so individual tool scripts can opt-in directly if desired.
-  window.ImgCraftBusyUI = {
-    setBusy
-  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {

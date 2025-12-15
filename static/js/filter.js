@@ -259,8 +259,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            loadingOverlay.style.display = 'flex';
-            applyBtn.disabled = true;
+            // Use unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.showLoading('Applying Filters...');
+            }
 
             const formData = new FormData();
             formData.append('image', currentFile);
@@ -275,6 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response.ok) {
+                    // Update loading text
+                    if (window.ImgCraftBusyUI) {
+                        window.ImgCraftBusyUI.setLoadingText('Preparing Download...');
+                    }
+
                     const cost = response.headers.get('X-Credits-Cost');
                     const blob = await response.blob();
                     const url = URL.createObjectURL(blob);
@@ -298,8 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(error);
                 showToast('Network error', 'error');
             } finally {
-                loadingOverlay.style.display = 'none';
-                applyBtn.disabled = false;
+                // Hide unified loading UI
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.hideLoading();
+                }
             }
         });
     }

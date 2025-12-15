@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Billing & Credits - ImgCraft{% endblock %}
+{% block title %}Billing & Credits – ImgCraft{% endblock %}
+
+{% block meta_description %}Purchase credits and manage your ImgCraft account. Affordable pricing for premium AI image editing features.{% endblock %}
+
+{% block og_title %}Billing & Credits – ImgCraft{% endblock %}
+{% block og_description %}Get credits for premium features. Flexible pricing plans for individuals and businesses.{% endblock %}
 
 {% block head %}
 <style>
@@ -941,7 +946,7 @@
 <!-- Modern Pricing Header -->
 <div class="pricing-header-section">
     <div class="pricing-header">
-        <h1 class="pricing-title">Buy Credits</h1>
+        <h2 class="pricing-title">Buy Credits</h2>
         <p class="pricing-subtitle">Choose the plan that works best for you. Credits never expire and can be used on any tool.</p>
     </div>
     
@@ -963,9 +968,10 @@
 
 <!-- Pricing Plans Grid -->
 <div class="pricing-plans-grid" id="plansGrid">
-    <div class="glass-panel" style="text-align: center; padding: 2rem; grid-column: 1 / -1;">
-        <i class="fas fa-spinner fa-spin"></i> Loading plans...
-    </div>
+    <div class="skeleton-billing-card"></div>
+    <div class="skeleton-billing-card"></div>
+    <div class="skeleton-billing-card"></div>
+    <div class="skeleton-billing-card"></div>
 </div>
 
 <!-- FAQ/Info Section -->
@@ -995,20 +1001,6 @@
     </div>
 </div>
 
-<!-- Ad-Free Section -->
-<div class="ad-free-section glass-panel">
-    <h2><i class="fas fa-ban"></i> Remove Ads Forever</h2>
-    <p>Get uninterrupted access to ImgCraft without any advertisements</p>
-    
-    <div id="adFreeContainer">
-        <!-- Ad-Free Cards will be loaded here -->
-    </div>
-    
-    <div id="adFreeStatus" style="display: none;">
-        <span class="ad-free-badge"><i class="fas fa-check-circle"></i> Ad-Free Activated</span>
-        <p style="color: rgba(255, 255, 255, 0.7); margin-top: 1rem;">Thank you for supporting ImgCraft!</p>
-    </div>
-</div>
 
 <div class="history-section glass-panel glass-panel p-4 rounded-lg">
     <h2>Usage History</h2>
@@ -1059,8 +1051,12 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
+        // Initialize skeleton loaders
+        skeletonLoader.createSkeleton('plansGrid', 'billingCard');
+        
         loadPlans();
-        loadAdFreeOptions();
+        // ADS FEATURE REMOVED - Commented out
+        // loadAdFreeOptions();
 
         // Check Supabase directly to handle race condition
         const { data: { session } } = await supabase.auth.getSession();
@@ -1215,7 +1211,8 @@
             btnElement.disabled = false;
         }
     }
-
+    // ADS FEATURE REMOVED - Commented out ad-free functions
+    /*
     // Load Ad-Free Options
     async function loadAdFreeOptions() {
         try {
@@ -1359,96 +1356,14 @@
             window.location.href = '/auth';
             return;
         }
-
-        const originalText = btnElement.innerHTML;
-        btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        btnElement.disabled = true;
-
-        try {
-            const response = await fetch('/api/ads/create-order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${window.AuthManager.getToken()}`
-                },
-                body: JSON.stringify({ plan: plan })
-            });
-
-            const data = await response.json();
-
-            if (data.status === 'success' && data.order) {
-                // Open Razorpay payment modal
-                const options = {
-                    key: data.order.key_id,
-                    amount: data.order.amount,
-                    currency: data.order.currency,
-                    order_id: data.order.id,
-                    handler: async (response) => {
-                        // Verify payment
-                        await verifyAdFreePayment(response, data.order.id);
-                    },
-                    modal: {
-                        ondismiss: function() {
-                            // User closed the payment modal
-                            btnElement.innerHTML = originalText;
-                            btnElement.disabled = false;
-                        }
-                    },
-                    prefill: {
-                        email: window.AuthManager.user?.email || ''
-                    },
-                    theme: {
-                        color: '#ff6b6b'
-                    }
-                };
-
-                const rzp = new Razorpay(options);
-                rzp.open();
-            } else {
-                throw new Error(data.message || 'Failed to create payment order');
-            }
-        } catch (error) {
-            showToast(error.message || 'Failed to process payment', 'error');
-            btnElement.innerHTML = originalText;
-            btnElement.disabled = false;
-        }
+        // Rest of function...
     }
 
     // Verify Ad-Free Payment
     async function verifyAdFreePayment(response, orderId) {
-        try {
-            const verifyResponse = await fetch('/api/ads/verify-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${window.AuthManager.getToken()}`
-                },
-                body: JSON.stringify({
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_signature: response.razorpay_signature
-                })
-            });
-
-            const data = await verifyResponse.json();
-
-            if (data.status === 'success') {
-                // Immediately hide ads on this page
-                if (window.AdManager && typeof window.AdManager.hideAllAds === 'function') {
-                    window.AdManager.hideAllAds();
-                }
-                
-                showToast('✓ Ad-free access activated! Refresh to see changes.', 'success');
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            } else {
-                throw new Error(data.message || 'Payment verification failed');
-            }
-        } catch (error) {
-            showToast('Payment verified but please refresh to confirm', 'warning');
-        }
+        // Function body...
     }
+    */
 
     async function loadHistory(tokenOverride = null) {
         try {

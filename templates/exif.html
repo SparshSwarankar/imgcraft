@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 
 {# --- ENHANCED SEO BLOCKS START --- #}
-{% block title %}Free EXIF Viewer & Metadata Remover - Protect Photo Privacy | ImgCraft{% endblock %}
+{% block title %}EXIF Viewer & Remover – ImgCraft{% endblock %}
 
-{% block meta_description %}View and remove EXIF data from photos online. See hidden metadata: camera settings, GPS
-location, date/time, ISO, shutter speed, aperture. Remove sensitive information to protect your privacy before sharing
-online. Perfect for photographers, privacy-conscious users, and social media. Analyze camera data, check photo details,
-and strip metadata instantly. Free and secure.{% endblock %}
+{% block meta_description %}View and remove EXIF metadata from photos. Protect privacy by deleting GPS, camera settings, and sensitive data.{% endblock %}
 
 {% block meta_keywords %}exif viewer online free, remove exif data, view photo metadata, remove gps from photo, exif
 remover tool, photo privacy protection, remove camera data, clear image metadata, exif data viewer, photo location
@@ -17,10 +14,9 @@ tool, secure photo sharing, metadata stripper, exif tag remover, photo informati
 image data cleaner, photography metadata, digital photo data, exif privacy tool, photo security tool, remove sensitive
 data, clean photo metadata, imgcraft exif{% endblock %}
 
-{% block og_title %}Free EXIF Viewer & Metadata Remover - Protect Privacy | ImgCraft{% endblock %}
+{% block og_title %}EXIF Viewer & Remover – ImgCraft{% endblock %}
 
-{% block og_description %}Analyze camera settings and remove sensitive GPS location data from your photos before sharing
-online. View ISO, shutter speed, aperture, and more. Protect your digital privacy with our free EXIF tool.{% endblock %}
+{% block og_description %}View camera settings and remove GPS data from photos. Protect your privacy before sharing images online.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -165,18 +161,7 @@ online. View ISO, shutter speed, aperture, and more. Protect your digital privac
     </aside>
 
 </div>
-{% if not user_ad_free %}
-<section class="ads-section">
-    <div class="ad-container">
-        <!-- ImgCraft: Ad Placement - EXIF Tool -->
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
-            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-</section>
-{% endif %}
+
 
 <div id="confirmModal" class="custom-modal-overlay" style="display: none;">
     <div class="custom-modal-content glass-panel">

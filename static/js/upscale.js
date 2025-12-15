@@ -160,8 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        loadingOverlay.style.display = 'flex';
-        upscaleBtn.disabled = true;
+        // Use unified loading UI
+        if (window.ImgCraftBusyUI) {
+            window.ImgCraftBusyUI.showLoading(`Upscaling to ${currentFactor}x...`);
+        }
 
         // Scan Animation
         if (scanOverlay) scanOverlay.style.display = 'block';
@@ -183,6 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                // Update loading text
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Enhancing Image...');
+                }
+
                 const cost = response.headers.get('X-Credits-Cost');
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
@@ -209,14 +216,15 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Upscaling failed');
                 showToast(errorMessage, 'error');
-                upscaleBtn.disabled = false;
             }
         } catch (error) {
             console.error(error);
             showToast('Network error', 'error');
-            upscaleBtn.disabled = false;
         } finally {
-            loadingOverlay.style.display = 'none';
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
+            }
             if (scanOverlay) scanOverlay.style.display = 'none';
             if (compareContainer) compareContainer.classList.remove('scanning-active');
         }

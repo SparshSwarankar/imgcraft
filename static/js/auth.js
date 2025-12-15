@@ -33,7 +33,7 @@ const AuthManager = {
             try {
                 const storedSession = JSON.parse(storedSessionStr);
                 console.log('Restored session from sessionStorage:', storedSession);
-                
+
                 // Create proper session object that matches Supabase format
                 const session = {
                     access_token: storedSession.access_token,
@@ -44,14 +44,14 @@ const AuthManager = {
                     type: storedSession.type,
                     user: storedSession.user
                 };
-                
+
                 this.handleAuthChange('SESSION_RESTORED', session);
                 return;
             } catch (e) {
                 console.error('Failed to parse stored session:', e);
             }
         }
-        
+
         // Then check Supabase session
         const { data: { session } } = await supabase.auth.getSession();
         this.handleAuthChange('INITIAL_CHECK', session);
@@ -111,21 +111,33 @@ const AuthManager = {
         const guestElements = document.querySelectorAll('.auth-guest');
         const userElements = document.querySelectorAll('.auth-user');
 
+        // Mobile elements
+        const guestMobileElements = document.querySelectorAll('.auth-guest-mobile');
+        const userMobileElements = document.querySelectorAll('.auth-user-mobile');
+
         if (isLoggedIn) {
             guestElements.forEach(el => el.style.display = 'none');
             userElements.forEach(el => el.style.display = 'flex');
+            guestMobileElements.forEach(el => el.style.display = 'none');
+            userMobileElements.forEach(el => el.style.display = 'flex');
 
             const userNameEl = document.getElementById('userName');
             const userEmailEl = document.getElementById('userEmail');
+            const userNameDisplayEl = document.getElementById('userNameDisplay');
             if (userNameEl && this.user.user_metadata.full_name) {
                 userNameEl.textContent = this.user.user_metadata.full_name;
+            }
+            if (userNameDisplayEl && this.user.user_metadata.full_name) {
+                userNameDisplayEl.textContent = this.user.user_metadata.full_name;
             }
             if (userEmailEl) {
                 userEmailEl.textContent = this.user.email;
             }
         } else {
-            guestElements.forEach(el => el.style.display = 'block');
+            guestElements.forEach(el => el.style.display = 'flex');
             userElements.forEach(el => el.style.display = 'none');
+            guestMobileElements.forEach(el => el.style.display = 'flex');
+            userMobileElements.forEach(el => el.style.display = 'none');
         }
     },
 
@@ -172,5 +184,7 @@ const AuthManager = {
 window.AuthManager = AuthManager;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Immediately set logged-out UI state to prevent flash of logged-in content
+    AuthManager.updateUI(false);
     AuthManager.init();
 });

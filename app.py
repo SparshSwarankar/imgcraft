@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, make_response
+from flask import Flask, render_template, request, send_file, make_response, send_from_directory
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageOps, ImageFilter
 from PIL.ExifTags import TAGS
@@ -10,12 +10,14 @@ from datetime import datetime
 import traceback
 from functools import wraps
 import re
-from ads import (
-    create_ad_free_order,
-    verify_ad_free_payment,
-    handle_razorpay_webhook,
-    get_user_ad_free_status
-)
+import os
+# ADS FEATURE REMOVED - Commented out
+# from ads import (
+#     create_ad_free_order,
+#     verify_ad_free_payment,
+#     handle_razorpay_webhook,
+#     get_user_ad_free_status
+# )
 
 # Import configuration
 # Import configuration
@@ -219,15 +221,16 @@ def get_session(current_user):
             balance = credit_manager.get_balance(current_user['id'])
             credits_data = balance.get('data', {})
         
+        # ADS FEATURE REMOVED - Commented out
         # Get ad-free status
-        user_id = current_user.get('id')
-        ad_free_status = get_user_ad_free_status(user_id)
+        # user_id = current_user.get('id')
+        # ad_free_status = get_user_ad_free_status(user_id)
         
         return jsonify({
             'success': True,
             'user': current_user,
             'credits': credits_data,
-            'ad_free': ad_free_status  # Added ad-free status
+            # 'ad_free': ad_free_status  # Added ad-free status
         })
     except Exception as e:
         logger.error(f"Session error: {str(e)}")
@@ -293,9 +296,45 @@ def auth_login():
         })
         
         if res.session:
-            # Initialize credits for the user
+            # Initialize credits for the user (one-time only on first login)
             if res.user:
-                credit_manager.initialize_credits(res.user.id)
+                try:
+                    # Check if user already has credits (prevents multiple awards)
+                    existing_credits = supabase_admin.table('user_credits').select('id').eq('user_id', res.user.id).execute()
+                    
+                    if not existing_credits.data:
+                        # First login - check if user already received bonus AND if email is in email_notifications
+                        initial_credits = 10  # Default
+                        
+                        # Check user profile for bonus flag
+                        user_profile = supabase_admin.table('user_profiles').select('received_bonus_credits').eq('id', res.user.id).execute()
+                        has_received_bonus = False
+                        if user_profile.data and user_profile.data[0].get('received_bonus_credits'):
+                            has_received_bonus = True
+                        
+                        # Only award bonus if user hasn't received it yet
+                        if not has_received_bonus:
+                            try:
+                                notification_check = supabase_admin.table('email_notifications').select('id').eq('email', res.user.email.lower()).execute()
+                                if notification_check.data:
+                                    initial_credits = 30  # ONE-TIME BONUS for first-time users in notification list
+                                    logger.info(f"First-time bonus awarded to {res.user.email} (30 credits)")
+                                    
+                                    # Mark that user has received bonus
+                                    supabase_admin.table('user_profiles').update({
+                                        'received_bonus_credits': True
+                                    }).eq('id', res.user.id).execute()
+                                else:
+                                    logger.info(f"New user login {res.user.email} (10 credits)")
+                            except Exception as e:
+                                logger.warning(f"Could not check email_notifications: {str(e)}")
+                        
+                        # Initialize credits (only happens on first login)
+                        credit_manager.initialize_credits(res.user.id, initial_credits)
+                    # else: User already has credits, do nothing on subsequent logins
+                    
+                except Exception as e:
+                    logger.error(f"Error checking/initializing credits: {str(e)}")
 
             return jsonify({
                 'success': True,
@@ -861,6 +900,98 @@ def submit_review():
             'error': 'Failed to submit review. Please try again.'
         }), 500
 
+
+@app.route('/api/contact', methods=['POST'])
+def submit_contact():
+    """
+    Submit contact form submission
+    Accepts name, email, subject, and message
+    """
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        subject = data.get('subject', '').strip()
+        message = data.get('message', '').strip()
+        
+        # Basic validation
+        if not name or len(name) < 2:
+            return jsonify({
+                'error': 'Name is required and must be at least 2 characters'
+            }), 400
+        
+        if not email or '@' not in email:
+            return jsonify({
+                'error': 'Valid email address is required'
+            }), 400
+        
+        if not subject:
+            return jsonify({
+                'error': 'Subject is required'
+            }), 400
+        
+        if not message or len(message) < 10:
+            return jsonify({
+                'error': 'Message is required and must be at least 10 characters'
+            }), 400
+        
+        # Limit field lengths
+        name = name[:100]
+        email = email[:255]
+        subject = subject[:200]
+        message = message[:5000]
+        
+        # Get user info if authenticated
+        user_id = None
+        auth_header = request.headers.get('Authorization', '')
+        
+        if auth_header.startswith('Bearer '):
+            try:
+                token = auth_header.split(' ')[1]
+                user_data = verify_jwt_token(token)
+                user_id = user_data.get('id')
+            except Exception as e:
+                logger.debug(f"Contact submitted without authentication: {str(e)}")
+        
+        # Create contact record
+        contact_record = {
+            'user_id': user_id,
+            'name': name,
+            'email': email,
+            'subject': subject,
+            'message': message,
+            'ip_address': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent', '')[:500],
+            'status': 'new',  # new, reading, responded, closed
+            'created_at': 'now()'
+        }
+        
+        # Insert into database
+        result = supabase_admin.table('contact_submissions').insert(contact_record).execute()
+        
+        if not result.data:
+            logger.error("Failed to insert contact submission into database")
+            return jsonify({
+                'error': 'Failed to save your message. Please try again.'
+            }), 500
+        
+        logger.info(f"Contact submission received: Subject={subject}, Email={email}, User={user_id or 'Anonymous'}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Thank you for contacting us! We will respond within 24-48 hours.',
+            'submission_id': result.data[0]['id'] if result.data else None
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Contact submission error: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({
+            'error': 'Failed to submit message. Please try again.'
+        }), 500
+
 # ============================================================================
 # CONTEXT PROCESSOR
 # ============================================================================
@@ -870,25 +1001,25 @@ def submit_review():
 def inject_config():
     """Inject configuration and user state into all templates"""
     
-    # Get user's ad-free status from JWT token if present
+    # ADS FEATURE REMOVED - Commented out ad-free checks
     ad_free = False
-    auth_header = request.headers.get('Authorization', '')
-    if auth_header.startswith('Bearer '):
-        try:
-            token = auth_header.split(' ')[1]
-            user_data = verify_jwt_token(token)
-            user_id = user_data.get('id')
-            if user_id:
-                ad_free = get_user_ad_free_status(user_id)
-        except Exception as e:
-            logger.debug(f"Failed to verify token in context processor: {str(e)}")
+    # auth_header = request.headers.get('Authorization', '')
+    # if auth_header.startswith('Bearer '):
+    #     try:
+    #         token = auth_header.split(' ')[1]
+    #         user_data = verify_jwt_token(token)
+    #         user_id = user_data.get('id')
+    #         if user_id:
+    #             ad_free = get_user_ad_free_status(user_id)
+    #     except Exception as e:
+    #         logger.debug(f"Failed to verify token in context processor: {str(e)}")
     
     return {
         'SUPABASE_URL': config.SUPABASE_URL,
         'SUPABASE_ANON_KEY': config.SUPABASE_ANON_KEY,
         'RAZORPAY_KEY_ID': config.RAZORPAY_KEY_ID,
         'APP_VERSION': app.config.get('APP_VERSION', APP_VERSION),
-        'user_ad_free': ad_free  # Available in all templates
+        'user_ad_free': ad_free  # ADS FEATURE REMOVED - Always False now
     }
 
 # ============================================================================
@@ -913,14 +1044,16 @@ def robots():
 
 @app.route('/favicon.ico')
 def favicon_ico():
-    """Compatibility route: redirect /favicon.ico to the static favicon file."""
-    return redirect('/static/favicon.ico', code=301)
-
+    """Serve favicon.ico directly from the static/favicon directory (no redirect)."""
+    return send_from_directory(os.path.join(app.root_path, 'static', 'favicon'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/favicon.png')
 def favicon_png_redirect():
-    """Backward-compat: redirect png favicon requests to the .ico favicon."""
-    return redirect('/static/favicon.ico', code=301)
+    """Serve favicon.png requests with the .ico file for compatibility."""
+    return send_from_directory(os.path.join(app.root_path, 'static', 'favicon'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -945,6 +1078,45 @@ def billing_page():
     logger.debug("Rendering billing page")
     return render_template('billing.html')
 
+@app.route('/contact')
+def contact_page():
+    logger.debug("Rendering contact page")
+    return render_template('contact.html')
+
+@app.route('/about')
+def about_page():
+    logger.debug("Rendering about page")
+    return render_template('about.html')
+
+@app.route('/docs')
+def docs_page():
+    """Documentation page with complete product/tool information."""
+    logger.debug("Rendering docs page")
+
+    # Tool list is database-backed (Supabase tool_config). If DB is unavailable,
+    # fall back to an empty list so the docs page still loads.
+    tools = []
+    try:
+        tools = get_all_tools(use_cache=True) or []
+    except Exception as e:
+        logger.warning(f"Failed to load tools for docs page: {str(e)}")
+
+    # Normalize tool links for routes (remove_bg uses /remove-bg)
+    for tool in tools:
+        tool_name = tool.get('tool_name')
+        if tool_name == 'remove_bg':
+            tool['route'] = '/remove-bg'
+        else:
+            tool['route'] = f"/{tool_name}" if tool_name else '#'
+
+    return render_template(
+        'docs.html',
+        tools=tools,
+        credit_plans=CREDIT_PLANS,
+        max_file_size_mb=getattr(config, 'MAX_FILE_SIZE_MB', None),
+        app_version=app.config.get('APP_VERSION', APP_VERSION)
+    )
+
 @app.route('/resize')
 def resize_tool():
     logger.debug("Rendering resize tool page")
@@ -964,6 +1136,13 @@ def convert_tool():
 def remove_bg_tool():
     logger.debug("Rendering remove background tool page")
     return render_template('remove_bg.html')
+
+
+@app.route('/remove_bg')
+@app.route('/remove_bg/')
+def remove_bg_tool_legacy():
+    """Legacy route kept for backwards compatibility (PWA caches, old links)."""
+    return redirect('/remove-bg', code=301)
 
 
 
@@ -2339,191 +2518,192 @@ def apply_collage_filters(image, filter_type):
     return image
 
 
-@app.route('/api/ads/create-order', methods=['POST'])
-@require_auth
-@log_request
-def create_ad_free_purchase_order(current_user):
-    """
-    Create Razorpay order for ad-free purchase
-    
-    Request body: {
-        "plan": "lifetime" | "yearly" | "monthly"  (optional, defaults to 'lifetime')
-    }
-    
-    Response:
-    {
-        "status": "success",
-        "order": {
-            "id": "order_xxxxx",
-            "amount": 9900,
-            "currency": "INR",
-            "key_id": "rzp_live_xxxxx",
-            "plan": "lifetime",
-            "duration": "Lifetime",
-            "description": "ImgCraft Ad-Free Experience (Lifetime)"
-        }
-    }
-    """
-    
-    try:
-        user_id = current_user.get('id')
-        user_email = current_user.get('email')
-        
-        # Check if user already has ad-free access
-        is_ad_free = get_user_ad_free_status(user_id)
-        if is_ad_free:
-            return jsonify({
-                'status': 'error',
-                'message': 'You already have ad-free access'
-            }), 400
-        
-        # Get plan from request body
-        data = request.get_json() or {}
-        plan = data.get('plan', 'lifetime')
-        
-        # Create order
-        result = create_ad_free_order(user_id, user_email, plan)
-        
-        if result['status'] == 'success':
-            return jsonify(result), 200
-        else:
-            return jsonify(result), 400
-            
-    except Exception as e:
-        logger.error(f"Error creating ad-free order: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': 'Failed to create payment order'
-        }), 500
+# ADS FEATURE REMOVED - Commented out ad-free purchase endpoints
+# @app.route('/api/ads/create-order', methods=['POST'])
+# @require_auth
+# @log_request
+# def create_ad_free_purchase_order(current_user):
+#     """
+#     Create Razorpay order for ad-free purchase
+#     
+#     Request body: {
+#         "plan": "lifetime" | "yearly" | "monthly"  (optional, defaults to 'lifetime')
+#     }
+#     
+#     Response:
+#     {
+#         "status": "success",
+#         "order": {
+#             "id": "order_xxxxx",
+#             "amount": 9900,
+#             "currency": "INR",
+#             "key_id": "rzp_live_xxxxx",
+#             "plan": "lifetime",
+#             "duration": "Lifetime",
+#             "description": "ImgCraft Ad-Free Experience (Lifetime)"
+#         }
+#     }
+#     """
+#     
+#     try:
+#         user_id = current_user.get('id')
+#         user_email = current_user.get('email')
+#         
+#         # Check if user already has ad-free access
+#         is_ad_free = get_user_ad_free_status(user_id)
+#         if is_ad_free:
+#             return jsonify({
+#                 'status': 'error',
+#                 'message': 'You already have ad-free access'
+#             }), 400
+#         
+#         # Get plan from request body
+#         data = request.get_json() or {}
+#         plan = data.get('plan', 'lifetime')
+#         
+#         # Create order
+#         result = create_ad_free_order(user_id, user_email, plan)
+#         
+#         if result['status'] == 'success':
+#             return jsonify(result), 200
+#         else:
+#             return jsonify(result), 400
+#             
+#     except Exception as e:
+#         logger.error(f"Error creating ad-free order: {str(e)}")
+#         return jsonify({
+#             'status': 'error',
+#             'message': 'Failed to create payment order'
+#         }), 500
 
 
-@app.route('/api/ads/verify-payment', methods=['POST'])
-@require_auth
-@log_request
-def verify_ad_free_purchase(current_user):
-    """
-    Verify Razorpay payment signature after frontend receives payment response
+# @app.route('/api/ads/verify-payment', methods=['POST'])
+# @require_auth
+# @log_request
+# def verify_ad_free_purchase(current_user):
+#     """
+#     Verify Razorpay payment signature after frontend receives payment response
     
-    Request body:
-    {
-        "razorpay_order_id": "order_xxxxx",
-        "razorpay_payment_id": "pay_xxxxx",
-        "razorpay_signature": "signature_xxxx"
-    }
+    # Request body:
+    # {
+    #     "razorpay_order_id": "order_xxxxx",
+    #     "razorpay_payment_id": "pay_xxxxx",
+    #     "razorpay_signature": "signature_xxxx"
+    # }
     
-    Response:
-    {
-        "status": "success",
-        "message": "Ad-free access activated!",
-        "user_id": "xxxxx",
-        "ad_free": true
-    }
-    """
-    
-    try:
-        user_id = current_user.get('id')
-        data = request.get_json()
-        
-        razorpay_order_id = data.get('razorpay_order_id')
-        razorpay_payment_id = data.get('razorpay_payment_id')
-        razorpay_signature = data.get('razorpay_signature')
-        
-        if not all([razorpay_order_id, razorpay_payment_id, razorpay_signature]):
-            return jsonify({
-                'status': 'error',
-                'message': 'Missing required payment details'
-            }), 400
-        
-        # Verify payment
-        result = verify_ad_free_payment(
-            user_id,
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature
-        )
-        
-        if result['status'] == 'success':
-            return jsonify(result), 200
-        else:
-            return jsonify(result), 400
-            
-    except Exception as e:
-        logger.error(f"Error verifying payment: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': 'Payment verification failed'
-        }), 500
+#     Response:
+#     {
+#         "status": "success",
+#         "message": "Ad-free access activated!",
+#         "user_id": "xxxxx",
+#         "ad_free": true
+#     }
+#     """
+#     
+#     try:
+#         user_id = current_user.get('id')
+#         data = request.get_json()
+#         
+#         razorpay_order_id = data.get('razorpay_order_id')
+#         razorpay_payment_id = data.get('razorpay_payment_id')
+#         razorpay_signature = data.get('razorpay_signature')
+#         
+#         if not all([razorpay_order_id, razorpay_payment_id, razorpay_signature]):
+#             return jsonify({
+#                 'status': 'error',
+#                 'message': 'Missing required payment details'
+#             }), 400
+#         
+#         # Verify payment
+#         result = verify_ad_free_payment(
+#             user_id,
+#             razorpay_order_id,
+#             razorpay_payment_id,
+#             razorpay_signature
+#         )
+#         
+#         if result['status'] == 'success':
+#             return jsonify(result), 200
+#         else:
+#             return jsonify(result), 400
+#             
+#     except Exception as e:
+#         logger.error(f"Error verifying payment: {str(e)}")
+#         return jsonify({
+#             'status': 'error',
+#             'message': 'Payment verification failed'
+#         }), 500
 
 
-@app.route('/api/ads/status', methods=['GET'])
-@require_auth
-def get_ad_free_status(current_user):
-    """
-    Get current user's ad-free status
-    
-    Response:
-    {
-        "user_id": "xxxxx",
-        "ad_free": true/false,
-        "purchased_at": "2025-01-15T10:30:00Z" (null if not purchased)
-    }
-    """
-    
-    try:
-        user_id = current_user.get('id')
-        is_ad_free = get_user_ad_free_status(user_id)
-        
-        # Get purchase info if exists
-        purchase_info = None
-        if is_ad_free:
-            try:
-                from ads import get_ad_free_purchase_history
-                history = get_ad_free_purchase_history(user_id)
-                if history:
-                    # Get the completed purchase
-                    completed = [p for p in history if p.get('status') == 'completed']
-                    if completed:
-                        purchase_info = completed[0].get('completed_at')
-            except:
-                pass
-        
-        return jsonify({
-            'user_id': user_id,
-            'ad_free': is_ad_free,
-            'purchased_at': purchase_info
-        }), 200
-        
-    except Exception as e:
-        logger.error(f"Error getting ad-free status: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': 'Failed to get status'
-        }), 500
+# @app.route('/api/ads/status', methods=['GET'])
+# @require_auth
+# def get_ad_free_status(current_user):
+#     """
+#     Get current user's ad-free status
+#     
+#     Response:
+#     {
+#         "user_id": "xxxxx",
+#         "ad_free": true/false,
+#         "purchased_at": "2025-01-15T10:30:00Z" (null if not purchased)
+#     }
+#     """
+#     
+#     try:
+#         user_id = current_user.get('id')
+#         is_ad_free = get_user_ad_free_status(user_id)
+#         
+#         # Get purchase info if exists
+#         purchase_info = None
+#         if is_ad_free:
+#             try:
+#                 from ads import get_ad_free_purchase_history
+#                 history = get_ad_free_purchase_history(user_id)
+#                 if history:
+#                     # Get the completed purchase
+#                     completed = [p for p in history if p.get('status') == 'completed']
+#                     if completed:
+#                         purchase_info = completed[0].get('completed_at')
+#             except:
+#                 pass
+#         
+#         return jsonify({
+#             'user_id': user_id,
+#             'ad_free': is_ad_free,
+#             'purchased_at': purchase_info
+#         }), 200
+#         
+#     except Exception as e:
+#         logger.error(f"Error getting ad-free status: {str(e)}")
+#         return jsonify({
+# #             'status': 'error',
+#             'message': 'Failed to get status'
+#         }), 500
 
 
-@app.route('/api/ads/webhook', methods=['POST'])
-def razorpay_ads_webhook():
-    """
-    Razorpay webhook endpoint for payment events
-    Verify webhook secret in production!
+# @app.route('/api/ads/webhook', methods=['POST'])
+# def razorpay_ads_webhook():
+#     """
+#     Razorpay webhook endpoint for payment events
+#     Verify webhook secret in production!
     
-    Expected events: payment.authorized, payment.failed
-    """
+#     Expected events: payment.authorized, payment.failed
+#     """
     
-    try:
-        data = request.get_json()
-        signature = request.headers.get('X-Razorpay-Signature')
+#     try:
+#         data = request.get_json()
+#         signature = request.headers.get('X-Razorpay-Signature')
         
-        result = handle_razorpay_webhook(data, signature)
+#         result = handle_razorpay_webhook(data, signature)
         
-        return jsonify(result), 200 if result['status'] == 'success' else 400
+#         return jsonify(result), 200 if result['status'] == 'success' else 400
         
-    except Exception as e:
-        logger.error(f"Error in webhook: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': 'Webhook processing failed'
-        }), 500
+#     except Exception as e:
+#         logger.error(f"Error in webhook: {str(e)}")
+#         return jsonify({
+#             'status': 'error',
+#             'message': 'Webhook processing failed'
+#         }), 500
 
 @app.route('/api/log', methods=['POST'])
 def api_log():
@@ -3155,6 +3335,46 @@ def check_first_visit():
         return jsonify({'isFirstVisit': False}), 200
 
 
+# ============================================================================
+# ERROR HANDLERS
+# ============================================================================
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Custom 404 error handler"""
+    logger.warning(f"404 error: {request.path} - {request.url}")
+    
+    # Check if it's an API request
+    if request.path.startswith('/api/'):
+        return jsonify({
+            'error': 'Not Found',
+            'message': 'The requested API endpoint does not exist',
+            'path': request.path
+        }), 404
+    
+    # For regular pages, show the custom 404 page
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    """Custom 500 error handler"""
+    logger.error(f"500 error: {str(e)}")
+    logger.error(traceback.format_exc())
+    
+    # Check if it's an API request
+    if request.path.startswith('/api/'):
+        return jsonify({
+            'error': 'Internal Server Error',
+            'message': 'An unexpected error occurred'
+        }), 500
+    
+    # For regular pages, you could create a custom 500 page
+    return render_template('404.html'), 500
+
+@app.route('/.well-known/appspecific/com.chrome.devtools.json')
+def chrome_devtools():
+    return jsonify({}), 200
 
 # ============================================================================
 # APPLICATION ENTRY POINT

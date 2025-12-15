@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 
 {# --- ENHANCED SEO BLOCKS START --- #}
-{% block title %}Free Color Palette Generator - Extract Colors from Images | ImgCraft{% endblock %}
+{% block title %}Color Palette Generator – ImgCraft{% endblock %}
 
-{% block meta_description %}Extract dominant colors and HEX codes from any image instantly. Create beautiful color
-palettes for web design, branding, UI/UX, and digital art. Get RGB, HEX, and HSL values. Perfect for designers,
-developers, and artists. Analyze color schemes, find complementary colors, and build brand palettes. Free online tool
-with instant color extraction.{% endblock %}
+{% block meta_description %}Extract dominant colors and HEX codes from images. Perfect for designers creating brand palettes and color schemes.{% endblock %}
 
 {% block meta_keywords %}color palette generator free, extract colors from image, image to color palette, hex code
 extractor, rgb color picker from image, dominant color finder, color scheme generator, brand color extractor, design
@@ -17,11 +14,9 @@ colors, color harmony tool, complementary color finder, color swatch generator, 
 website color picker, logo color extractor, brand identity colors, color analysis tool, visual color picker, automatic
 palette generator, color extraction ai, design palette tool, imgcraft palette{% endblock %}
 
-{% block og_title %}Free Image Color Palette Generator - Extract HEX & RGB | ImgCraft{% endblock %}
+{% block og_title %}Color Palette Generator – ImgCraft{% endblock %}
 
-{% block og_description %}Upload an image and instantly extract its color scheme with HEX and RGB codes. Perfect for web
-designers, UI/UX professionals, and brand developers. Create beautiful color palettes from any photo. Free online
-tool.{% endblock %}
+{% block og_description %}Extract color schemes with HEX and RGB codes from any image. Free tool for web designers and brand developers.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -129,18 +124,7 @@ tool.{% endblock %}
     </aside>
 
 </div>
-{% if not user_ad_free %}
-<section class="ads-section">
-    <div class="ad-container">
-        <!-- ImgCraft: Ad Placement - Palette Tool -->
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
-            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-</section>
-{% endif %}
+
 {% endblock %}
 
 {% block scripts %}

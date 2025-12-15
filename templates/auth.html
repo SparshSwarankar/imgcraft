@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Login & Sign Up - ImgCraft{% endblock %}
+{% block title %}Login & Sign Up – ImgCraft{% endblock %}
+
+{% block meta_description %}Sign in to your ImgCraft account to access premium AI image tools and manage your credits
+securely.{% endblock %}
+
+{% block og_title %}Login & Sign Up – ImgCraft{% endblock %}
+{% block og_description %}Access your account to unlock premium features. Sign up free and start editing images with
+AI-powered tools.{% endblock %}
 
 {% block head %}
 <style>
@@ -9,7 +16,8 @@
         background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
         overflow-x: hidden;
     }
-    body{
+
+    body {
         min-height: 0 !important;
     }
 
@@ -60,8 +68,15 @@
     }
 
     @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-20px); }
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
     }
 
     .auth-container {
@@ -83,6 +98,7 @@
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -157,6 +173,7 @@
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }
@@ -608,9 +625,46 @@
 
 {% block scripts %}
 <script>
+    // Initialize auth forms with skeleton loading effect
+    document.addEventListener('DOMContentLoaded', () => {
+        // Show skeleton briefly while forms initialize
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+
+        // Create skeleton overlay
+        const skeletonOverlay = document.createElement('div');
+        skeletonOverlay.className = 'skeleton-auth-overlay';
+        skeletonOverlay.innerHTML = `
+            <div class="skeleton-auth-container">
+                <div class="skeleton skeleton-heading"></div>
+                <div style="margin-top: 1rem;">
+                    ${Array(3).fill(0).map(() => `
+                        <div class="skeleton-form-group">
+                            <div class="skeleton skeleton-form-label"></div>
+                            <div class="skeleton skeleton-form-input"></div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="skeleton skeleton-form-button"></div>
+            </div>
+        `;
+
+        // Insert skeleton overlay before forms
+        const authContainer = document.querySelector('.auth-container');
+        authContainer.insertBefore(skeletonOverlay, loginForm);
+
+        // Remove skeleton after brief delay to show forms
+        setTimeout(() => {
+            skeletonOverlay.style.animation = 'fade-out-skeleton 0.3s ease-out forwards';
+            setTimeout(() => {
+                skeletonOverlay.remove();
+            }, 300);
+        }, 500);
+    });
+
     function switchTab(event, tab) {
         event.preventDefault();
-        
+
         // Update tabs
         document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
         event.target.closest('.auth-tab').classList.add('active');
@@ -658,13 +712,13 @@
                     type: 'signup',
                     user: data.user
                 };
-                
+
                 // Store in localStorage exactly as Supabase expects
                 localStorage.setItem('sb-' + window.SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token', JSON.stringify(session));
             }
 
             showAlert('login', '✓ Login successful! Redirecting...', 'success');
-            
+
             // Wait a bit for AuthManager to process the session change
             setTimeout(() => {
                 window.location.href = '/';
@@ -700,7 +754,7 @@
             if (!data.success) throw new Error(data.error);
 
             showAlert('signup', '✓ Account created! Check your email for verification.', 'success');
-            
+
             // Optionally auto-login if no email verification needed
             setTimeout(() => {
                 form.reset();

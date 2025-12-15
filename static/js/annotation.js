@@ -773,6 +773,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Use unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.showLoading('Exporting Annotated Image...');
+            }
+
             // Deduct credits via backend
             try {
                 const headers = window.AuthManager.getAuthHeaders();
@@ -789,7 +794,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (!response.ok || !result.success) {
                     showToast(result.error || 'Failed to deduct credits', 'error');
+                    // Hide unified loading UI
+                    if (window.ImgCraftBusyUI) {
+                        window.ImgCraftBusyUI.hideLoading();
+                    }
                     return;
+                }
+
+                // Update loading text
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Processing Image...');
                 }
 
                 // Refresh credit display
@@ -798,6 +812,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Credit deduction error:', error);
                 showToast('Failed to process payment', 'error');
+                // Hide unified loading UI
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.hideLoading();
+                }
                 return;
             }
 
@@ -810,6 +828,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const bgImage = this.canvas.backgroundImage;
             if (!bgImage) {
                 showToast('No image to export', 'error');
+                // Hide unified loading UI
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.hideLoading();
+                }
                 return;
             }
             
@@ -883,6 +905,11 @@ document.addEventListener('DOMContentLoaded', () => {
             link.remove();
 
             showToast('Image Exported Successfully (15 credits deducted)', 'success');
+
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
+            }
         }
     };
 

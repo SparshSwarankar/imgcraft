@@ -9,6 +9,7 @@ Allow: /crop
 Allow: /convert
 Allow: /watermark
 Allow: /filter
+Allow: /remove-bg
 Allow: /remove_bg
 Allow: /upscale
 Allow: /exif
@@ -17,6 +18,9 @@ Allow: /collage
 Allow: /annotation
 Allow: /auth
 Allow: /billing
+Allow: /about
+Allow: /docs
+Allow: /contact
 
 # Block private/internal paths
 Disallow: /api/

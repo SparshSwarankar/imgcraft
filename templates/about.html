@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{# --- SEO BLOCKS --- #}
+{% block title %}About Us – ImgCraft{% endblock %}
+
+{% block meta_description %}Learn about ImgCraft's mission to provide free, powerful AI image editing tools for everyone, all in your browser.{% endblock %}
+
+{% block meta_keywords %}about imgcraft, image editing platform, ai image tools, online image editor, free image tools, about us{% endblock %}
+
+{% block og_title %}About Us – ImgCraft{% endblock %}
+
+{% block og_description %}Discover our mission to provide free, powerful, and easy-to-use AI image editing tools for everyone.{% endblock %}
+{# --- SEO BLOCKS END --- #}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+
+<div class="about-hero">
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+        <div class="logo-large floating-anim">
+            <i class="fas fa-wand-magic-sparkles"></i>
+        </div>
+        <h1 class="hero-title">
+            <span class="gradient-text">ImgCraft</span>
+        </h1>
+        <p class="hero-subtitle">Crafting Your Visual Stories with AI Magic</p>
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-value">10+</div>
+                <div class="stat-label">Tools</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Free</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-value">Fast</div>
+                <div class="stat-label">Processing</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="about-container">
+    
+    <!-- Mission Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h2 class="section-title">Our Mission</h2>
+        </div>
+        <div class="glass-card">
+            <p class="mission-text">
+                At <strong>ImgCraft</strong>, we believe powerful image editing shouldn't require expensive software or technical expertise. 
+                Our mission is to democratize image manipulation by providing professional-grade tools that work right in your browser - 
+                <span class="highlight">completely free, fast, and secure</span>.
+            </p>
+            <p class="mission-text">
+                Whether you're a photographer, designer, content creator, or just someone who needs to edit an image quickly, 
+                ImgCraft empowers you with AI-powered tools that make complex tasks simple.
+            </p>
+        </div>
+    </section>
+
+    <!-- What We Offer Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-gift"></i>
+            </div>
+            <h2 class="section-title"><i class="fas fa-sparkles" style="margin-right: 12px; font-size: 0.9em; color: var(--primary);"></i>What We Offer</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-compress"></i>
+                </div>
+                <h3>Smart Compression</h3>
+                <p>Reduce file sizes without sacrificing quality using advanced algorithms.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h3>Format Conversion</h3>
+                <p>Convert between JPG, PNG, WebP, and more with one click.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-crop"></i>
+                </div>
+                <h3>Image Editing</h3>
+                <p>Crop, resize, rotate, and apply filters with precision.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <h3>AI-Powered</h3>
+                <p>Remove backgrounds, upscale images, and enhance quality with AI.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Privacy First</h3>
+                <p>Your images never leave your device. 100% client-side processing.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Lightning Fast</h3>
+                <p>No uploads, no waiting. Process images instantly in your browser.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <h2 class="section-title">Why Choose ImgCraft?</h2>
+        </div>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-number">01</div>
+                <h3>No Sign-Up Required</h3>
+                <p>Jump straight in and start editing. No accounts, no hassle.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-number">02</div>
+                <h3>Completely Free</h3>
+                <p>Access all tools without any hidden costs or subscriptions.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-number">03</div>
+                <h3>Privacy Protected</h3>
+                <p>Your images stay on your device. We don't store or track anything.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-number">04</div>
+                <h3>Works Everywhere</h3>
+                <p>Desktop, tablet, or mobile - ImgCraft works seamlessly on all devices.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-code"></i>
+            </div>
+            <h2 class="section-title">Built with Modern Technology</h2>
+        </div>
+        <div class="glass-card tech-card">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fab fa-html5"></i>
+                    <span>HTML5 Canvas</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-js"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-brain"></i>
+                    <span>AI Models</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-python"></i>
+                    <span>Python</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-server"></i>
+                    <span>Flask</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>PWA</span>
+                </div>
+            </div>
+            <p class="tech-description">
+                We leverage cutting-edge web technologies and AI to deliver a seamless, 
+                fast, and powerful image editing experience directly in your browser.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h2 class="section-title">Get In Touch</h2>
+        </div>
+        <div class="contact-card">
+            <p class="contact-intro">Have questions, feedback, or suggestions? We'd love to hear from you!</p>
+            <div class="contact-methods">
+                <a href="mailto:imgcrafthelp@gmail.com" class="contact-btn">
+                    <i class="fas fa-envelope"></i>
+                    <span>imgcrafthelp@gmail.com</span>
+                </a>
+                <a href="https://x.com/Img_Craft" target="_blank" rel="noopener noreferrer" class="contact-btn">
+                    <i class="fab fa-twitter"></i>
+                    <span>@Img_Craft</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Create Something Amazing?</h2>
+            <p class="cta-text">Start editing your images now with our powerful, free tools.</p>
+            <a href="/" class="cta-button">
+                <span>Explore Tools</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

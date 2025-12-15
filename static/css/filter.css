@@ -495,44 +495,798 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-    .studio-wrapper {
-        grid-template-columns: 280px 1fr 280px;
-        padding: 0 10px;
-    }
-}
+/* =========================================
+   RESPONSIVE MEDIA QUERIES - FILTER TOOL
+   ========================================= */
 
-@media (max-width: 768px) {
+/* Extra Small Devices (320px - 480px) */
+@media (max-width: 480px) {
+    :root {
+        --panel-width: 100%;
+        --header-height: 60px;
+    }
+
     .studio-wrapper {
         display: flex;
         flex-direction: column;
+        gap: 12px;
+        padding: 0 12px 12px 12px;
+        margin-top: 70px;
         height: auto;
         overflow: visible;
     }
 
-    .studio-panel,
-    .studio-canvas {
-        height: auto;
-        min-height: 350px;
-    }
-
+    /* Canvas First */
     .studio-canvas {
         order: 1;
-        height: 450px;
+        height: 420px;
+        min-height: 420px;
+        border-radius: 12px;
     }
 
+    .canvas-container {
+        padding: 15px;
+    }
+
+    .upload-area-large {
+        padding: 30px 20px;
+        border-radius: 12px;
+    }
+
+    .upload-icon-large {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .upload-area-large h2 {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+
+    .upload-area-large p {
+        font-size: 0.85rem;
+    }
+
+    /* Canvas & Preview */
+    #previewCanvas {
+        max-height: 360px !important;
+        max-width: 100% !important;
+    }
+
+    .comparison-wrapper {
+        padding: 5px;
+    }
+
+    /* Comparison Toggle Button */
+    .comparison-toggle {
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+    }
+
+    .toggle-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        gap: 6px;
+        border-radius: 25px;
+    }
+
+    .toggle-btn i {
+        font-size: 0.85rem;
+    }
+
+    /* Comparison Slider Handle */
+    .comparison-slider {
+        width: 1px;
+    }
+
+    .slider-handle {
+        width: 26px;
+        height: 26px;
+        border-width: 1.5px;
+    }
+
+    .slider-handle i {
+        font-size: 0.75rem;
+    }
+
+    /* Left Panel Second (Presets) */
     .studio-panel:first-of-type {
         order: 2;
+        height: auto;
+        min-height: auto;
     }
 
+    /* Right Panel Third (Controls) */
     .studio-panel:last-of-type {
         order: 3;
+        height: auto;
+        min-height: auto;
+    }
+
+    /* Panel Headers */
+    .panel-header {
+        padding: 12px 16px;
+        min-height: 50px;
+    }
+
+    .panel-header h3 {
+        font-size: 0.9rem;
+        gap: 6px;
+    }
+
+    .badge-pro {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+    }
+
+    .panel-content {
+        padding: 16px;
+    }
+
+    .panel-footer {
+        padding: 16px;
+    }
+
+    /* Preset Grid */
+    .preset-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .preset-btn {
+        padding: 6px;
+        border-radius: 6px;
+    }
+
+    .preset-preview {
+        height: 50px;
+        border-radius: 3px;
+    }
+
+    .preset-btn span {
+        font-size: 0.7rem;
+    }
+
+    .preset-btn.active {
+        box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+    }
+
+    /* Slider Groups */
+    .slider-group-compact {
+        margin-bottom: 14px;
+    }
+
+    .slider-label {
+        font-size: 0.75rem;
+        margin-bottom: 3px;
+    }
+
+    .slider-label .val {
+        font-size: 0.75rem;
+    }
+
+    .range-slider {
+        height: 3px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 13px;
+        height: 13px;
+    }
+
+    /* Section Labels */
+    .section-label {
+        font-size: 0.7rem;
+        margin-bottom: 10px;
+    }
+
+    .control-section {
+        margin-bottom: 16px;
+    }
+
+    /* Info Cards */
+    .info-card-small {
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 12px;
+    }
+
+    .info-card-small i {
+        font-size: 1rem !important;
+        margin-bottom: 5px !important;
+    }
+
+    .info-card-small p {
+        font-size: 0.75rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .info-card-small strong {
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+
+    /* Buttons */
+    .btn-full,
+    .btn-primary,
+    .btn-outline {
+        padding: 11px 14px;
+        font-size: 0.9rem;
+    }
+
+    .btn-text {
+        font-size: 0.85rem !important;
+        padding: 8px !important;
+    }
+
+    #downloadBtn {
+        padding: 11px;
+        font-size: 0.9rem;
+        gap: 8px;
+    }
+
+    /* Progress Container */
+    .progress-container-floating {
+        padding: 16px 30px;
+        min-width: 180px;
+    }
+
+    .loader-spinner {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 12px;
+    }
+
+    .progress-text {
+        font-size: 0.85rem;
+    }
+
+    /* Info Boxes */
+    .info-box-empty {
+        padding: 40px 20px;
+        font-size: 0.9rem;
+    }
+
+    .info-box-empty i {
+        font-size: 2rem !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Cost Indicator */
+    .cost-indicator {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+
+    .panel-divider {
+        margin: 16px 0;
+    }
+
+    /* Action Stack */
+    .action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Tiny Devices (320px - 374px) */
+@media (max-width: 374px) {
+    .studio-wrapper {
+        padding: 0 8px 8px 8px;
+        gap: 10px;
+        margin-top: 60px;
+    }
+
+    .studio-canvas {
+        height: 370px;
+        min-height: 370px;
+    }
+
+    .canvas-container {
+        padding: 12px;
+    }
+
+    .upload-area-large {
+        padding: 25px 15px;
+    }
+
+    .upload-icon-large {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+
+    .upload-area-large h2 {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+    }
+
+    .upload-area-large p {
+        font-size: 0.8rem;
+    }
+
+    .upload-area-large .btn {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+
+    #previewCanvas {
+        max-height: 310px !important;
+    }
+
+    .comparison-wrapper {
+        padding: 3px;
+    }
+
+    .comparison-toggle {
+        bottom: 12px;
+    }
+
+    .toggle-btn {
+        padding: 7px 14px;
+        font-size: 0.8rem;
+        gap: 5px;
+        border-radius: 20px;
+    }
+
+    .toggle-btn i {
+        font-size: 0.8rem;
+    }
+
+    .comparison-slider {
+        width: 1px;
+    }
+
+    .slider-handle {
+        width: 24px;
+        height: 24px;
+        border-width: 1px;
+    }
+
+    .slider-handle i {
+        font-size: 0.7rem;
+    }
+
+    .panel-header {
+        padding: 10px 12px;
+        min-height: 45px;
+    }
+
+    .panel-header h3 {
+        font-size: 0.85rem;
+        gap: 5px;
+    }
+
+    .badge-pro {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+
+    .panel-content {
+        padding: 12px;
+    }
+
+    .panel-footer {
+        padding: 12px;
     }
 
     .preset-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .preset-btn {
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .preset-preview {
+        height: 45px;
+        border-radius: 3px;
+    }
+
+    .preset-btn span {
+        font-size: 0.65rem;
+    }
+
+    .slider-group-compact {
+        margin-bottom: 12px;
+    }
+
+    .slider-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .slider-label .val {
+        font-size: 0.7rem;
+    }
+
+    .range-slider {
+        height: 3px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 12px;
+        height: 12px;
+    }
+
+    .section-label {
+        font-size: 0.65rem;
+        margin-bottom: 8px;
+    }
+
+    .control-section {
+        margin-bottom: 14px;
+    }
+
+    .info-card-small {
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .info-card-small i {
+        font-size: 0.95rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    .info-card-small p {
+        font-size: 0.7rem !important;
+        line-height: 1.3 !important;
+    }
+
+    .info-card-small strong {
+        font-size: 0.75rem;
+        margin-bottom: 4px;
+    }
+
+    .btn-full,
+    .btn-primary,
+    .btn-outline {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .btn-text {
+        font-size: 0.8rem !important;
+        padding: 6px !important;
+    }
+
+    #downloadBtn {
+        padding: 10px;
+        font-size: 0.85rem;
+        gap: 7px;
+    }
+
+    .progress-container-floating {
+        padding: 14px 25px;
+        min-width: 160px;
+    }
+
+    .loader-spinner {
+        width: 30px;
+        height: 30px;
+        margin-bottom: 10px;
+    }
+
+    .progress-text {
+        font-size: 0.8rem;
+    }
+
+    .info-box-empty {
+        padding: 30px 15px;
+        font-size: 0.85rem;
+    }
+
+    .info-box-empty i {
+        font-size: 1.8rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .cost-indicator {
+        font-size: 0.75rem;
+        margin-bottom: 8px;
+    }
+
+    .panel-divider {
+        margin: 14px 0;
+    }
+
+    .action-stack {
+        gap: 8px;
     }
 }
+
+/* Small Tablets (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+    .studio-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 0 16px 16px 16px;
+        margin-top: 80px;
+        height: auto;
+        overflow: visible;
+    }
+
+    .studio-canvas {
+        order: 1;
+        height: 480px;
+        min-height: 480px;
+    }
+
+    .studio-panel:first-of-type {
+        order: 2;
+        height: auto;
+    }
+
+    .studio-panel:last-of-type {
+        order: 3;
+        height: auto;
+    }
+
+    .canvas-container {
+        padding: 20px;
+    }
+
+    .upload-area-large {
+        padding: 50px 30px;
+    }
+
+    #previewCanvas {
+        max-height: 420px !important;
+    }
+
+    .comparison-toggle {
+        bottom: 20px;
+    }
+
+    .toggle-btn {
+        padding: 9px 18px;
+        font-size: 0.9rem;
+    }
+
+    .preset-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .preset-preview {
+        height: 55px;
+    }
+
+    .panel-content {
+        padding: 18px;
+    }
+
+    .panel-footer {
+        padding: 18px;
+    }
+
+    .slider-group-compact {
+        margin-bottom: 16px;
+    }
+}
+
+/* Medium Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .studio-wrapper {
+        grid-template-columns: 280px 1fr 280px;
+        gap: 14px;
+        padding: 0 16px 16px 16px;
+        margin-top: 90px;
+    }
+
+    .panel-content {
+        padding: 18px;
+    }
+
+    .panel-footer {
+        padding: 18px;
+    }
+
+    .canvas-container {
+        padding: 25px;
+    }
+
+    #previewCanvas {
+        max-height: calc(100vh - 250px) !important;
+    }
+
+    .preset-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .comparison-toggle {
+        bottom: 25px;
+    }
+}
+
+/* Landscape Orientation for Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .studio-wrapper {
+        margin-top: 60px;
+    }
+
+    .studio-canvas {
+        height: 320px;
+        min-height: 320px;
+    }
+
+    #previewCanvas {
+        max-height: 270px !important;
+    }
+
+    .upload-area-large {
+        padding: 25px 20px;
+    }
+
+    .upload-icon-large {
+        font-size: 2.5rem;
+    }
+
+    .info-box-empty {
+        padding: 30px 15px;
+    }
+
+    .comparison-toggle {
+        bottom: 10px;
+    }
+
+    .toggle-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Ad Section Positioning - Bottom of Page */
+.ads-section {
+    width: 100%;
+    padding: 40px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid var(--border-color);
+    margin-top: 40px;
+}
+
+.ad-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .ads-section {
+        padding: 30px 16px;
+        margin-top: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ads-section {
+        padding: 20px 12px;
+        margin-top: 20px;
+    }
+}
+
+/* Prevent Horizontal Scroll on Mobile */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .studio-wrapper {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+}
+
+/* Touch-Friendly Interactions */
+@media (hover: none) and (pointer: coarse) {
+    .preset-btn {
+        min-height: 44px; /* iOS touch target guideline */
+    }
+
+    .toggle-btn {
+        min-height: 44px;
+        padding: 10px 20px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Better touch feedback for sliders */
+    .slider-group-compact {
+        padding: 8px 0;
+    }
+}
+
+/* High DPI Canvas Rendering */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    #previewCanvas {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Preset Grid Special Cases */
+@media (min-width: 375px) and (max-width: 480px) {
+    .preset-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .preset-preview {
+        height: 52px;
+    }
+}
+
+/* Better Canvas Fit on Very Small Screens */
+@media (max-width: 360px) {
+    #previewCanvas {
+        max-height: 280px !important;
+    }
+
+    .preset-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .preset-btn {
+        padding: 4px;
+    }
+
+    .preset-preview {
+        height: 50px;
+    }
+
+    .preset-btn span {
+        font-size: 0.6rem;
+    }
+}
+
+/* Comparison Button Positioning Fix */
+@media (max-width: 480px) {
+    .comparison-toggle {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 15px;
+        width: auto;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+/* Slider Accessibility Enhancement */
+@media (max-width: 480px) {
+    .range-slider {
+        height: 4px; /* Slightly thicker for better touch */
+    }
+
+    .slider-label {
+        min-height: 24px;
+        align-items: center;
+    }
+}
+
+/* Info Card Better Stacking on Small Screens */
+@media (max-width: 374px) {
+    .info-card-small {
+        padding: 8px;
+    }
+
+    .info-card-small br {
+        display: none; /* Remove line breaks on tiny screens */
+    }
+}
+
+
 /* =========================================
    INTERNAL LINK STYLES - SEO & UX
    ========================================= */

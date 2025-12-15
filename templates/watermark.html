@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 
 {# --- ENHANCED SEO BLOCKS START --- #}
-{% block title %}Free Watermark Maker Online - Add Text & Logo to Photos | ImgCraft{% endblock %}
+{% block title %}Watermark Maker – ImgCraft{% endblock %}
 
-{% block meta_description %}Add watermarks to photos online for free. Protect your images with custom text copyrights or
-logo overlays. Adjust transparency, position, rotation, font, and color. Perfect for photographers, artists, content
-creators. Batch watermarking available. No watermark on output. Secure your photography, digital art, and brand identity
-instantly.{% endblock %}
+{% block meta_description %}Add custom text or logo watermarks to photos. Protect your images with adjustable transparency, position, and rotation.{% endblock %}
 
 {% block meta_keywords %}add watermark online free, watermark photos, copyright image tool, logo watermark maker, text
 watermark creator, protect photos online, add copyright to image, watermark generator, photo protection tool, brand
@@ -18,11 +15,9 @@ font watermark, watermark with transparency, corner watermark, center watermark,
 visible watermark, watermark for social media, watermark for website, protect digital art, brand identity watermark,
 imgcraft watermark{% endblock %}
 
-{% block og_title %}Free Watermark Creator - Protect Your Photos & Art | ImgCraft{% endblock %}
+{% block og_title %}Watermark Maker – ImgCraft{% endblock %}
 
-{% block og_description %}Secure your photography and digital art with custom watermarks. Add text copyrights or logo
-overlays with adjustable transparency, position, and rotation. Professional tool for photographers, artists, and content
-creators. Free online.{% endblock %}
+{% block og_description %}Protect your photos with custom watermarks. Professional tool for photographers and artists with no output watermark.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -43,6 +38,10 @@ creators. Free online.{% endblock %}
                     <div class="file-info-row">
                         <span class="file-info-label">Size:</span>
                         <span class="file-info-value" id="fileSize">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Dimensions:</span>
+                        <span class="file-info-value" id="fileDimensions">-</span>
                     </div>
                 </div>
 
@@ -146,7 +145,9 @@ creators. Free online.{% endblock %}
                                     class="fas fa-bold"></i></button>
                             <button class="style-btn" id="fontItalic" onclick="toggleItalic()"><i
                                     class="fas fa-italic"></i></button>
-                            <input type="color" id="fontColor" class="color-input" value="#ffffff" title="Text Color">
+                            <div class="color-input-wrapper">
+                                <input type="color" id="fontColor" value="#ffffff" title="Text Color">
+                            </div>
                         </div>
                     </div>
 
@@ -261,18 +262,6 @@ creators. Free online.{% endblock %}
     </div>
 </div>
 
-{% if not user_ad_free %}
-<section class="ads-section">
-    <div class="ad-container">
-        <!-- ImgCraft: Ad Placement - Watermark Tool -->
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
-            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-</section>
-{% endif %}
 {% endblock %}
 {% block scripts %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/watermark.css') }}?v=1">

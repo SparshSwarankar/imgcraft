@@ -293,10 +293,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateCollage(isRegeneration) {
         if (uploadedFiles.length === 0) return;
 
+        // Use unified loading UI
+        if (window.ImgCraftBusyUI) {
+            const message = isRegeneration ? 'Regenerating Collage...' : 'Creating Collage...';
+            window.ImgCraftBusyUI.showLoading(message);
+        }
+
         if (progressContainer) progressContainer.style.display = 'block';
         if (scanOverlay) scanOverlay.classList.add('active');
         if (collageWrapper) collageWrapper.style.display = 'block';
-        if (generateBtn) generateBtn.disabled = true;
 
         const formData = new FormData();
         uploadedFiles.forEach((file, i) => formData.append(`image${i + 1}`, file));
@@ -325,6 +330,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (progressBar) progressBar.style.width = '100%';
 
             if (xhr.status === 200) {
+                // Update loading text
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Preparing Download...');
+                }
+
                 const url = URL.createObjectURL(xhr.response);
 
                 // --- NEW: Get Cost from Header ---
@@ -362,10 +372,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (window.CreditManager) CreditManager.refreshCredits();
 
+                // Hide unified loading UI
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.hideLoading();
+                }
+
             } else {
                 if (progressContainer) progressContainer.style.display = 'none';
                 if (scanOverlay) scanOverlay.classList.remove('active');
-                if (generateBtn) generateBtn.disabled = false;
 
                 const blob = xhr.response;
                 if (blob && blob.type === 'application/json') {
@@ -384,12 +398,36 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.warn('Failed to parse collage error', err);
                         }
                         showToast(message, 'error');
+                        // Hide unified loading UI
+                        if (window.ImgCraftBusyUI) {
+                            window.ImgCraftBusyUI.hideLoading();
+                        }
                     };
-                    reader.onerror = () => showToast('Collage generation failed.', 'error');
+                    reader.onerror = () => {
+                        showToast('Collage generation failed.', 'error');
+                        // Hide unified loading UI
+                        if (window.ImgCraftBusyUI) {
+                            window.ImgCraftBusyUI.hideLoading();
+                        }
+                    };
                     reader.readAsText(blob);
                 } else {
                     showToast('Collage generation failed.', 'error');
+                    // Hide unified loading UI
+                    if (window.ImgCraftBusyUI) {
+                        window.ImgCraftBusyUI.hideLoading();
+                    }
                 }
+            }
+        };
+        xhr.onerror = () => {
+            clearInterval(interval);
+            if (progressContainer) progressContainer.style.display = 'none';
+            if (scanOverlay) scanOverlay.classList.remove('active');
+            showToast('Network error', 'error');
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
             }
         };
         xhr.send(formData);

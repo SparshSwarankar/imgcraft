@@ -476,3 +476,60 @@ USING (auth.uid() = user_id);
 -- - Max 3 ad units per page
 -- - Proper spacing from buttons/forms
 -- ============================================================================
+
+-- ============================================================================
+-- 5. CREATE contact_submissions TABLE
+-- ============================================================================
+-- Stores all contact form submissions from users
+
+CREATE TABLE IF NOT EXISTS contact_submissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'new',
+    ip_address VARCHAR(45) NULL,
+    user_agent TEXT NULL,
+    response_message TEXT NULL,
+    responded_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    responded_at TIMESTAMP NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for efficient lookups
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_user_id ON contact_submissions(user_id);
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_email ON contact_submissions(email);
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_status ON contact_submissions(status);
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON contact_submissions(created_at DESC);
+
+-- Enable Row Level Security
+ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policy: Users can view their own submissions
+CREATE POLICY "users_can_view_own_contact_submissions"
+ON contact_submissions
+FOR SELECT
+USING (auth.uid() = user_id OR user_id IS NULL);
+
+-- ============================================================================
+-- SCHEMA DOCUMENTATION FOR CONTACT SUBMISSIONS
+-- ============================================================================
+-- FIELDS:
+-- - id: Unique identifier for submission
+-- - user_id: Linked to authenticated user (nullable for guest submissions)
+-- - name: Submitter's full name
+-- - email: Submitter's email for follow-up
+-- - subject: Type of inquiry (general, technical, billing, feature, bug, feedback, partnership, other)
+-- - message: Detailed message from submitter (max 5000 characters)
+-- - status: Submission status (new, reading, responded, closed)
+-- - ip_address: IP address for spam prevention
+-- - user_agent: Browser info for debugging
+-- - response_message: Support team's response
+-- - responded_by: Support staff who responded
+-- - created_at: When submission was received
+-- - responded_at: When support team responded
+-- - updated_at: Last modification time
+-- ============================================================================

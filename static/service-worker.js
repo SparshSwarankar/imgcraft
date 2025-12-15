@@ -3,7 +3,7 @@
 // Comprehensive offline support, caching, background sync, and updates
 // ============================================================================
 
-const CACHE_VERSION = 'imgcraft-v3';
+const CACHE_VERSION = 'imgcraft-v4';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const API_CACHE = `${CACHE_VERSION}-api`;
@@ -12,6 +12,7 @@ const OFFLINE_FALLBACK = '/offline';
 // Static assets to cache on install
 const STATIC_ASSETS = [
   '/',
+  '/docs',
   '/offline',
   '/static/css/style.css',
   '/static/css/footer.css',
@@ -45,7 +46,7 @@ const TOOL_PAGES = [
   '/upscale',
   '/exif',
   '/palette',
-  '/remove_bg'
+  '/remove-bg'
 ];
 
 // Cache size limits

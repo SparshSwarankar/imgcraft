@@ -33,7 +33,8 @@ body {
     background-color: var(--dark-bg);
     margin: 0;
     overflow-x: hidden;
-    position: relative; /* Needed for the grid overlay */
+    position: relative;
+    /* Needed for the grid overlay */
     color: var(--text-main);
 }
 
@@ -83,11 +84,13 @@ body {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(2, 6, 23, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 50;
+    background: rgba(2, 6, 23, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 999;
     border-radius: inherit;
+    /* Ensure it stays visible even on mobile */
+    min-height: 200px;
 }
 
 .imgcraft-busy .imgcraft-preview-loading {
@@ -99,20 +102,27 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 18px 20px;
+    gap: 14px;
+    padding: 24px 32px;
     border-radius: var(--radius-md);
-    background: rgba(15, 23, 42, 0.55);
+    background: rgba(15, 23, 42, 0.85);
     border: 1px solid var(--card-border);
+    box-shadow: var(--glass-shadow), 0 0 20px rgba(249, 115, 22, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* Ensure minimum size for mobile */
+    min-width: 200px;
+    max-width: 90vw;
 }
 
 .imgcraft-spinner {
-    width: 30px;
-    height: 30px;
-    border: 3px solid rgba(255, 255, 255, 0.12);
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
     border-top-color: var(--primary);
+    border-right-color: var(--primary);
     border-radius: 50%;
-    animation: imgcraft-spin 1s linear infinite;
+    animation: imgcraft-spin 0.8s linear infinite;
 }
 
 @keyframes imgcraft-spin {
@@ -124,7 +134,34 @@ body {
 .imgcraft-preview-loading-text {
     color: var(--text-main);
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+    .imgcraft-preview-loading {
+        /* On mobile, ensure loader is always in viewport */
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+    }
+    
+    .imgcraft-preview-loading-inner {
+        padding: 20px 28px;
+        gap: 12px;
+    }
+    
+    .imgcraft-spinner {
+        width: 36px;
+        height: 36px;
+        border-width: 3px;
+    }
+    
+    .imgcraft-preview-loading-text {
+        font-size: 0.95rem;
+    }
 }
 
 /* --- THE GRID OVERLAY (New Addition) --- */
@@ -135,15 +172,18 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Let clicks pass through */
-    z-index: -1; /* Sits just above the canvas */
-    
+    pointer-events: none;
+    /* Let clicks pass through */
+    z-index: -1;
+    /* Sits just above the canvas */
+
     /* This creates the Grid Pattern */
-    background-image: 
+    background-image:
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px; /* Size of the grid squares */
-    
+    background-size: 50px 50px;
+    /* Size of the grid squares */
+
     /* Optional: Makes the grid fade out at the bottom for a premium look */
     mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
@@ -157,7 +197,8 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -2; /* Pushes colors BEHIND the grid */
+    z-index: -2;
+    /* Pushes colors BEHIND the grid */
 }
 
 /* Glassmorphism Utilities */
@@ -215,7 +256,7 @@ body::before {
 
 /* Enhanced Logo */
 .logo {
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     font-weight: 800;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     background-clip: text;
@@ -224,7 +265,7 @@ body::before {
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     transition: all 0.3s;
     filter: drop-shadow(0 2px 8px rgba(var(--primary-rgb), 0.3));
 }
@@ -372,19 +413,6 @@ body::before {
     transition: opacity 0.3s;
 }
 
-.credit-badge:hover::before {
-    opacity: 1;
-}
-
-.credit-badge:hover {
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(249, 115, 22, 0.15));
-    border-color: var(--primary);
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(249, 115, 22, 0.3),
-        0 0 20px rgba(255, 215, 0, 0.2),
-        inset 0 1px 2px rgba(255, 215, 0, 0.2);
-}
-
 .credit-badge i {
     color: #FFD700;
     font-size: 1.3rem;
@@ -404,10 +432,6 @@ body::before {
         filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));
         transform: scale(1.1);
     }
-}
-
-.credit-badge:hover i {
-    animation: coin-spin-glow 1s ease-in-out infinite;
 }
 
 @keyframes coin-spin-glow {
@@ -461,12 +485,6 @@ body::before {
     100% {
         transform: translateX(100%) translateY(100%) rotate(45deg);
     }
-}
-
-.user-avatar:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
-        0 0 0 4px rgba(var(--primary-rgb), 0.3);
 }
 
 .user-info-header {
@@ -791,12 +809,80 @@ select option:checked,
     color: var(--text-main);
     font-size: 1.5rem;
     cursor: pointer;
-    padding: 8px;
     transition: color 0.3s;
 }
 
 .mobile-menu-btn:hover {
     color: var(--primary);
+}
+
+/* Hide mobile-only elements on desktop */
+.mobile-top-actions {
+    display: none;
+}
+
+/* Auth States - Default visibility (JavaScript will override) */
+.auth-guest {
+    display: flex;
+}
+
+.auth-user {
+    display: none;
+}
+
+/* Modern account icon button (replaces login button) */
+.account-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 50%;
+    color: white;
+    font-size: 1.5rem;
+    transition: none;
+    text-decoration: none !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    border: none;
+    outline: none;
+}
+
+.account-icon-btn:hover,
+.account-icon-btn:focus,
+.account-icon-btn:active {
+    text-decoration: none !important;
+    outline: none;
+    border: none;
+}
+
+.account-icon-btn i {
+    margin: 0;
+}
+
+/* Desktop: show only desktop auth */
+@media (min-width: 769px) {
+    .mobile-top-actions {
+        display: none !important;
+    }
+
+    .desktop-only {
+        display: flex;
+    }
+}
+
+
+.credit-badge:hover::before {
+    opacity: 1;
+}
+
+.credit-badge:hover {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(249, 115, 22, 0.15));
+    border-color: var(--primary);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(249, 115, 22, 0.3),
+        0 0 20px rgba(255, 215, 0, 0.2),
+        inset 0 1px 2px rgba(255, 215, 0, 0.2);
 }
 
 /* Hero Section */
@@ -1246,63 +1332,96 @@ select option:checked,
         min-height: 400px;
     }
 
-    .dropdown-menu {
-        position: static;
-        transform: none;
-        opacity: 1;
-        visibility: visible;
-        background: rgba(0, 0, 0, 0.3);
-        box-shadow: none;
-        border: none;
-        border-left: 3px solid var(--primary);
-        padding: 8px 0 8px 20px;
-        min-width: 100%;
-        display: none;
-        margin-top: 8px;
-        border-radius: 0 12px 12px 0;
-    }
+    /* Mobile navbar layout */
 
-    .dropdown-menu::before {
-        display: none;
-    }
-
-    .nav-item:hover .dropdown-menu {
+    .nav-content {
         display: flex;
-        transform: none;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
     }
 
-    .dropdown-item {
-        padding: 14px 18px;
-        border-radius: 8px;
+    .logo {
+        font-size: 1.1rem;
+        flex-shrink: 0;
     }
 
-    .dropdown-item:hover {
-        transform: translateX(8px);
+    .logo img {
+        width: 24px !important;
+        height: 24px !important;
+        margin-right: 5px !important;
     }
 
-    .credit-badge {
-        width: 100%;
-        justify-content: center;
-        padding: 12px 20px;
+    /* Mobile top actions (credits + auth) - always visible */
+    .mobile-top-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        margin-right: 8px;
     }
 
-    .user-avatar {
+    .auth-guest-mobile {
+        display: block;
+    }
+
+    .auth-guest-mobile .account-icon-btn {
         width: 36px;
         height: 36px;
+        font-size: 1.3rem;
+    }
+
+    .auth-user-mobile {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .credit-badge-mobile {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 20px;
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .credit-badge-mobile i {
+        font-size: 0.9rem;
+    }
+
+    .user-avatar-mobile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        color: white;
+        font-size: 1.3rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Hide desktop auth in mobile nav-links */
+    .desktop-only {
+        display: none !important;
     }
 
     .mobile-menu-btn {
         display: block;
+        flex-shrink: 0;
     }
 
-    .navbar {
-        padding: 0 16px;
-    }
-
-    .logo {
-        font-size: 1.4rem;
-    }
-
+    /* Collapsible nav-links (hamburger content) */
     .nav-links {
         position: fixed;
         top: var(--header-height);
@@ -1346,6 +1465,7 @@ select option:checked,
         background: rgba(255, 255, 255, 0.08);
     }
 
+    /* Dropdown menus - click/tap only (NO hover on mobile) */
     .dropdown-menu {
         position: static;
         transform: none;
@@ -1366,10 +1486,8 @@ select option:checked,
         display: none;
     }
 
-    .nav-item:hover .dropdown-menu {
-        display: flex;
-        transform: none;
-    }
+    /* REMOVED: .nav-item:hover .dropdown-menu - causing mobile touch issues */
+    /* Dropdowns now controlled by JavaScript click events */
 
     .dropdown-item {
         padding: 14px 18px;
@@ -1380,27 +1498,42 @@ select option:checked,
         transform: translateX(8px);
     }
 
-    .credit-badge {
-        width: 100%;
-        justify-content: center;
-        padding: 12px 20px;
-    }
-
-    .user-avatar {
-        width: 36px;
-        height: 36px;
-    }
-
     .nav-item.premium-nav .nav-link {
         border-radius: 12px;
         margin: 8px 0;
     }
+}
 
-    .auth-user {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px;
-        padding: 16px 0;
+/* Small mobile (345px-375px) */
+@media (max-width: 400px) {
+    .logo {
+        font-size: 1rem;
+    }
+
+    .logo img {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .credit-badge-mobile {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    .account-icon-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+
+    .user-avatar-mobile {
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+
+    .mobile-menu-btn {
+        font-size: 1.3rem;
     }
 }
 

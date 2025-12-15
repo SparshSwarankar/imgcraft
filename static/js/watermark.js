@@ -377,8 +377,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        loadingOverlay.style.display = 'flex';
-        applyBtn.disabled = true;
+        // Use unified loading UI
+        if (window.ImgCraftBusyUI) {
+            window.ImgCraftBusyUI.showLoading('Adding Watermark...');
+        }
 
         const formData = new FormData();
         formData.append('image', currentFile);
@@ -416,6 +418,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                // Update loading text
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Preparing Download...');
+                }
+
                 const cost = response.headers.get('X-Credits-Cost');
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
@@ -432,14 +439,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.CreditManager) CreditManager.refreshCredits();
             } else {
                 showToast('Failed to apply watermark', 'error');
-                applyBtn.disabled = false;
             }
         } catch (error) {
             console.error(error);
             showToast('Network error', 'error');
-            applyBtn.disabled = false;
         } finally {
-            loadingOverlay.style.display = 'none';
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
+            }
         }
     });
 

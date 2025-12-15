@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Crop Tool Loaded - Rewritten Version");
 
+
     // --- DOM Elements ---
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -689,8 +690,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        cropBtn.disabled = true;
-        cropBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cropping...';
+        // Use unified loading UI
+        if (window.ImgCraftBusyUI) {
+            window.ImgCraftBusyUI.showLoading('Cropping Image...');
+        }
+
         if (scanOverlay) scanOverlay.style.display = 'block';
 
         const formData = new FormData();
@@ -717,6 +721,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (scanOverlay) scanOverlay.style.display = 'none';
 
             if (response.ok) {
+                // Update loading text
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Preparing Download...');
+                }
+
                 const cost = response.headers.get('X-Credits-Cost');
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
@@ -741,15 +750,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Crop failed');
                 showToast(errorMessage, 'error');
-                cropBtn.disabled = false;
-                cropBtn.innerHTML = 'Apply Crop';
             }
         } catch (error) {
             console.error('Crop error:', error);
             showToast('Network error', 'error');
-            cropBtn.disabled = false;
-            cropBtn.innerHTML = 'Apply Crop';
             if (scanOverlay) scanOverlay.style.display = 'none';
+        } finally {
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
+            }
         }
     });
 

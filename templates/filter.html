@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 
 {# --- ENHANCED SEO BLOCKS START --- #}
-{% block title %}Free Photo Filters & Effects Online - Professional Image Editor | ImgCraft{% endblock %}
+{% block title %}Photo Filters & Effects – ImgCraft{% endblock %}
 
-{% block meta_description %}Apply professional filters and effects to your photos online for free. Cinematic color
-grading, vintage filters, Instagram-style presets, black & white effects. Advanced manual adjustments: brightness,
-contrast, saturation, exposure, sharpness, vignette, grain. Real-time preview with before/after comparison. One-click
-presets for instant transformations. Perfect for social media, photography, and creative projects. No watermarks.{%
-endblock %}
+{% block meta_description %}Apply professional filters and effects to photos. Cinematic presets, vintage styles, and manual color adjustments.{% endblock %}
 
 {% block meta_keywords %}photo filters online free, image effects editor, apply filters to photos, color grading tool,
 instagram filters online, cinematic filters, vintage photo effects, black and white filter, photo editor filters,
@@ -19,11 +15,9 @@ alternative online, color grading online, film look filter, analog filter, polar
 process filter, bleach bypass effect, teal and orange filter, social media filters, photography filters, creative photo
 effects, artistic filters, imgcraft filters{% endblock %}
 
-{% block og_title %}Premium Photo Filters & Color Grading Tool | ImgCraft{% endblock %}
+{% block og_title %}Photo Filters & Effects – ImgCraft{% endblock %}
 
-{% block og_description %}Transform your photos with professional filters and color grading. One-click cinematic
-presets, vintage effects, Instagram-style filters. Advanced manual adjustments with real-time preview. Create stunning
-images in seconds - completely free.{% endblock %}
+{% block og_description %}One-click cinematic and vintage filters with advanced manual adjustments. Create stunning images instantly and free.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -238,18 +232,7 @@ images in seconds - completely free.{% endblock %}
 
 
 </div>
-{% if not user_ad_free %}
-<section class="ads-section">
-    <div class="ad-container">
-        <!-- ImgCraft: Ad Placement - Filter Tool -->
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
-            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-</section>
-{% endif %}
+
 
 {% endblock %}
 {% block scripts %}

@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 
 {# --- ENHANCED SEO BLOCKS START --- #}
-{% block title %}AI Image Annotation & Tagging Tool - Professional Metadata Editor | ImgCraft{% endblock %}
+{% block title %}Image Annotation Tool – ImgCraft{% endblock %}
 
-{% block meta_description %}Professional image annotation tool with AI-powered tagging. Draw bounding boxes, create
-polygons, add labels and metadata. Export annotations as JSON for machine learning, computer vision, and dataset
-creation. Perfect for AI training, object detection, image classification, and professional photography workflows.{%
-endblock %}
+{% block meta_description %}Professional image annotation with bounding boxes and labels. Export to JSON for AI training
+and computer vision.{% endblock %}
 
 {% block meta_keywords %}image annotation tool, ai annotation, bounding box tool, image tagging software, metadata
 editor, polygon annotation, object detection annotation, computer vision tool, dataset annotation, image labeling, ml
@@ -14,10 +12,10 @@ annotation tool, ai training data, annotation export json, professional image ta
 tool, photo metadata editor, annotation software online, machine learning annotation, object tagging tool, ai dataset
 creator, image classification tool, annotation platform, visual tagging system, imgcraft annotation{% endblock %}
 
-{% block og_title %}AI Image Annotation & Tagging Tool - Professional Metadata Editor | ImgCraft{% endblock %}
+{% block og_title %}Image Annotation Tool – ImgCraft{% endblock %}
 
-{% block og_description %}Create professional image annotations with bounding boxes, polygons, and custom tags. Export
-to JSON for AI/ML workflows. Advanced metadata management for computer vision projects.{% endblock %}
+{% block og_description %}Create annotations with bounding boxes and custom tags. Export to JSON for machine learning
+workflows.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block head %}
@@ -125,7 +123,8 @@ to JSON for AI/ML workflows. Advanced metadata management for computer vision pr
                     <div class="upload-icon-large floating-anim"><i class="fas fa-tag"></i></div>
                     <h2>AI Annotation Studio</h2>
                     <p class="text-muted">Drag & drop JPG, PNG for labeling</p>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 8px;"><i class="fas fa-info-circle"></i> Upload free • 15 credits per export</p>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 8px;"><i
+                            class="fas fa-info-circle"></i> Upload free • 15 credits per export</p>
                     <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
                         Browse Files
                     </button>
@@ -197,10 +196,12 @@ to JSON for AI/ML workflows. Advanced metadata management for computer vision pr
             <div id="exportActions" style="display: none;">
                 <div class="btn-group-vertical">
                     <button class="btn btn-primary btn-full" id="exportJsonBtn">
-                        <i class="fas fa-file-code"></i> Export JSON <span style="opacity: 0.8; font-size: 0.85em;">(15 credits)</span>
+                        <i class="fas fa-file-code"></i> Export JSON <span style="opacity: 0.8; font-size: 0.85em;">(15
+                            credits)</span>
                     </button>
                     <button class="btn btn-outline btn-full mt-2" id="exportImageBtn">
-                        <i class="fas fa-image"></i> Export Image <span style="opacity: 0.8; font-size: 0.85em;">(15 credits)</span>
+                        <i class="fas fa-image"></i> Export Image <span style="opacity: 0.8; font-size: 0.85em;">(15
+                            credits)</span>
                     </button>
                 </div>
                 <div class="text-center mt-3">

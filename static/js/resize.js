@@ -146,8 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeBtn.addEventListener('click', async () => {
         if (!currentFile) return;
 
-        loadingOverlay.style.display = 'flex';
-        resizeBtn.disabled = true;
+        // Use unified loading UI
+        if (window.ImgCraftBusyUI) {
+            window.ImgCraftBusyUI.showLoading('Resizing Image...');
+        }
 
         const formData = new FormData();
         formData.append('image', currentFile);
@@ -173,6 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                // Update loading text
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Preparing Download...');
+                }
+
                 // Resize is free, so cost might be 0
                 const cost = response.headers.get('X-Credits-Cost');
                 
@@ -207,8 +214,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(error);
             showToast('Network error', 'error');
         } finally {
-            loadingOverlay.style.display = 'none';
-            resizeBtn.disabled = false;
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
+            }
         }
     });
 

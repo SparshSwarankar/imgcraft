@@ -35,12 +35,13 @@ class CreditManager:
             }
 
     @staticmethod
-    def initialize_credits(user_id: str) -> dict:
+    def initialize_credits(user_id: str, initial_credits: int = 10) -> dict:
         """
         Initialize credits for a user if they don't exist
         
         Args:
             user_id: User UUID
+            initial_credits: Number of initial credits to give (default: 10)
             
         Returns:
             Dictionary with success status
@@ -52,15 +53,15 @@ class CreditManager:
             if existing.data:
                 return {'success': True, 'message': 'Credits already initialized'}
                 
-            # Create new credit record with 10 free credits
+            # Create new credit record with specified initial credits
             supabase_admin.table('user_credits').insert({
                 'user_id': user_id,
-                'total_credits': 10,
-                'remaining_credits': 10,
-                'free_credits': 10
+                'total_credits': initial_credits,
+                'remaining_credits': initial_credits,
+                'free_credits': initial_credits
             }).execute()
             
-            return {'success': True, 'message': 'Credits initialized with 10 free credits'}
+            return {'success': True, 'message': f'Credits initialized with {initial_credits} free credits'}
             
         except Exception as e:
             return {

@@ -2,17 +2,8 @@
 <html lang="en">
 
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GCC5PDLYPF"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-GCC5PDLYPF');
-    </script>
-
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-5547900968688861">
+    <!-- ADS FEATURE REMOVED -->
+    <!-- <meta name="google-adsense-account" content="ca-pub-5547900968688861"> -->
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,6 +32,15 @@
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
     <meta property="og:image" content="{{ url_for('static', filename='image/og-banner.jpg', _external=True) }}">
+
+    <!-- =========================================
+         ✅ Twitter Card Tags
+    ========================================= -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://imgcraft.online{{ request.path }}">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ self.og_title() }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ self.og_description() }}{% endblock %}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='image/og-banner.jpg', _external=True) }}">
 
     <!-- =========================================
          ✅ Schema.org JSON-LD (AI Tool Definition)
@@ -78,10 +78,10 @@
     <meta name="theme-color" content="#F97316">
 
     <!-- Favicons -->
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon/favicon-96x96.png') }}" sizes="96x96">
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}?v=2">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='favicon/favicon-96x96.png') }}?v=2">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}?v=2">
     <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
 
     <!-- Stylesheets -->
@@ -90,13 +90,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/review-modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ads.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pwa.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton-loader.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    {% if not user_ad_free %}
+    <!-- ADS FEATURE REMOVED -->
+    <!-- {% if not user_ad_free %}
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5547900968688861"
         crossorigin="anonymous"></script>
-    {% endif %}
+    {% endif %} -->
 
     {% block head %}{% endblock %}
 
@@ -120,10 +122,29 @@
     <nav class="navbar glass">
         <div class="container nav-content">
             <a href="/" class="logo">
-                <img src="/static/image/Logo.jpg" alt="ImgCraft AI Logo" height="32" width="32"
-                    style="margin-right: 10px; border-radius: 6px;">
+                <img src="/static/image/Logo.jpg" alt="ImgCraft AI Logo" height="28" width="28"
+                    style="border-radius: 6px;">
                 ImgCraft
             </a>
+
+            <!-- Mobile: Credits & Auth (always visible) -->
+            <div class="mobile-top-actions">
+                <div class="auth-guest-mobile" style="display: flex;">
+                    <a href="/auth" class="account-icon-btn" title="Login">
+                        <i class="fas fa-circle-user"></i>
+                    </a>
+                </div>
+
+                <div class="auth-user-mobile" style="display: none;">
+                    <a href="/billing" class="credit-badge-mobile">
+                        <i class="fas fa-coins"></i>
+                        <span id="creditBalanceMobile">0</span>
+                    </a>
+                    <a href="#" class="user-avatar-mobile" id="userMenuToggle">
+                        <i class="fas fa-circle-user"></i>
+                    </a>
+                </div>
+            </div>
 
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
@@ -158,7 +179,12 @@
                         <a href="/remove-bg" class="dropdown-item"><i class="fas fa-eraser"></i> Remove BG</a>
                     </div>
                 </div>
-
+                
+                <div class="nav-item">
+                    <a href="/docs" class="nav-link">
+                        <i class="fas fa-book"></i> Docs
+                    </a>
+                </div>
                 <div class="nav-item dropdown premium-nav">
                     <a href="#" class="nav-link">
                         <i class="fas fa-sparkles"></i> AI Studio <i class="fas fa-chevron-down"
@@ -175,15 +201,17 @@
                     </div>
                 </div>
 
-                <div class="nav-divider"></div>
 
-                <div class="auth-guest" style="display: block;">
-                    <a href="/auth" class="btn btn-primary btn-sm">
-                        <i class="fas fa-sign-in-alt"></i> Login
+                <!-- Desktop: Credits & Auth (inside nav-links) -->
+                <div class="nav-divider desktop-only"></div>
+
+                <div class="auth-guest desktop-only">
+                    <a href="/auth" class="account-icon-btn" title="Login">
+                        <i class="fas fa-circle-user"></i>
                     </a>
                 </div>
 
-                <div class="auth-user" style="display: none;">
+                <div class="auth-user desktop-only">
                     <div class="user-credits">
                         <a href="/billing" class="credit-badge">
                             <i class="fas fa-coins"></i>
@@ -194,7 +222,7 @@
                     <div class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link user-link">
                             <div class="user-avatar">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-circle-user"></i>
                             </div>
                             <span id="userName">User</span>
                             <i class="fas fa-chevron-down"></i>
@@ -240,17 +268,8 @@
 
                     <!-- Social Media Icons -->
                     <div class="footer-social">
-                        <a href="#" class="social-link" aria-label="Twitter">
+                        <a href="https://x.com/Img_Craft" class="social-link" aria-label="Twitter">
                             <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="GitHub">
-                            <i class="fab fa-github"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="LinkedIn">
-                            <i class="fab fa-linkedin"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
                         </a>
                     </div>
                 </div>
@@ -276,7 +295,9 @@
                 <div class="footer-section">
                     <h3 class="footer-title">Support & Legal</h3>
                     <ul class="footer-links">
-                        <li><a href="#" data-modal="contact">Contact Us</a></li>
+                        <li><a href="/about" title="About ImgCraft">About Us</a></li>
+                        <li><a href="/contact" title="Contact ImgCraft Support">Contact Us</a></li>
+                        <li><a href="/docs" title="ImgCraft Documentation">Docs</a></li>
                         <li><a href="#" data-modal="privacy">Privacy Policy</a></li>
                         <li><a href="#" data-modal="terms">Terms & Conditions</a></li>
                         <li><a href="#" data-modal="refunds">Payments & Refunds</a></li>
@@ -287,8 +308,12 @@
 
             <!-- Footer Bottom -->
             <div class="footer-bottom">
-                <p class="footer-copyright">© 2024 ImgCraft. All rights reserved.</p>
+                <p class="footer-copyright">© 2025 ImgCraft. All rights reserved.</p>
                 <p class="footer-made-with">Made with <i class="fas fa-heart"></i> by ImgCraft Team</p>
+                <p class="footer-made-with">
+                    <i class="fas fa-envelope"></i> 
+                    <a href="#" class="footer-email-link" style="color: inherit; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3);" title="Email us">imgcrafthelp@gmail.com</a>
+                </p>
             </div>
         </div>
     </footer>
@@ -366,7 +391,7 @@
         if (mobileMenuBtn && navLinks) {
             const icon = mobileMenuBtn.querySelector('i');
 
-            // 1. Reusable function to close the menu
+            // Close menu function
             const closeMenu = () => {
                 navLinks.classList.remove('active');
                 if (icon) {
@@ -375,11 +400,9 @@
                 }
             };
 
-            // 2. Toggle Button Click
+            // Toggle hamburger menu
             mobileMenuBtn.addEventListener('click', (e) => {
-                // Prevent the click from bubbling up to the document immediately
                 e.stopPropagation();
-
                 if (navLinks.classList.contains('active')) {
                     closeMenu();
                 } else {
@@ -391,9 +414,27 @@
                 }
             });
 
-            // 3. Close if clicked outside the menu
+            // Mobile: Click/tap to toggle dropdowns (no hover)
+            if (window.innerWidth <= 768) {
+                document.querySelectorAll('.nav-item.dropdown > .nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const dropdown = link.nextElementSibling;
+                        const isOpen = dropdown.style.display === 'flex';
+                        
+                        // Close all dropdowns first
+                        document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+                        
+                        // Toggle clicked dropdown
+                        if (!isOpen) {
+                            dropdown.style.display = 'flex';
+                        }
+                    });
+                });
+            }
+
+            // Close menu if clicked outside
             document.addEventListener('click', (e) => {
-                // Check if the menu is open AND the click target is NOT inside the menu or the button
                 if (navLinks.classList.contains('active') &&
                     !navLinks.contains(e.target) &&
                     !mobileMenuBtn.contains(e.target)) {
@@ -401,13 +442,28 @@
                 }
             });
 
-            // 4. Close on Scroll
+            // Close menu on scroll
             window.addEventListener('scroll', () => {
-                // If the menu is open and the user scrolls, close it
                 if (navLinks.classList.contains('active')) {
                     closeMenu();
                 }
             });
+
+            // Mobile user menu toggle
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            if (userMenuToggle) {
+                userMenuToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Show user menu options
+                    if (confirm('User Menu\n\n1. Go to Billing\n2. Logout\n\nClick OK for Billing, Cancel for Logout')) {
+                        window.location.href = '/billing';
+                    } else {
+                        if (typeof AuthManager !== 'undefined') {
+                            AuthManager.signOut();
+                        }
+                    }
+                });
+            }
         }
 
         // Welcome Notification & Backend Status Check
@@ -523,7 +579,55 @@
 
     <script src="{{ url_for('static', filename='js/background.js') }}"></script>
 
+    <!-- Smart Email Links - Gmail on Desktop, Native App on Mobile -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Detect if mobile device
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            // Get current page info for email context
+            const currentPath = window.location.pathname;
+            const pageName = currentPath === '/' ? 'Home' : 
+                             currentPath.replace(/\//g, '').replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            
+            const emailAddress = 'imgcrafthelp@gmail.com';
+            const subject = `ImgCraft Support - ${pageName} Page`;
+            const body = `Hi ImgCraft Team,
+
+I need help with:
+
+Page: ${pageName}
+URL: ${window.location.href}
+
+[Please describe your issue here]
+
+Thank you!`;
+
+            // Setup email links
+            const emailLinks = document.querySelectorAll('.footer-email-link, .docs-email-link');
+            
+            emailLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (isMobileDevice()) {
+                        // Mobile: Use mailto (opens Gmail app if installed)
+                        const mailtoLink = `mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                        window.location.href = mailtoLink;
+                    } else {
+                        // Desktop: Open Gmail web compose
+                        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                        window.open(gmailUrl, '_blank');
+                    }
+                });
+            });
+        });
+    </script>
+
     <!-- PWA Initialization Script - Load early for quick initialization -->
+    <script src="{{ url_for('static', filename='js/skeleton-loader.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/scrollbar.js') }}"></script>
 

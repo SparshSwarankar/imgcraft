@@ -79,10 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
     convertBtn.addEventListener('click', async () => {
         if (!currentFile) return;
 
-        // UI Loading State
-        convertBtn.disabled = true;
-        loadingOverlay.style.display = 'flex';
-        progressText.textContent = 'Converting...';
+        // Use unified loading UI
+        if (window.ImgCraftBusyUI) {
+            window.ImgCraftBusyUI.showLoading(`Converting to ${formatSelect.value}...`);
+        }
 
         const formData = new FormData();
         formData.append('image', currentFile);
@@ -100,6 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                // Show preparing download message
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Preparing Download...');
+                }
+
                 // Get Cost Header
                 const cost = response.headers.get('X-Credits-Cost');
 
@@ -152,8 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(error);
             showToast(`Network error: ${error.message}`, 'error');
         } finally {
-            loadingOverlay.style.display = 'none';
-            convertBtn.disabled = false;
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
+            }
         }
     });
 

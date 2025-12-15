@@ -136,12 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log("Starting background removal...");
 
-            // UI Updates - Show loading overlay
-            if (loadingOverlay) loadingOverlay.style.display = 'flex';
-            if (removeBtn) {
-                removeBtn.disabled = true;
-                removeBtn.style.opacity = '0.7';
+            // Use unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.showLoading('Analyzing Image...');
             }
+
             const formData = new FormData();
             formData.append('image', currentFile);
 
@@ -161,6 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. RESPONSE HANDLER (Runs when server is done)
             xhr.onload = () => {
                 if (xhr.status === 200) {
+                    // Update loading text
+                    if (window.ImgCraftBusyUI) {
+                        window.ImgCraftBusyUI.setLoadingText('Processing Results...');
+                    }
+
                     // --- UPDATE: Get Credits ---
                     const creditsDeducted = xhr.getResponseHeader('X-Credits-Cost');
                     const costMsg = creditsDeducted ? ` (-${creditsDeducted} Credits)` : '';
@@ -202,18 +206,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // DOWNLOAD LINK
                     const originalName = currentFile.name.substring(0, currentFile.name.lastIndexOf('.'));
-                    if (downloadBtn) {
-                        downloadBtn.href = url;
-                        downloadBtn.download = `${originalName}_nobg.png`;
+                    // Hide unified loading UI
+                    if (window.ImgCraftBusyUI) {
+                        window.ImgCraftBusyUI.hideLoading();
                     }
 
-                    if (loadingOverlay) loadingOverlay.style.display = 'none';
                     if (resultButtons) resultButtons.style.display = 'block';
                     if (successInfo) successInfo.style.display = 'block';
                     if (removeBtn) {
                         removeBtn.style.display = 'none';
-                        removeBtn.disabled = false;
-                        removeBtn.style.opacity = '1';
                     }
 
                     // --- UPDATE: SUCCESS NOTIFICATION WITH CREDITS ---
@@ -239,10 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function failUI() {
-        if (loadingOverlay) loadingOverlay.style.display = 'none';
-        if (removeBtn) {
-            removeBtn.disabled = false;
-            removeBtn.style.opacity = '1';
+        // Hide unified loading UI
+        if (window.ImgCraftBusyUI) {
+            window.ImgCraftBusyUI.hideLoading();
         }
     }
 

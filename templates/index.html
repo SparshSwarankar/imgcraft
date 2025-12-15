@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
 {# --- SEO BLOCKS START --- #}
-{% block title %}ImgCraft - Professional AI Image Tools | Compress, Convert & Edit{% endblock %}
+{% block title %}AI Image Tools – ImgCraft{% endblock %}
 
-{% block meta_description %}ImgCraft offers professional-grade AI image tools. Compress images, remove backgrounds,
-convert formats (WebP, PNG, JPG), and upscale photos. Premium quality for everyone.{% endblock %}
+{% block meta_description %}Compress, convert, resize, and edit images with AI-powered tools. Free online image editor for all your creative needs.{% endblock %}
 
 {% block meta_keywords %}ai image editor, professional image compressor, background remover ai, convert jpg to webp,
 image upscaler, premium image tools, imgcraft online, free online image editor, all-in-one image toolkit, image editing
@@ -18,9 +17,8 @@ optimization suite, fast image converter, digital asset management, content crea
 ecommerce product images, photography tools online, image manipulation software, multimedia editing tools, developer
 image api, designer toolkit online, free image utilities, premium image processing{% endblock %}
 
-{% block og_title %}ImgCraft - The Professional AI Image Suite{% endblock %}
-{% block og_description %}Enhance your workflow with ImgCraft. Smart compression, AI background removal, and instant
-format conversion. Try it now.{% endblock %}
+{% block og_title %}AI Image Tools – ImgCraft{% endblock %}
+{% block og_description %}Smart compression, AI background removal, and instant format conversion. Professional tools for everyone.{% endblock %}
 {# --- SEO BLOCKS END --- #}
 
 {% block content %}
@@ -142,18 +140,7 @@ format conversion. Try it now.{% endblock %}
             Annotate Now</div>
     </a>
 </div>
-{% if not user_ad_free %}
-<section class="ads-section">
-    <div class="ad-container">
-        <!-- ImgCraft: Ad Placement 1 - Between Tools and Features -->
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5547900968688861"
-            data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-</section>
-{% endif %}
+
 
 <section class="container mt-12 mb-8 animate-fade-up delay-300">
     <div class="glass-panel p-8 rounded-lg">
@@ -556,6 +543,33 @@ format conversion. Try it now.{% endblock %}
 
     // Check on page load
     document.addEventListener('DOMContentLoaded', async () => {
+        // Show skeleton loaders by hiding tool cards and showing skeletons
+        const toolsGrid = document.getElementById('toolsGrid');
+        const originalHTML = toolsGrid.innerHTML; // Save original HTML
+        
+        // Hide original cards and show skeletons
+        const toolCards = document.querySelectorAll('.tool-card');
+        toolCards.forEach(card => card.style.display = 'none');
+        
+        // Create and insert skeleton loaders
+        const skeletonHTML = Array(12).fill(0).map(() => `
+            <div class="skeleton-tool-card">
+                <div class="skeleton skeleton-tool-icon"></div>
+                <div class="skeleton skeleton-heading" style="width: 70%; margin: 0.75rem auto;"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text short" style="width: 85%;"></div>
+                <div class="skeleton skeleton-button" style="margin-top: 1rem; height: 40px;"></div>
+            </div>
+        `).join('');
+        
+        // Insert skeletons
+        const skeletonContainer = document.createElement('div');
+        skeletonContainer.innerHTML = skeletonHTML;
+        skeletonContainer.className = 'skeleton-wrapper loading';
+        
+        // Insert skeletons after the original cards
+        toolsGrid.insertAdjacentHTML('beforeend', skeletonHTML);
+
         checkLaunchDay();
 
         // Fetch tool config for pricing badges
@@ -584,8 +598,26 @@ format conversion. Try it now.{% endblock %}
                     }
                 }
             });
+
+            // Remove skeleton loaders and show tool cards
+            const skeletonCards = document.querySelectorAll('.skeleton-tool-card');
+            skeletonCards.forEach(card => card.remove());
+            
+            // Show tool cards
+            const toolCards = document.querySelectorAll('.tool-card');
+            toolCards.forEach(card => {
+                card.style.display = '';
+                card.classList.add('animate-fade-up');
+            });
+            
         } catch (e) {
             console.error('Failed to fetch tool config', e);
+            // Remove skeletons on error too
+            const skeletonCards = document.querySelectorAll('.skeleton-tool-card');
+            skeletonCards.forEach(card => card.remove());
+            // Show tool cards
+            const toolCards = document.querySelectorAll('.tool-card');
+            toolCards.forEach(card => card.style.display = '');
         }
 
         // Handle Guest/Auth State UI

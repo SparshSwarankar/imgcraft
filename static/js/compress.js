@@ -99,8 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function compressImage() {
         if (!currentFile) return;
 
-        loadingOverlay.style.display = 'flex';
-        compressBtn.disabled = true;
+        // Use unified loading UI
+        if (window.ImgCraftBusyUI) {
+            window.ImgCraftBusyUI.showLoading('Compressing Image...');
+        }
 
         const formData = new FormData();
         formData.append('image', currentFile);
@@ -122,6 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                // Update loading text
+                if (window.ImgCraftBusyUI) {
+                    window.ImgCraftBusyUI.setLoadingText('Processing Results...');
+                }
+
                 // Get Cost Header
                 const cost = response.headers.get('X-Credits-Cost');
 
@@ -166,8 +173,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(error);
             showToast('An error occurred', 'error');
         } finally {
-            loadingOverlay.style.display = 'none';
-            compressBtn.disabled = false;
+            // Hide unified loading UI
+            if (window.ImgCraftBusyUI) {
+                window.ImgCraftBusyUI.hideLoading();
+            }
             compressBtn.classList.remove('btn-glow');
         }
     }

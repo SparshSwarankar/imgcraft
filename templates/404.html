@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found | ImgCraft{% endblock %}
+
+{% block meta_description %}The page you're looking for doesn't exist. Explore ImgCraft's powerful image tools.{% endblock %}
+
+{% block content %}
+<style>
+    .error-404-container {
+        min-height: calc(100vh - var(--header-height));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .error-404-content {
+        max-width: 600px;
+        text-align: center;
+        z-index: 10;
+        position: relative;
+    }
+
+    .error-404-number {
+        font-size: 10rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .error-404-icon {
+        font-size: 4rem;
+        color: var(--primary);
+        margin-bottom: 2rem;
+        animation: rotate-slow 20s linear infinite;
+    }
+
+    @keyframes rotate-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .error-404-title {
+        font-size: 2rem;
+        color: var(--text-main);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .error-404-message {
+        font-size: 1.125rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .error-404-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .error-404-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .error-404-btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+    }
+
+    .error-404-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+    }
+
+    .error-404-btn-secondary {
+        background: var(--card-bg);
+        color: var(--text-main);
+        border: 1px solid var(--card-border);
+    }
+
+    .error-404-btn-secondary:hover {
+        background: rgba(249, 115, 22, 0.1);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .error-404-suggestions {
+        margin-top: 3rem;
+        padding: 2rem;
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--card-border);
+    }
+
+    .error-404-suggestions h3 {
+        color: var(--text-main);
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .error-404-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .error-404-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(249, 115, 22, 0.05);
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        color: var(--text-main);
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .error-404-link:hover {
+        background: rgba(249, 115, 22, 0.15);
+        border-color: var(--primary);
+        transform: translateX(5px);
+    }
+
+    .error-404-link i {
+        color: var(--primary);
+        font-size: 1.25rem;
+    }
+
+    /* Animated background elements */
+    .error-404-bg-element {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.05;
+        animation: float-random 15s ease-in-out infinite;
+    }
+
+    .error-404-bg-element:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        background: var(--primary);
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .error-404-bg-element:nth-child(2) {
+        width: 200px;
+        height: 200px;
+        background: var(--secondary);
+        bottom: 10%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+
+    .error-404-bg-element:nth-child(3) {
+        width: 150px;
+        height: 150px;
+        background: var(--primary);
+        top: 50%;
+        right: 20%;
+        animation-delay: 4s;
+    }
+
+    @keyframes float-random {
+        0%, 100% { transform: translate(0, 0); }
+        33% { transform: translate(30px, -30px); }
+        66% { transform: translate(-20px, 20px); }
+    }
+
+    @media (max-width: 768px) {
+        .error-404-number {
+            font-size: 6rem;
+        }
+
+        .error-404-title {
+            font-size: 1.5rem;
+        }
+
+        .error-404-message {
+            font-size: 1rem;
+        }
+
+        .error-404-buttons {
+            flex-direction: column;
+        }
+
+        .error-404-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .error-404-links {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="error-404-container">
+    <!-- Animated background elements -->
+    <div class="error-404-bg-element"></div>
+    <div class="error-404-bg-element"></div>
+    <div class="error-404-bg-element"></div>
+
+    <div class="error-404-content">
+        <div class="error-404-icon">
+            <i class="fas fa-image-slash"></i>
+        </div>
+        <div class="error-404-number">404</div>
+        <h1 class="error-404-title">Page Not Found</h1>
+        <p class="error-404-message">
+            Oops! The page you're looking for seems to have wandered off into the digital void. 
+            Don't worry, our powerful image tools are still here for you!
+        </p>
+
+        <div class="error-404-buttons">
+            <a href="/" class="error-404-btn error-404-btn-primary">
+                <i class="fas fa-home"></i>
+                Back to Home
+            </a>
+            <button onclick="window.history.back()" class="error-404-btn error-404-btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </button>
+        </div>
+
+        <div class="error-404-suggestions">
+            <h3>Popular Tools</h3>
+            <div class="error-404-links">
+                <a href="/compress" class="error-404-link">
+                    <i class="fas fa-compress"></i>
+                    <span>Compress</span>
+                </a>
+                <a href="/resize" class="error-404-link">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                    <span>Resize</span>
+                </a>
+                <a href="/convert" class="error-404-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Convert</span>
+                </a>
+                <a href="/remove-bg" class="error-404-link">
+                    <i class="fas fa-user-slash"></i>
+                    <span>Remove BG</span>
+                </a>
+                <a href="/crop" class="error-404-link">
+                    <i class="fas fa-crop"></i>
+                    <span>Crop</span>
+                </a>
+                <a href="/filter" class="error-404-link">
+                    <i class="fas fa-filter"></i>
+                    <span>Filters</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Track 404 page views
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_view', {
+            page_title: '404 - Page Not Found',
+            page_location: window.location.href,
+            page_path: window.location.pathname
+        });
+    }
+</script>
+{% endblock %}
