@@ -3,7 +3,8 @@
 {# --- SEO BLOCKS START --- #}
 {% block title %}AI Image Tools – ImgCraft{% endblock %}
 
-{% block meta_description %}Compress, convert, resize, and edit images with AI-powered tools. Free online image editor for all your creative needs.{% endblock %}
+{% block meta_description %}Compress, convert, resize, and edit images with AI-powered tools. Free online image editor
+for all your creative needs.{% endblock %}
 
 {% block meta_keywords %}ai image editor, professional image compressor, background remover ai, convert jpg to webp,
 image upscaler, premium image tools, imgcraft online, free online image editor, all-in-one image toolkit, image editing
@@ -18,7 +19,8 @@ ecommerce product images, photography tools online, image manipulation software,
 image api, designer toolkit online, free image utilities, premium image processing{% endblock %}
 
 {% block og_title %}AI Image Tools – ImgCraft{% endblock %}
-{% block og_description %}Smart compression, AI background removal, and instant format conversion. Professional tools for everyone.{% endblock %}
+{% block og_description %}Smart compression, AI background removal, and instant format conversion. Professional tools
+for everyone.{% endblock %}
 {# --- SEO BLOCKS END --- #}
 
 {% block content %}
@@ -131,11 +133,13 @@ image api, designer toolkit online, free image utilities, premium image processi
             Try AI Studio</div>
     </a>
 
-    <a href="/annotation" class="tool-card glass premium-card" data-tool-id="annotation" title="AI Annotation Studio - Professional Image Labeling">
+    <a href="/annotation" class="tool-card glass premium-card" data-tool-id="annotation"
+        title="AI Annotation Studio - Professional Image Labeling">
         <div class="premium-ribbon">PRO • 15 Credits</div>
         <div class="tool-icon"><i class="fas fa-tags"></i></div>
         <div class="tool-name">AI Annotation Studio</div>
-        <div class="tool-desc">Professional annotation with bounding boxes, polygons, and metadata. Export to JSON for AI/ML workflows.</div>
+        <div class="tool-desc">Professional annotation with bounding boxes, polygons, and metadata. Export to JSON for
+            AI/ML workflows.</div>
         <div class="tool-btn" style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; border: none;">
             Annotate Now</div>
     </a>
@@ -496,7 +500,7 @@ image api, designer toolkit online, free image utilities, premium image processi
         if (overlay) {
             overlay.classList.add('active');
             createConfetti();
-            
+
             // Prevent body scrolling
             document.body.style.overflow = 'hidden';
 
@@ -512,7 +516,7 @@ image api, designer toolkit online, free image utilities, premium image processi
         if (overlay) {
             overlay.classList.remove('active');
             sessionStorage.setItem('launchOverlayDismissed', 'true');
-            
+
             // Restore body scrolling
             document.body.style.overflow = '';
         }
@@ -546,11 +550,11 @@ image api, designer toolkit online, free image utilities, premium image processi
         // Show skeleton loaders by hiding tool cards and showing skeletons
         const toolsGrid = document.getElementById('toolsGrid');
         const originalHTML = toolsGrid.innerHTML; // Save original HTML
-        
+
         // Hide original cards and show skeletons
         const toolCards = document.querySelectorAll('.tool-card');
         toolCards.forEach(card => card.style.display = 'none');
-        
+
         // Create and insert skeleton loaders
         const skeletonHTML = Array(12).fill(0).map(() => `
             <div class="skeleton-tool-card">
@@ -561,12 +565,12 @@ image api, designer toolkit online, free image utilities, premium image processi
                 <div class="skeleton skeleton-button" style="margin-top: 1rem; height: 40px;"></div>
             </div>
         `).join('');
-        
+
         // Insert skeletons
         const skeletonContainer = document.createElement('div');
         skeletonContainer.innerHTML = skeletonHTML;
         skeletonContainer.className = 'skeleton-wrapper loading';
-        
+
         // Insert skeletons after the original cards
         toolsGrid.insertAdjacentHTML('beforeend', skeletonHTML);
 
@@ -602,14 +606,14 @@ image api, designer toolkit online, free image utilities, premium image processi
             // Remove skeleton loaders and show tool cards
             const skeletonCards = document.querySelectorAll('.skeleton-tool-card');
             skeletonCards.forEach(card => card.remove());
-            
+
             // Show tool cards
             const toolCards = document.querySelectorAll('.tool-card');
             toolCards.forEach(card => {
                 card.style.display = '';
                 card.classList.add('animate-fade-up');
             });
-            
+
         } catch (e) {
             console.error('Failed to fetch tool config', e);
             // Remove skeletons on error too

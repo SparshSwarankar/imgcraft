@@ -135,6 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Refresh Credits Display
                 if (window.CreditManager) CreditManager.refreshCredits();
 
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
+                }
+
             } else {
                 const errorBody = await response.text();
                 let errorMessage = 'Conversion failed. Please try again.';

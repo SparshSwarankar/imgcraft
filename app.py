@@ -46,6 +46,7 @@ from payments import (
     get_plan_by_id,
     CREDIT_PLANS
 )
+from streak.utils import StreakManager
 from flask import jsonify, redirect, current_app
 
 # Initialize Flask app
@@ -773,6 +774,52 @@ def get_payment_history(current_user):
         logger.error(f"Payment history error: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500
+
+# ============================================================================
+# STREAK TRACKING ENDPOINTS
+# ============================================================================
+
+@app.route('/api/streak', methods=['GET'])
+@require_auth
+def get_user_streak(current_user):
+    """Get current streak status for user"""
+    try:
+        user_id = current_user.get('id')
+        logger.debug(f"Fetching streak for user: {user_id}")
+        
+        streak_data = StreakManager.get_streak(user_id)
+        if not streak_data:
+            return jsonify({
+                'success': True,
+                'streak': {
+                    'current_streak': 0, 
+                    'longest_streak': 0,
+                    'last_active_date': None
+                }
+            })
+            
+        return jsonify({
+            'success': True,
+            'streak': streak_data
+        })
+    except Exception as e:
+        logger.error(f"Error in get_user_streak: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/update_streak', methods=['POST'])
+@require_auth
+def update_user_streak_endpoint(current_user):
+    """Update streak (called after successful tool usage)"""
+    try:
+        user_id = current_user.get('id')
+        logger.info(f"Updating streak for user: {user_id}")
+        
+        result = StreakManager.update_streak(user_id)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error in update_user_streak_endpoint: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 # DEBUG ENDPOINT - Remove in production
 @app.route('/api/debug/payments', methods=['GET'])
@@ -3391,7 +3438,8 @@ if __name__ == '__main__':
         import os
         port = int(os.environ.get("PORT", config.PORT))
         host = os.environ.get("HOST", config.HOST)
-        app.run(host=host, port=port, debug=config.DEBUG)
+        app.run(host=host, port=port, debug=True)
+        # app.run(host=host, port=port, debug=config.DEBUG)
         
     except KeyboardInterrupt:
         logger.info("Server shutdown requested by user")

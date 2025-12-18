@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startInfoLeft = document.getElementById('startInfoLeft');
     const startInfoRight = document.getElementById('startInfoRight');
     const resizeControls = document.getElementById('resizeControls');
-    
+
     // Info Fields
     const fileNameSpan = document.getElementById('fileName');
     const fileSizeSpan = document.getElementById('fileSize');
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scaleRange = document.getElementById('scaleRange');
     const scaleValue = document.getElementById('scaleValue');
     const aspectRatioCheckbox = document.getElementById('aspectRatio');
-    
+
     // Mode Buttons
     const modePixelBtn = document.getElementById('modePixel');
     const modePercentBtn = document.getElementById('modePercent');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMode = 'pixel';
 
     // --- File Handling ---
-    if(dropZone) {
+    if (dropZone) {
         dropZone.addEventListener('click', () => fileInput.click());
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
         dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -57,9 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
         });
     }
-    if(fileInput) {
+    if (fileInput) {
         fileInput.addEventListener('change', (e) => {
-            if(e.target.files.length) handleFile(e.target.files[0]);
+            if (e.target.files.length) handleFile(e.target.files[0]);
         });
     }
 
@@ -81,23 +81,23 @@ document.addEventListener('DOMContentLoaded', () => {
             img.onload = () => {
                 originalWidth = img.width;
                 originalHeight = img.height;
-                
+
                 fileDimSpan.textContent = `${originalWidth} x ${originalHeight}`;
-                
+
                 // Initialize Inputs
                 widthInput.value = originalWidth;
                 heightInput.value = originalHeight;
-                
+
                 // Switch UI
                 dropZone.style.display = 'none';
                 previewContainer.style.display = 'flex';
-                
+
                 startInfoLeft.style.display = 'none';
                 fileInfoSection.style.display = 'block';
-                
+
                 startInfoRight.style.display = 'none';
                 resizeControls.style.display = 'block';
-                
+
                 resizeBtn.disabled = false;
             };
             img.src = e.target.result;
@@ -108,16 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Mode Switching ---
     // Expose setMode to window if onclick is used in HTML
-    window.setMode = function(mode) {
+    window.setMode = function (mode) {
         currentMode = mode;
-        
+
         modePixelBtn.classList.toggle('active', mode === 'pixel');
         modePercentBtn.classList.toggle('active', mode === 'percent');
-        
+
         pixelControls.style.display = mode === 'pixel' ? 'block' : 'none';
         percentControls.style.display = mode === 'percent' ? 'block' : 'none';
     };
-    
+
     // Bind listeners in case JS loads after HTML onclick setup
     modePixelBtn.addEventListener('click', () => window.setMode('pixel'));
     modePercentBtn.addEventListener('click', () => window.setMode('percent'));
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Resize is free, so cost might be 0
                 const cost = response.headers.get('X-Credits-Cost');
-                
+
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
 
@@ -199,12 +199,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 let msg = 'Image resized!';
                 // Only show credit deduction if cost > 0
                 if (cost && cost !== '0') msg += ` (-${cost} Credits)`;
-                
+
                 showToast(msg, 'success');
 
                 // Refresh credits if logged in
                 if (window.CreditManager && cost && cost !== '0') {
                     CreditManager.refreshCredits();
+                }
+
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
                 }
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Failed to resize image');

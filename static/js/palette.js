@@ -123,6 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (window.CreditManager) CreditManager.refreshCredits();
 
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
+                }
+
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Failed to generate palette');
                 showToast(errorMessage, 'error');

@@ -372,6 +372,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (window.CreditManager) CreditManager.refreshCredits();
 
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
+                }
+
                 // Hide unified loading UI
                 if (window.ImgCraftBusyUI) {
                     window.ImgCraftBusyUI.hideLoading();

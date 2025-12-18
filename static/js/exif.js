@@ -129,6 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Credit refresh (if backend deducted)
                 if (window.CreditManager) CreditManager.refreshCredits();
+
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
+                }
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Failed to load metadata');
                 showToast(errorMessage, 'error');
@@ -256,6 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast(msg, 'success');
 
                 if (window.CreditManager) CreditManager.refreshCredits();
+
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
+                }
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Failed to remove metadata');
                 showToast(errorMessage, 'error');

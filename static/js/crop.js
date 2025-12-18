@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const dpr = window.devicePixelRatio || 1;
         const rect = editorContainer.getBoundingClientRect();
-        
+
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
         canvas.style.width = `${rect.width}px`;
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Draw darkened overlay (4 rectangles around crop box)
         ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-        
+
         // Top
         ctx.fillRect(0, 0, sourceImage.width, cropBox.y);
         // Bottom
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = 1 / scale;
-        
+
         const { x, y, width: w, height: h } = cropBox;
 
         if (gridType === 'thirds') {
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isInsideCropBox(imgX, imgY) {
         return imgX >= cropBox.x && imgX <= cropBox.x + cropBox.width &&
-               imgY >= cropBox.y && imgY <= cropBox.y + cropBox.height;
+            imgY >= cropBox.y && imgY <= cropBox.y + cropBox.height;
     }
 
     // --- Interaction Handlers ---
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!activeAction) {
             const imgPoint = canvasToImageSpace(canvasPoint.x, canvasPoint.y);
             const handle = getHandleAtPoint(imgPoint.x, imgPoint.y);
-            
+
             if (handle) {
                 if (handle === 'n' || handle === 's') canvas.style.cursor = 'ns-resize';
                 else if (handle === 'e' || handle === 'w') canvas.style.cursor = 'ew-resize';
@@ -557,15 +557,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Grid controls
-    document.getElementById('gridRuleThirds').addEventListener('click', function() {
+    document.getElementById('gridRuleThirds').addEventListener('click', function () {
         setGrid('thirds', this);
     });
 
-    document.getElementById('gridGolden').addEventListener('click', function() {
+    document.getElementById('gridGolden').addEventListener('click', function () {
         setGrid('golden', this);
     });
 
-    document.getElementById('gridNone').addEventListener('click', function() {
+    document.getElementById('gridNone').addEventListener('click', function () {
         setGrid('none', this);
     });
 
@@ -580,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Aspect ratio buttons
     document.querySelectorAll('.aspect-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             document.querySelectorAll('.aspect-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 
@@ -592,13 +592,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateCustomInputs();
             } else {
                 customInputsDiv.style.display = 'none';
-                
+
                 if (ratio === 'free') {
                     aspectRatio = null;
                 } else {
                     const [w, h] = ratio.split(':').map(Number);
                     aspectRatio = w / h;
-                    
+
                     // Adjust crop box to match aspect ratio
                     const currentRatio = cropBox.width / cropBox.height;
                     if (currentRatio > aspectRatio) {
@@ -746,6 +746,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (window.CreditManager && cost && cost !== '0') {
                     CreditManager.refreshCredits();
+                }
+
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
                 }
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Crop failed');

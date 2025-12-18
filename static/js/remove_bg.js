@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Info Text
         if (fileName) fileName.textContent = file.name;
         if (fileSize) fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-        
+
         // Show file info, hide empty state
         if (fileInfoSection) fileInfoSection.style.display = 'block';
         if (startInfoLeft) startInfoLeft.style.display = 'none';
@@ -225,6 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         CreditManager.refreshCredits();
                     }
 
+                    // Update Streak
+                    if (window.StreakManager) {
+                        StreakManager.updateStreak();
+                    }
                 } else {
                     failUI();
                     showToast('error', 'Processing Failed', 'Could not remove background. Please try again.');
@@ -538,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!canvas || !canvasWrapper) return;
 
         const wrapperRect = canvasWrapper.getBoundingClientRect();
-        
+
         // Ensure wrapper has dimensions
         if (wrapperRect.width === 0 || wrapperRect.height === 0) {
             console.warn('Canvas wrapper not ready, retrying...');
@@ -593,8 +597,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Tool Description
         const toolDesc = document.getElementById('toolDesc');
         if (toolDesc) {
-            toolDesc.textContent = tool === 'erase' 
-                ? 'Click to remove background' 
+            toolDesc.textContent = tool === 'erase'
+                ? 'Click to remove background'
                 : 'Click to restore original';
         }
 

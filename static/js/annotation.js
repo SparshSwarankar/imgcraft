@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // ============================================================
         initCanvas(imgElement) {
             console.log('Initializing canvas with image:', imgElement.width, 'x', imgElement.height);
-            
+
             // Dispose existing if any
             if (this.canvas) {
                 this.canvas.dispose();
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Attach Events
             this.attachCanvasEvents();
             this.canvas.renderAll();
-            
+
             console.log('Canvas initialized successfully');
         },
 
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             else if (this.mode === 'polygon') {
                 const pointer = this.canvas.getPointer(opt.e);
-                
+
                 if (!this.activeShape) {
                     // Start new polygon
                     this.polyPoints = [{ x: pointer.x, y: pointer.y }];
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.activeShape.set({
                 selectable: true
             });
-            
+
             this.addAnnotationToList(this.activeShape, 'Polygon');
 
             // Reset state
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.polyPoints = [];
             this.isDrawing = false;
             this.setMode('select'); // Auto switch back
-            
+
             console.log('Polygon finished and added to list');
         },
 
@@ -712,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const result = await response.json();
-                
+
                 if (!response.ok || !result.success) {
                     showToast(result.error || 'Failed to deduct credits', 'error');
                     return;
@@ -720,6 +720,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Refresh credit display
                 if (window.CreditManager) CreditManager.refreshCredits();
+
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
+                }
 
             } catch (error) {
                 console.error('Credit deduction error:', error);
@@ -791,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const result = await response.json();
-                
+
                 if (!response.ok || !result.success) {
                     showToast(result.error || 'Failed to deduct credits', 'error');
                     // Hide unified loading UI
@@ -823,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Create a temporary canvas with just the image and annotations
             const tempCanvas = document.createElement('canvas');
             const ctx = tempCanvas.getContext('2d');
-            
+
             // Get background image dimensions
             const bgImage = this.canvas.backgroundImage;
             if (!bgImage) {
@@ -834,38 +839,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return;
             }
-            
+
             // Set temp canvas to original image size
             const imgWidth = this.originalImage.width;
             const imgHeight = this.originalImage.height;
             tempCanvas.width = imgWidth;
             tempCanvas.height = imgHeight;
-            
+
             // Draw original image
             ctx.drawImage(this.originalImage, 0, 0);
-            
+
             // Calculate scale factor from canvas to original image
             const scaleFactor = 1 / this.imageScale;
-            
+
             // Get canvas center offset
             const canvasCenterX = this.canvas.width / 2;
             const canvasCenterY = this.canvas.height / 2;
             const imgCenterX = imgWidth / 2;
             const imgCenterY = imgHeight / 2;
-            
+
             // Draw annotations on top
             const objects = this.canvas.getObjects().filter(o => o.id);
             objects.forEach(obj => {
                 ctx.save();
-                
+
                 // Adjust position from canvas coords to image coords
                 const offsetX = (obj.left - canvasCenterX) * scaleFactor + imgCenterX;
                 const offsetY = (obj.top - canvasCenterY) * scaleFactor + imgCenterY;
-                
+
                 ctx.strokeStyle = obj.stroke || '#F97316';
                 ctx.fillStyle = obj.fill || 'rgba(249, 115, 22, 0.2)';
                 ctx.lineWidth = 2;
-                
+
                 if (obj.type === 'rect') {
                     const w = obj.width * obj.scaleX * scaleFactor;
                     const h = obj.height * obj.scaleY * scaleFactor;
@@ -891,10 +896,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         ctx.stroke();
                     }
                 }
-                
+
                 ctx.restore();
             });
-            
+
             const dataURL = tempCanvas.toDataURL('image/png', 1.0);
 
             const link = document.createElement('a');
@@ -917,7 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
     AnnotationStudio.init();
 
     // Toast Helper - use global window.showToast
-    window.showToast = window.showToast || function(msg, type = 'info') {
+    window.showToast = window.showToast || function (msg, type = 'info') {
         console.log(`[${type.toUpperCase()}] ${msg}`);
     };
 });

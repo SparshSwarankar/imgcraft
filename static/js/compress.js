@@ -157,13 +157,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 downloadBtn.href = url;
                 downloadBtn.download = `compressed_${currentFile.name}`;
 
+                // Update Streak FIRST (with animation)
+                if (window.StreakManager) {
+                    await StreakManager.updateStreak();
+                }
+
+                // Then refresh credits
+                if (window.CreditManager) CreditManager.refreshCredits();
+
                 // Prepare Toast Message
                 let msg = `Compressed by ${savings}%!`;
                 if (cost) msg += ` (-${cost} Credits)`;
 
                 showToast(msg, 'success');
-
-                if (window.CreditManager) CreditManager.refreshCredits();
 
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Compression failed. Please try again.');

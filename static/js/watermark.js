@@ -437,6 +437,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast(msg, 'success');
 
                 if (window.CreditManager) CreditManager.refreshCredits();
+
+                // Update Streak
+                if (window.StreakManager) {
+                    StreakManager.updateStreak();
+                }
             } else {
                 showToast('Failed to apply watermark', 'error');
             }
