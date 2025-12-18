@@ -162,3 +162,183 @@ function showMobileStreakInfo() {
 }
 
 window.showMobileStreakInfo = showMobileStreakInfo;
+
+// ============================================================================
+// STREAK NOTIFICATION SYSTEM
+// ============================================================================
+
+const StreakNotifications = {
+    NOTIFICATION_HOUR: 18, // 6 PM
+    STORAGE_KEY: 'imgcraft_streak_notif',
+
+    async init() {
+        // Only initialize for logged-in users
+        if (!window.AuthManager || !window.AuthManager.user) return;
+
+        // Check if notifications are supported
+        if (!('Notification' in window)) {
+            console.log('[StreakNotif] Notifications not supported');
+            return;
+        }
+
+        // Request permission if not granted
+        if (Notification.permission === 'default') {
+            // Don't auto-request, wait for user action
+            this.showPermissionPrompt();
+        } else if (Notification.permission === 'granted') {
+            this.scheduleCheck();
+        }
+    },
+
+    showPermissionPrompt() {
+        // Only show once per session
+        if (sessionStorage.getItem('notif_prompt_shown')) return;
+        sessionStorage.setItem('notif_prompt_shown', 'true');
+
+        // Show after a delay to not overwhelm the user
+        setTimeout(() => {
+            if (window.showToast) {
+                showToast('Want streak reminders? Click the 🔔 bell to enable notifications!', 'info', 'Stay on Track');
+            }
+        }, 5000);
+    },
+
+    async requestPermission() {
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                showToast('🔔 Streak notifications enabled!', 'success');
+                this.scheduleCheck();
+                return true;
+            } else {
+                showToast('Notifications blocked. Enable in browser settings.', 'warning');
+                return false;
+            }
+        } catch (error) {
+            console.error('[StreakNotif] Permission error:', error);
+            return false;
+        }
+    },
+
+    scheduleCheck() {
+        // Check every minute if we should send a notification
+        setInterval(() => this.checkAndNotify(), 60000);
+        // Also check immediately
+        this.checkAndNotify();
+    },
+
+    async checkAndNotify() {
+        const now = new Date();
+        const currentHour = now.getHours();
+
+        // Only notify after 6 PM
+        if (currentHour < this.NOTIFICATION_HOUR) return;
+
+        // Check if already notified today
+        const lastNotif = localStorage.getItem(this.STORAGE_KEY);
+        const today = now.toDateString();
+        if (lastNotif === today) return;
+
+        // Check if user has used a tool today
+        const streakData = await this.fetchStreakData();
+        if (!streakData) return;
+
+        const lastActive = streakData.last_active_date;
+        const todayISO = now.toISOString().split('T')[0];
+
+        // If already active today, no need to notify
+        if (lastActive === todayISO) return;
+
+        // User hasn't used a tool today - streak at risk!
+        const currentStreak = streakData.current_streak || 0;
+
+        if (currentStreak > 0) {
+            // Streak is at risk
+            this.sendNotification(
+                '🔥 Your streak is at risk!',
+                `You have a ${currentStreak}-day streak! Use any tool before midnight to keep it alive.`,
+                '/'
+            );
+        } else {
+            // No streak yet
+            this.sendNotification(
+                '✨ Start your streak today!',
+                'Use any ImgCraft tool to begin your daily streak.',
+                '/'
+            );
+        }
+
+        // Mark as notified today
+        localStorage.setItem(this.STORAGE_KEY, today);
+    },
+
+    async fetchStreakData() {
+        try {
+            const token = window.AuthManager?.getToken();
+            if (!token) return null;
+
+            const response = await fetch('/api/streak', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.streak || null;
+            }
+        } catch (error) {
+            console.error('[StreakNotif] Fetch error:', error);
+        }
+        return null;
+    },
+
+    sendNotification(title, body, url) {
+        if (Notification.permission !== 'granted') return;
+
+        // Use service worker if available for better handling
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            // Service worker will handle click events
+            navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification(title, {
+                    body: body,
+                    icon: '/static/favicon/favicon-96x96.png',
+                    badge: '/static/favicon/favicon-96x96.png',
+                    tag: 'streak-reminder',
+                    requireInteraction: true,
+                    data: { url: url },
+                    actions: [
+                        { action: 'open', title: '🚀 Open App' },
+                        { action: 'dismiss', title: 'Later' }
+                    ]
+                });
+            });
+        } else {
+            // Fallback to basic notification
+            const notification = new Notification(title, {
+                body: body,
+                icon: '/static/favicon/favicon-96x96.png',
+                tag: 'streak-reminder'
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                window.location.href = url;
+                notification.close();
+            };
+        }
+    }
+};
+
+// Initialize notifications after streak manager
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait for auth to be ready, then init notifications
+    setTimeout(() => StreakNotifications.init(), 3000);
+});
+
+// Expose for manual permission request (e.g., from settings)
+window.StreakNotifications = StreakNotifications;
+
+// Helper function to manually enable notifications (can be called from UI)
+window.enableStreakNotifications = async function () {
+    const granted = await StreakNotifications.requestPermission();
+    return granted;
+};

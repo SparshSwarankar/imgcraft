@@ -168,8 +168,8 @@ self.addEventListener('fetch', (event) => {
   }
 
   // HTML pages (navigation requests) - Network first with offline fallback
-  if (request.mode === 'navigate' || request.destination === 'document' || 
-      url.pathname === '/' || TOOL_PAGES.includes(url.pathname)) {
+  if (request.mode === 'navigate' || request.destination === 'document' ||
+    url.pathname === '/' || TOOL_PAGES.includes(url.pathname)) {
     event.respondWith(networkFirstWithOfflineFallback(request));
     return;
   }
@@ -515,7 +515,14 @@ self.addEventListener('notificationclick', (event) => {
   console.log('[ServiceWorker] Notification clicked:', event.notification.tag);
   event.notification.close();
 
-  const urlToOpen = event.notification.data.url || '/';
+  // Handle action buttons
+  if (event.action === 'dismiss') {
+    return; // Do nothing
+  }
+
+  // Default action or 'open' action - open the app
+  const urlToOpen = event.notification.data?.url || '/';
+  const fullUrl = new URL(urlToOpen, self.location.origin).href;
 
   event.waitUntil(
     (async () => {
@@ -524,17 +531,20 @@ self.addEventListener('notificationclick', (event) => {
         includeUncontrolled: true
       });
 
-      // Check if there's already a window open with the target URL
+      // Check if there's already a window open
       for (let i = 0; i < clientList.length; i++) {
         const client = clientList[i];
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          // Focus existing window and navigate
+          client.focus();
+          client.postMessage({ type: 'navigate', url: urlToOpen });
+          return;
         }
       }
 
       // If no window found, open a new one
       if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
+        return clients.openWindow(fullUrl);
       }
     })()
   );

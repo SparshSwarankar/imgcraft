@@ -6,7 +6,7 @@
 // Prevent double declarations - check if already initialized
 if (!window.AuthSystem) {
     window.AuthSystem = {};
-    
+
     // Initialize Supabase client with localStorage persistence (only once)
     const supabaseOptions = {
         auth: {
@@ -24,12 +24,12 @@ if (!window.AuthSystem) {
             await new Promise(resolve => setTimeout(resolve, 50));
             attempts++;
         }
-        
+
         if (!window.supabase) {
             console.error('Failed to load Supabase from CDN');
             return null;
         }
-        
+
         return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, supabaseOptions);
     }
 
@@ -44,13 +44,14 @@ if (!window.AuthSystem) {
             // Initialize supabase if not already done
             if (!supabase) {
                 supabase = await initSupabase();
+                window.supabaseClient = supabase;
             }
-            
+
             if (!supabase) {
                 console.error('Supabase initialization failed');
                 return;
             }
-            
+
             await this.checkSession();
             supabase.auth.onAuthStateChange((event, session) => {
                 this.handleAuthChange(event, session);
@@ -179,7 +180,7 @@ if (!window.AuthSystem) {
                 console.error('Supabase not initialized');
                 return { data: null, error: 'Supabase not initialized' };
             }
-            
+
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -197,7 +198,7 @@ if (!window.AuthSystem) {
                 console.error('Supabase not initialized');
                 return { data: null, error: 'Supabase not initialized' };
             }
-            
+
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password
@@ -209,7 +210,7 @@ if (!window.AuthSystem) {
             if (!supabase) {
                 return { error: 'Supabase not initialized' };
             }
-            
+
             const { error } = await supabase.auth.signOut();
             if (!error) {
                 window.location.href = '/';

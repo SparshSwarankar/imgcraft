@@ -2,10 +2,12 @@
 
 {% block title %}Billing & Credits – ImgCraft{% endblock %}
 
-{% block meta_description %}Purchase credits and manage your ImgCraft account. Affordable pricing for premium AI image editing features.{% endblock %}
+{% block meta_description %}Purchase credits and manage your ImgCraft account. Affordable pricing for premium AI image
+editing features.{% endblock %}
 
 {% block og_title %}Billing & Credits – ImgCraft{% endblock %}
-{% block og_description %}Get credits for premium features. Flexible pricing plans for individuals and businesses.{% endblock %}
+{% block og_description %}Get credits for premium features. Flexible pricing plans for individuals and businesses.{%
+endblock %}
 
 {% block head %}
 <style>
@@ -947,9 +949,10 @@
 <div class="pricing-header-section">
     <div class="pricing-header">
         <h2 class="pricing-title">Buy Credits</h2>
-        <p class="pricing-subtitle">Choose the plan that works best for you. Credits never expire and can be used on any tool.</p>
+        <p class="pricing-subtitle">Choose the plan that works best for you. Credits never expire and can be used on any
+            tool.</p>
     </div>
-    
+
     <div class="pricing-info-strip">
         <div class="info-item">
             <i class="fas fa-lightning"></i>
@@ -981,7 +984,8 @@
         <div class="faq-item">
             <div class="faq-icon">📸</div>
             <h4>Credit Consumption</h4>
-            <p>Different tools consume different amounts of credits. Check each tool for its credit cost before processing.</p>
+            <p>Different tools consume different amounts of credits. Check each tool for its credit cost before
+                processing.</p>
         </div>
         <div class="faq-item">
             <div class="faq-icon">🔄</div>
@@ -991,7 +995,8 @@
         <div class="faq-item">
             <div class="faq-icon">💳</div>
             <h4>Secure Payments</h4>
-            <p>We partner with Razorpay for secure, PCI-compliant payment processing. Your card details are never stored.</p>
+            <p>We partner with Razorpay for secure, PCI-compliant payment processing. Your card details are never
+                stored.</p>
         </div>
         <div class="faq-item">
             <div class="faq-icon">⚡</div>
@@ -1053,33 +1058,37 @@
     document.addEventListener('DOMContentLoaded', async () => {
         // Initialize skeleton loaders
         skeletonLoader.createSkeleton('plansGrid', 'billingCard');
-        
+
         loadPlans();
-        // ADS FEATURE REMOVED - Commented out
-        // loadAdFreeOptions();
 
-        // Check Supabase directly to handle race condition
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (session) {
-            // Ensure AuthManager is in sync
-            if (typeof AuthManager !== 'undefined' && !AuthManager.session) {
-                AuthManager.handleAuthChange('BILLING_INIT', session);
-            }
-            loadHistory(session.access_token);
-            loadPaymentHistory(session.access_token);
-        } else {
-            document.getElementById('usageHistory').innerHTML = `
-                <tr><td colspan="4" class="text-center">Please login to view history</td></tr>
-            `;
-            document.getElementById('paymentHistory').innerHTML = `
-                <tr><td colspan="5" class="text-center">Please login to view payment history</td></tr>
-            `;
+        // Wait for supabase client to be ready (max 2 seconds)
+        let attempts = 0;
+        while ((!window.supabaseClient) && attempts < 40) { // Increased wait time slightly
+            await new Promise(r => setTimeout(r, 100));
+            attempts++;
         }
 
-        // Listen for auth changes to load history
-        supabase.auth.onAuthStateChange((event, session) => {
+        if (!window.supabaseClient) {
+            console.error('Supabase client not loaded');
+            document.getElementById('usageHistory').innerHTML = `
+                <tr><td colspan="4" class="text-center">Unable to load history (Client Init Failed)</td></tr>
+            `;
+            document.getElementById('paymentHistory').innerHTML = `
+                <tr><td colspan="5" class="text-center">Unable to load history (Client Init Failed)</td></tr>
+            `;
+            return;
+        }
+
+        const supabase = window.supabaseClient; // Use the initialized client locally
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+
             if (session) {
+                // Ensure AuthManager is in sync
+                if (typeof AuthManager !== 'undefined' && !AuthManager.session) {
+                    AuthManager.handleAuthChange('BILLING_INIT', session);
+                }
                 loadHistory(session.access_token);
                 loadPaymentHistory(session.access_token);
             } else {
@@ -1090,7 +1099,24 @@
                     <tr><td colspan="5" class="text-center">Please login to view payment history</td></tr>
                 `;
             }
-        });
+
+            // Listen for auth changes to load history
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    loadHistory(session.access_token);
+                    loadPaymentHistory(session.access_token);
+                } else {
+                    document.getElementById('usageHistory').innerHTML = `
+                        <tr><td colspan="4" class="text-center">Please login to view history</td></tr>
+                    `;
+                    document.getElementById('paymentHistory').innerHTML = `
+                        <tr><td colspan="5" class="text-center">Please login to view payment history</td></tr>
+                    `;
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing billing:', error);
+        }
 
         // Update balance from CreditManager
         if (window.CreditManager) {
@@ -1116,15 +1142,15 @@
 
             if (data.success && data.plans && data.plans.length > 0) {
                 const grid = document.getElementById('plansGrid');
-                
+
                 // Sort plans by credits to find recommended one
                 const sortedPlans = [...data.plans].sort((a, b) => b.credits - a.credits);
                 const bestValuePlanId = sortedPlans[Math.floor(sortedPlans.length / 2)]?.id;
-                
+
                 grid.innerHTML = data.plans.map(plan => {
                     const pricePerCredit = (parseFloat(plan.price) / plan.credits).toFixed(2);
                     const isFeatured = plan.id === bestValuePlanId;
-                    
+
                     return `
                         <div class="pricing-card ${isFeatured ? 'featured' : ''}">
                             ${isFeatured ? '<div class="best-value-badge">⭐ Best Value</div>' : ''}
@@ -1169,22 +1195,22 @@
     async function handleBuyCredits(planId, btnElement) {
         // Check if user is logged in
         let token = null;
-        
+
         if (window.AuthManager && typeof window.AuthManager.getToken === 'function') {
             token = window.AuthManager.getToken();
         }
-        
+
         if (!token) {
             token = sessionStorage.getItem('sb-access-token') || localStorage.getItem('sb-access-token');
         }
-        
+
         if (!token) {
             // User not logged in
             showToast('Please login to purchase credits', 'warning');
             window.location.href = '/auth';
             return;
         }
-        
+
         if (!window.CreditManager) {
             showToast('Payment system not loaded. Please refresh the page.', 'error');
             return;
@@ -1200,12 +1226,18 @@
 
         try {
             // 3. Await the payment process
-            await CreditManager.buyCredits(planId);
+            const result = await CreditManager.buyCredits(planId);
+
+            // 4. Refresh history after successful purchase
+            setTimeout(() => {
+                loadHistory();
+                loadPaymentHistory();
+            }, 1500); // Small delay to ensure DB has updated
 
         } catch (error) {
             // Silently handle errors
         } finally {
-            // 4. Reset Animation (This runs whether success or fail)
+            // 5. Reset Animation (This runs whether success or fail)
             btnElement.innerHTML = originalText;
             btnElement.classList.remove('loading');
             btnElement.disabled = false;
@@ -1239,7 +1271,7 @@
             }
             
             // Try Supabase session
-            if (!token) {
+            if (!token && typeof supabase !== 'undefined' && supabase.auth) {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session && session.access_token) {
                     token = session.access_token;
@@ -1422,27 +1454,27 @@
     async function loadPaymentHistory(tokenOverride = null) {
         try {
             let token = tokenOverride;
-            
+
             // Try multiple token sources if override not provided
             if (!token) {
                 // Try AuthManager
                 if (window.AuthManager && typeof window.AuthManager.getToken === 'function') {
                     token = window.AuthManager.getToken();
                 }
-                
+
                 // Try sessionStorage
                 if (!token) {
                     token = sessionStorage.getItem('sb-access-token');
                 }
-                
+
                 // Try localStorage
                 if (!token) {
                     token = localStorage.getItem('sb-access-token');
                 }
-                
+
                 // Try Supabase session
-                if (!token) {
-                    const { data: { session } } = await supabase.auth.getSession();
+                if (!token && window.supabaseClient) {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
                     if (session && session.access_token) {
                         token = session.access_token;
                     }
@@ -1455,18 +1487,18 @@
                 `;
                 return;
             }
-            
-            const headers = { 
+
+            const headers = {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             };
 
             const response = await fetch('/api/payments/history', { headers });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
+
             const data = await response.json();
 
             if (data.success) {
@@ -1487,10 +1519,10 @@
 
                 tbody.innerHTML = data.payments.map(payment => {
                     const dateStr = new Date(payment.created_at).toLocaleDateString() + ' ' + new Date(payment.created_at).toLocaleTimeString();
-                    const statusBadgeClass = payment.status === 'completed' ? 'badge-success' : 
-                                            payment.status === 'failed' ? 'badge-danger' : 
-                                            'badge-warning';
-                    
+                    const statusBadgeClass = payment.status === 'completed' ? 'badge-success' :
+                        payment.status === 'failed' ? 'badge-danger' :
+                            'badge-warning';
+
                     if (isAdmin) {
                         return `
                             <tr>
@@ -1540,34 +1572,30 @@
         loadPaymentHistory();
     };
 
-    // Auto-refresh history every 5 seconds to show new tool usage
+    // Auto-refresh history every 30 seconds (not 5 - too aggressive)
     let historyRefreshInterval = null;
-    
+
     function startHistoryRefresh() {
         if (historyRefreshInterval) {
             clearInterval(historyRefreshInterval);
         }
-        // Initial load
-        loadHistory();
-        loadPaymentHistory();
-        // Refresh every 5 seconds
+        // Don't load here - already loaded in main init
+        // Refresh every 30 seconds
         historyRefreshInterval = setInterval(() => {
             loadHistory();
-        }, 5000);
+        }, 30000);
     }
-    
+
     function stopHistoryRefresh() {
         if (historyRefreshInterval) {
             clearInterval(historyRefreshInterval);
             historyRefreshInterval = null;
         }
     }
-    
-    // Start refresh when page loads
-    document.addEventListener('DOMContentLoaded', () => {
-        startHistoryRefresh();
-    });
-    
+
+    // Start periodic refresh after initial load
+    setTimeout(() => startHistoryRefresh(), 5000);
+
     // Stop refresh when user leaves the page
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {

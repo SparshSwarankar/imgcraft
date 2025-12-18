@@ -2,6 +2,16 @@
 <html lang="en">
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17044622268">
+    </script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'AW-17044622268');
+    </script>
     <!-- ADS FEATURE REMOVED -->
     <!-- <meta name="google-adsense-account" content="ca-pub-5547900968688861"> -->
 
@@ -124,9 +134,8 @@
     <nav class="navbar glass">
         <div class="container nav-content">
             <a href="/" class="logo">
-                <img src="/static/image/Logo.jpg" alt="ImgCraft AI Logo" height="28" width="28"
-                    style="border-radius: 6px;">
-                ImgCraft
+                <img src="/static/image/Logo.jpg" alt="ImgCraft AI Logo" class="logo-img">
+                <span class="logo-text">ImgCraft</span>
             </a>
 
             <!-- Mobile: Credits & Auth (always visible) -->
@@ -238,7 +247,11 @@
                                     <strong id="streakPopoverLongest">0 days</strong>
                                 </div>
                                 <div class="popover-footer">
-                                    Keep it up! 🔥
+                                    <span>Keep it up! 🔥</span>
+                                    <button id="streakNotifBtn" class="notif-toggle-btn"
+                                        onclick="enableStreakNotifications()" title="Enable streak reminders">
+                                        <i class="fas fa-bell"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
