@@ -230,12 +230,12 @@ VALUES (
 -- ============================================
 -- This function automatically creates a user profile and credits when a new user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS TRIGGER AS $$ BEGIN -- Insert user profile
-        INSERT INTO public.user_profiles (id, email, full_name)
-        VALUES (
-                NEW.id,
-                NEW.email,
-                NEW.raw_user_meta_data->>'full_name'
-            );
+INSERT INTO public.user_profiles (id, email, full_name)
+VALUES (
+        NEW.id,
+        NEW.email,
+        NEW.raw_user_meta_data->>'full_name'
+    );
 -- Insert user credits with 10 free credits
 INSERT INTO public.user_credits (
         user_id,
@@ -376,9 +376,6 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- You can now use the ImgCraft authentication and credit system
 -- To verify the setup, run:
 -- SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
-
-
-
 -- ============================================================================
 -- ImgCraft Ad-Free System Migration
 -- ============================================================================
@@ -391,24 +388,19 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 4. Create ad_free_purchases table for transaction history
 -- 5. Add indexes for efficient queries
 -- ============================================================================
-
 -- ============================================================================
 -- 1. ALTER user_profiles TABLE
 -- ============================================================================
-
 ALTER TABLE user_profiles
 ADD COLUMN ad_free BOOLEAN DEFAULT false COMMENT 'User has purchased ad-free experience',
-ADD COLUMN ad_free_purchased_at TIMESTAMP NULL DEFAULT NULL COMMENT 'When user purchased ad-free',
-ADD COLUMN ad_free_razorpay_order_id VARCHAR(255) NULL DEFAULT NULL COMMENT 'Razorpay order ID for audit trail';
-
+    ADD COLUMN ad_free_purchased_at TIMESTAMP NULL DEFAULT NULL COMMENT 'When user purchased ad-free',
+    ADD COLUMN ad_free_razorpay_order_id VARCHAR(255) NULL DEFAULT NULL COMMENT 'Razorpay order ID for audit trail';
 -- Add index for efficient ad_free queries (used in template rendering)
 CREATE INDEX idx_user_profiles_ad_free ON user_profiles(ad_free);
-
 -- ============================================================================
 -- 2. CREATE ad_free_purchases TABLE
 -- ============================================================================
 -- Tracks all ad-free purchase transactions
-
 CREATE TABLE ad_free_purchases (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -425,30 +417,22 @@ CREATE TABLE ad_free_purchases (
     refunded_at TIMESTAMP NULL,
     notes TEXT NULL
 );
-
 -- Create indexes for efficient lookups
 CREATE INDEX idx_ad_free_purchases_user_id ON ad_free_purchases(user_id);
 CREATE INDEX idx_ad_free_purchases_razorpay_order_id ON ad_free_purchases(razorpay_order_id);
 CREATE INDEX idx_ad_free_purchases_razorpay_payment_id ON ad_free_purchases(razorpay_payment_id);
 CREATE INDEX idx_ad_free_purchases_status ON ad_free_purchases(status);
 CREATE INDEX idx_ad_free_purchases_created_at ON ad_free_purchases(created_at);
-
 -- ============================================================================
 -- 3. RLS POLICIES FOR ad_free_purchases TABLE
 -- ============================================================================
 -- Enable Row Level Security
-
 ALTER TABLE ad_free_purchases ENABLE ROW LEVEL SECURITY;
-
 -- Users can view their own purchase history
-CREATE POLICY "users_can_view_own_ad_free_purchases"
-ON ad_free_purchases
-FOR SELECT
-USING (auth.uid() = user_id);
-
+CREATE POLICY "users_can_view_own_ad_free_purchases" ON ad_free_purchases FOR
+SELECT USING (auth.uid() = user_id);
 -- Service role can insert/update (from backend)
 -- Note: These are handled via service role key, so no specific policy needed
-
 -- ============================================================================
 -- 4. SCHEMA DOCUMENTATION
 -- ============================================================================
@@ -476,44 +460,41 @@ USING (auth.uid() = user_id);
 -- - Max 3 ad units per page
 -- - Proper spacing from buttons/forms
 -- ============================================================================
-
 -- ============================================================================
 -- 5. CREATE contact_submissions TABLE
 -- ============================================================================
 -- Stores all contact form submissions from users
-
 CREATE TABLE IF NOT EXISTS contact_submissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    subject VARCHAR(200) NOT NULL,
-    message TEXT NOT NULL,
-    status VARCHAR(50) DEFAULT 'new',
-    ip_address VARCHAR(45) NULL,
-    user_agent TEXT NULL,
-    response_message TEXT NULL,
-    responded_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    responded_at TIMESTAMP NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id UUID REFERENCES auth.users(id) ON DELETE
+    SET NULL,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        subject VARCHAR(200) NOT NULL,
+        message TEXT NOT NULL,
+        status VARCHAR(50) DEFAULT 'new',
+        ip_address VARCHAR(45) NULL,
+        user_agent TEXT NULL,
+        response_message TEXT NULL,
+        responded_by UUID REFERENCES auth.users(id) ON DELETE
+    SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        responded_at TIMESTAMP NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 -- Create indexes for efficient lookups
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_user_id ON contact_submissions(user_id);
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_email ON contact_submissions(email);
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_status ON contact_submissions(status);
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON contact_submissions(created_at DESC);
-
 -- Enable Row Level Security
 ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
-
 -- RLS Policy: Users can view their own submissions
-CREATE POLICY "users_can_view_own_contact_submissions"
-ON contact_submissions
-FOR SELECT
-USING (auth.uid() = user_id OR user_id IS NULL);
-
+CREATE POLICY "users_can_view_own_contact_submissions" ON contact_submissions FOR
+SELECT USING (
+        auth.uid() = user_id
+        OR user_id IS NULL
+    );
 -- ============================================================================
 -- SCHEMA DOCUMENTATION FOR CONTACT SUBMISSIONS
 -- ============================================================================
@@ -533,3 +514,195 @@ USING (auth.uid() = user_id OR user_id IS NULL);
 -- - responded_at: When support team responded
 -- - updated_at: Last modification time
 -- ============================================================================
+-- ============================================================================
+-- STREAK TRACKING SYSTEM - SUPABASE MIGRATION
+-- ============================================================================
+-- This migration creates the streaks table and associated functions
+-- Execute this in Supabase SQL Editor
+-- ============================================================================
+-- Create streaks table
+CREATE TABLE IF NOT EXISTS streaks (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    current_streak INTEGER DEFAULT 0 NOT NULL,
+    longest_streak INTEGER DEFAULT 0 NOT NULL,
+    last_active_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id)
+);
+-- Create index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_streaks_user_id ON streaks(user_id);
+-- Enable Row Level Security
+ALTER TABLE streaks ENABLE ROW LEVEL SECURITY;
+-- Policy: Users can read their own streaks
+CREATE POLICY "Users can view own streak" ON streaks FOR
+SELECT USING (auth.uid() = user_id);
+-- Policy: Service role can manage all streaks
+CREATE POLICY "Service role can manage streaks" ON streaks FOR ALL USING (auth.role() = 'service_role');
+-- ============================================================================
+-- FUNCTION: update_streak
+-- ============================================================================
+-- Updates user's streak based on last active date
+-- Returns JSON with streak status and motivational message
+-- ============================================================================
+CREATE OR REPLACE FUNCTION update_streak(p_user_id UUID) RETURNS JSON AS $$
+DECLARE v_streak_record RECORD;
+v_today DATE := CURRENT_DATE;
+v_yesterday DATE := CURRENT_DATE - INTERVAL '1 day';
+v_new_streak INTEGER;
+v_new_longest INTEGER;
+BEGIN -- Get or create streak record
+SELECT * INTO v_streak_record
+FROM streaks
+WHERE user_id = p_user_id;
+IF NOT FOUND THEN -- First time user - create record
+INSERT INTO streaks (
+        user_id,
+        current_streak,
+        longest_streak,
+        last_active_date,
+        updated_at
+    )
+VALUES (p_user_id, 1, 1, v_today, NOW())
+RETURNING * INTO v_streak_record;
+RETURN json_build_object(
+    'success',
+    true,
+    'current_streak',
+    1,
+    'longest_streak',
+    1,
+    'streak_status',
+    'started',
+    'message',
+    'Start your streak today by using your first tool.'
+);
+END IF;
+-- Check if already active today
+IF v_streak_record.last_active_date = v_today THEN RETURN json_build_object(
+    'success',
+    true,
+    'current_streak',
+    v_streak_record.current_streak,
+    'longest_streak',
+    v_streak_record.longest_streak,
+    'streak_status',
+    'maintained',
+    'message',
+    'Streak maintained for today!'
+);
+END IF;
+-- Check if active yesterday (streak continues)
+IF v_streak_record.last_active_date = v_yesterday THEN v_new_streak := v_streak_record.current_streak + 1;
+v_new_longest := GREATEST(v_new_streak, v_streak_record.longest_streak);
+UPDATE streaks
+SET current_streak = v_new_streak,
+    longest_streak = v_new_longest,
+    last_active_date = v_today,
+    updated_at = NOW()
+WHERE user_id = p_user_id;
+RETURN json_build_object(
+    'success',
+    true,
+    'current_streak',
+    v_new_streak,
+    'longest_streak',
+    v_new_longest,
+    'streak_status',
+    'continued',
+    'message',
+    format(
+        '🔥 You''ve continued your streak! Day %s in a row!',
+        v_new_streak
+    )
+);
+ELSE -- Streak broken - reset to 1
+v_new_longest := v_streak_record.longest_streak;
+UPDATE streaks
+SET current_streak = 1,
+    longest_streak = v_new_longest,
+    last_active_date = v_today,
+    updated_at = NOW()
+WHERE user_id = p_user_id;
+RETURN json_build_object(
+    'success',
+    true,
+    'current_streak',
+    1,
+    'longest_streak',
+    v_new_longest,
+    'streak_status',
+    'reset',
+    'message',
+    'Your streak was reset. Start fresh today! 💪'
+);
+END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- ============================================================================
+-- FUNCTION: get_streak
+-- ============================================================================
+-- Retrieves user's current streak data
+-- Returns JSON with streak information
+-- ============================================================================
+CREATE OR REPLACE FUNCTION get_streak(p_user_id UUID) RETURNS JSON AS $$
+DECLARE v_streak_record RECORD;
+BEGIN
+SELECT * INTO v_streak_record
+FROM streaks
+WHERE user_id = p_user_id;
+IF NOT FOUND THEN RETURN json_build_object(
+    'success',
+    true,
+    'current_streak',
+    0,
+    'longest_streak',
+    0,
+    'last_active_date',
+    NULL,
+    'message',
+    'No streak yet. Start today!'
+);
+END IF;
+RETURN json_build_object(
+    'success',
+    true,
+    'current_streak',
+    v_streak_record.current_streak,
+    'longest_streak',
+    v_streak_record.longest_streak,
+    'last_active_date',
+    v_streak_record.last_active_date
+);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- ============================================================================
+-- FUTURE EXPANSION: Leaderboard View (Commented Out)
+-- ============================================================================
+-- Uncomment when implementing leaderboard feature
+/*
+ CREATE OR REPLACE VIEW streak_leaderboard AS
+ SELECT 
+ s.user_id,
+ s.longest_streak,
+ s.current_streak,
+ s.last_active_date
+ FROM streaks s
+ ORDER BY s.longest_streak DESC, s.current_streak DESC
+ LIMIT 100;
+ */
+-- ============================================================================
+-- FUTURE EXPANSION: Milestone Rewards Table (Commented Out)
+-- ============================================================================
+-- Uncomment when implementing milestone rewards
+/*
+ CREATE TABLE IF NOT EXISTS streak_milestones (
+ id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+ user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+ milestone_days INTEGER NOT NULL,
+ reward_credits INTEGER NOT NULL,
+ achieved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+ UNIQUE(user_id, milestone_days)
+ );
+ */

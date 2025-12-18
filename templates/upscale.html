@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}AI Image Upscaler – ImgCraft{% endblock %}
 
-{% block meta_description %}Upscale images by 2x or 4x using AI. Enhance photo resolution, fix blurry photos, and restore old images instantly.{% endblock %}
+{% block meta_description %}Upscale images by 2x or 4x using AI. Enhance photo resolution, fix blurry photos, and
+restore old images instantly.{% endblock %}
 
 {% block meta_keywords %}ai image upscaler free, upscale image online, enhance photo resolution, increase image quality,
 2x upscale, 4x upscale, ai photo enhancer, super resolution ai, fix blurry photos online, depixelate image, improve
@@ -17,7 +18,8 @@ resolution enhancer, imgcraft upscale{% endblock %}
 
 {% block og_title %}AI Image Upscaler – ImgCraft{% endblock %}
 
-{% block og_description %}Transform low-resolution images into HD with AI. Upscale by 2x or 4x and fix blurry photos automatically.{% endblock %}
+{% block og_description %}Transform low-resolution images into HD with AI. Upscale by 2x or 4x and fix blurry photos
+automatically.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -43,6 +45,18 @@ resolution enhancer, imgcraft upscale{% endblock %}
                         <span class="file-info-label">File Weight:</span>
                         <span class="file-info-value" id="fileSize">-</span>
                     </div>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow" style="display: none;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
 
                 <hr class="panel-divider">

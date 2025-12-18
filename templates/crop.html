@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}Image Cropper – ImgCraft{% endblock %}
 
-{% block meta_description %}Crop images with preset aspect ratios for Instagram, YouTube, and TikTok. Rotate, flip, and zoom with precision tools.{% endblock %}
+{% block meta_description %}Crop images with preset aspect ratios for Instagram, YouTube, and TikTok. Rotate, flip, and
+zoom with precision tools.{% endblock %}
 
 {% block meta_keywords %}crop image online free, photo cropper tool, crop picture online, image cropper, cut photo
 online, trim image, crop to aspect ratio, crop for instagram, crop for youtube, crop for facebook, crop for tiktok, 1:1
@@ -16,7 +17,8 @@ crop, batch crop images, quick photo crop, instant image crop, professional crop
 
 {% block og_title %}Image Cropper – ImgCraft{% endblock %}
 
-{% block og_description %}Perfect dimensions for social media with preset aspect ratios. Includes rotate, flip, and professional grid overlays.{% endblock %}
+{% block og_description %}Perfect dimensions for social media with preset aspect ratios. Includes rotate, flip, and
+professional grid overlays.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -70,6 +72,19 @@ crop, batch crop images, quick photo crop, instant image crop, professional crop
                 <div class="file-meta-row">
                     <span class="label">Dimensions:</span>
                     <span class="value" id="fileDimensions">-</span>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow"
+                    style="display: none; margin-top: 12px;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
             </div>
 

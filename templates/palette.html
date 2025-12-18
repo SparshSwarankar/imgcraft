@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}Color Palette Generator – ImgCraft{% endblock %}
 
-{% block meta_description %}Extract dominant colors and HEX codes from images. Perfect for designers creating brand palettes and color schemes.{% endblock %}
+{% block meta_description %}Extract dominant colors and HEX codes from images. Perfect for designers creating brand
+palettes and color schemes.{% endblock %}
 
 {% block meta_keywords %}color palette generator free, extract colors from image, image to color palette, hex code
 extractor, rgb color picker from image, dominant color finder, color scheme generator, brand color extractor, design
@@ -16,7 +17,8 @@ palette generator, color extraction ai, design palette tool, imgcraft palette{% 
 
 {% block og_title %}Color Palette Generator – ImgCraft{% endblock %}
 
-{% block og_description %}Extract color schemes with HEX and RGB codes from any image. Free tool for web designers and brand developers.{% endblock %}
+{% block og_description %}Extract color schemes with HEX and RGB codes from any image. Free tool for web designers and
+brand developers.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -38,6 +40,18 @@ palette generator, color extraction ai, design palette tool, imgcraft palette{% 
                         <span class="file-info-label">Size:</span>
                         <span class="file-info-value" id="fileSize">-</span>
                     </div>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow" style="display: none;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
 
                 <hr class="panel-divider">

@@ -377,6 +377,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     StreakManager.updateStreak();
                 }
 
+                // Calculate and display Web-Ready Score
+                if (window.WebReadyScore) {
+                    const blob = xhr.response;
+                    const img = new Image();
+                    img.onload = () => {
+                        const scoreData = WebReadyScore.calculateScore({
+                            blob: blob,
+                            width: img.width,
+                            height: img.height,
+                            format: blob.type.split('/')[1],
+                            hasMetadata: false // Collage is a new composite image
+                        });
+
+                        if (scoreData) {
+                            WebReadyScore.displayScore('webReadyScoreRow', scoreData);
+                        }
+                    };
+                    img.src = url;
+                }
+
                 // Hide unified loading UI
                 if (window.ImgCraftBusyUI) {
                     window.ImgCraftBusyUI.hideLoading();

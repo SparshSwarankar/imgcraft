@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}Background Remover – ImgCraft{% endblock %}
 
-{% block meta_description %}Remove backgrounds instantly with AI. Create transparent PNGs for products, logos, and portraits in seconds.{% endblock %}
+{% block meta_description %}Remove backgrounds instantly with AI. Create transparent PNGs for products, logos, and
+portraits in seconds.{% endblock %}
 
 {% block meta_keywords %}remove background online free, ai background remover, transparent background maker, background
 eraser tool, remove bg from image, create transparent png, cut out background, erase background online, ai background
@@ -18,7 +19,8 @@ professional background remover, imgcraft background remover{% endblock %}
 
 {% block og_title %}Background Remover – ImgCraft{% endblock %}
 
-{% block og_description %}AI-powered background removal in 5 seconds. Perfect for e-commerce and profile pictures with no watermarks.{% endblock %}
+{% block og_description %}AI-powered background removal in 5 seconds. Perfect for e-commerce and profile pictures with
+no watermarks.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -40,6 +42,18 @@ professional background remover, imgcraft background remover{% endblock %}
                         <span class="file-info-label">Size:</span>
                         <span class="file-info-value" id="fileSize">-</span>
                     </div>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow" style="display: none;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
 
                 <hr class="panel-divider">

@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}Image Compressor – ImgCraft{% endblock %}
 
-{% block meta_description %}Compress images up to 80% without losing quality. Optimize JPG, PNG, and WebP for faster websites and better SEO.{% endblock %}
+{% block meta_description %}Compress images up to 80% without losing quality. Optimize JPG, PNG, and WebP for faster
+websites and better SEO.{% endblock %}
 
 {% block meta_keywords %}compress image online free, reduce image file size, image compressor tool, optimize images for
 web, reduce jpg size, compress png online, webp compressor, reduce image size in kb, reduce image size in mb, image
@@ -15,7 +16,8 @@ compress for faster loading, image quality optimizer, smart compression tool, im
 
 {% block og_title %}Image Compressor – ImgCraft{% endblock %}
 
-{% block og_description %}Reduce image file size by 80% without quality loss. Smart compression for faster websites and email attachments.{% endblock %}
+{% block og_description %}Reduce image file size by 80% without quality loss. Smart compression for faster websites and
+email attachments.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -45,6 +47,18 @@ compress for faster loading, image quality optimizer, smart compression tool, im
                         <span class="file-info-label">Dimensions:</span>
                         <span class="file-info-value" id="fileDimensions">-</span>
                     </div>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow" style="display: none;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
 
                 <div class="stats-container" id="statsContainer" style="display: none;">

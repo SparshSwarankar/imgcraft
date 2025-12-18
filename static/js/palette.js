@@ -128,6 +128,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     StreakManager.updateStreak();
                 }
 
+                // Calculate and display Web-Ready Score for uploaded image
+                if (window.WebReadyScore && currentFile) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const scoreData = WebReadyScore.calculateScore({
+                                blob: currentFile,
+                                width: img.width,
+                                height: img.height,
+                                format: currentFile.type.split('/')[1],
+                                hasMetadata: undefined // Unknown for uploaded image
+                            });
+
+                            if (scoreData) {
+                                WebReadyScore.displayScore('webReadyScoreRow', scoreData);
+                            }
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(currentFile);
+                }
+
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Failed to generate palette');
                 showToast(errorMessage, 'error');

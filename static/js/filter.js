@@ -302,6 +302,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (window.StreakManager) {
                         StreakManager.updateStreak();
                     }
+
+                    // Calculate and display Web-Ready Score
+                    if (window.WebReadyScore) {
+                        const img = new Image();
+                        img.onload = () => {
+                            const scoreData = WebReadyScore.calculateScore({
+                                blob: blob,
+                                width: img.width,
+                                height: img.height,
+                                format: blob.type.split('/')[1],
+                                hasMetadata: undefined // Filter preserves metadata status
+                            });
+
+                            if (scoreData) {
+                                WebReadyScore.displayScore('webReadyScoreRow', scoreData);
+                            }
+                        };
+                        img.src = url;
+                    }
                 } else {
                     const errorMessage = await parseErrorResponse(response, 'Failed to apply filters');
                     showToast(errorMessage, 'error');

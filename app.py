@@ -240,7 +240,7 @@ def get_session(current_user):
 
 @app.route('/api/auth/signup', methods=['POST'])
 def auth_signup():
-    """Register a new user"""
+    """Register a new user and send verification email"""
     try:
         data = request.get_json()
         email = data.get('email')
@@ -263,9 +263,49 @@ def auth_signup():
         })
         
         if res.user:
+            # Generate verification token
+            try:
+                import secrets
+                import hashlib
+                from datetime import datetime, timedelta
+                
+                # Generate a secure random token
+                verification_token = secrets.token_urlsafe(32)
+                token_hash = hashlib.sha256(verification_token.encode()).hexdigest()
+                
+                # Store token in database with expiry (24 hours)
+                expiry = datetime.utcnow() + timedelta(hours=24)
+                
+                token_data = {
+                    'user_id': res.user.id,
+                    'token_hash': token_hash,
+                    'email': email,
+                    'expires_at': expiry.isoformat(),
+                    'verified': False
+                }
+                
+                # Delete any existing tokens for this user
+                supabase_admin.table('email_verification_tokens').delete().eq('user_id', res.user.id).execute()
+                
+                # Insert new token
+                supabase_admin.table('email_verification_tokens').insert(token_data).execute()
+                
+                # Create verification URL
+                verification_url = f"{request.host_url.rstrip('/')}/api/auth/verify-email?token={verification_token}"
+                
+                # Send verification email
+                send_verification_email(email, verification_url, full_name)
+                
+                logger.info(f"User registered and verification email sent to: {email}")
+                
+            except Exception as e:
+                logger.error(f"Error sending verification email: {str(e)}")
+                logger.error(traceback.format_exc())
+                # Don't fail signup if email fails
+            
             return jsonify({
                 'success': True,
-                'message': 'Registration successful. Please check your email to verify your account.',
+                'message': 'Registration successful! Please check your email to verify your account.',
                 'user': {
                     'id': res.user.id,
                     'email': res.user.email
@@ -364,6 +404,707 @@ def auth_logout(current_user):
         return jsonify({'success': True, 'message': 'Logged out successfully'})
     except Exception as e:
         logger.error(f"Logout error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/auth/forgot-password', methods=['POST'])
+def auth_forgot_password():
+    """Send password reset email using custom email system"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        
+        if not email:
+            return jsonify({'success': False, 'error': 'Email is required'}), 400
+        
+        # Check if user exists
+        try:
+            user_check = supabase_admin.table('user_profiles').select('id, email').eq('email', email.lower()).execute()
+            
+            if not user_check.data or len(user_check.data) == 0:
+                # Don't reveal if email exists (security best practice)
+                logger.info(f"Password reset requested for non-existent email: {email}")
+                return jsonify({
+                    'success': True,
+                    'message': 'If an account exists with this email, a password reset link has been sent.'
+                })
+            
+            user_id = user_check.data[0]['id']
+            
+        except Exception as e:
+            logger.error(f"Error checking user: {str(e)}")
+            return jsonify({'success': False, 'error': 'Database error'}), 500
+        
+        # Generate password reset token using Supabase
+        supabase = get_supabase_client()
+        
+        try:
+            # Use Supabase to generate the reset token but we'll send our own email
+            # This creates a secure token in Supabase's system
+            import secrets
+            import hashlib
+            from datetime import datetime, timedelta
+            
+            # Generate a secure random token
+            reset_token = secrets.token_urlsafe(32)
+            token_hash = hashlib.sha256(reset_token.encode()).hexdigest()
+            
+            # Store token in database with expiry (1 hour)
+            expiry = datetime.utcnow() + timedelta(hours=1)
+            
+            # Create or update password_reset_tokens table entry
+            token_data = {
+                'user_id': user_id,
+                'token_hash': token_hash,
+                'expires_at': expiry.isoformat(),
+                'used': False
+            }
+            
+            # Delete any existing tokens for this user
+            supabase_admin.table('password_reset_tokens').delete().eq('user_id', user_id).execute()
+            
+            # Insert new token
+            supabase_admin.table('password_reset_tokens').insert(token_data).execute()
+            
+            # Create reset URL
+            reset_url = f"{request.host_url.rstrip('/')}/auth?reset_token={reset_token}"
+            
+            # Send custom email
+            send_password_reset_email(email, reset_url)
+            
+            logger.info(f"Password reset email sent to: {email}")
+            
+            return jsonify({
+                'success': True,
+                'message': 'If an account exists with this email, a password reset link has been sent.'
+            })
+            
+        except Exception as e:
+            logger.error(f"Error generating reset token: {str(e)}")
+            logger.error(traceback.format_exc())
+            return jsonify({'success': False, 'error': 'Failed to generate reset link'}), 500
+        
+    except Exception as e:
+        logger.error(f"Forgot password error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+def send_password_reset_email(to_email, reset_url):
+    """Send password reset email using custom SMTP or email service"""
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        
+        # Email configuration from environment variables
+        smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+        smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        smtp_username = os.getenv('SMTP_USERNAME', '')
+        smtp_password = os.getenv('SMTP_PASSWORD', '')
+        from_email = os.getenv('FROM_EMAIL', smtp_username)
+        from_name = os.getenv('FROM_NAME', 'ImgCraft')
+        
+        if not smtp_username or not smtp_password:
+            logger.warning("SMTP credentials not configured. Email not sent.")
+            logger.warning(f"Reset URL (for testing): {reset_url}")
+            return
+        
+        # Create email
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'Reset Your ImgCraft Password'
+        msg['From'] = f'{from_name} <{from_email}>'
+        msg['To'] = to_email
+        
+        # Email body (HTML)
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                * {{
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }}
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    background-color: #f4f4f4;
+                    padding: 20px;
+                }}
+                .email-wrapper {{
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: #ffffff;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                }}
+                .header {{
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+                    color: white;
+                    padding: 40px 30px;
+                    text-align: center;
+                }}
+                .header h1 {{
+                    font-size: 28px;
+                    font-weight: 700;
+                    margin: 0;
+                    letter-spacing: -0.5px;
+                }}
+                .header .emoji {{
+                    font-size: 48px;
+                    display: block;
+                    margin-bottom: 10px;
+                }}
+                .content {{
+                    padding: 40px 30px;
+                    background: #ffffff;
+                }}
+                .content p {{
+                    margin-bottom: 20px;
+                    font-size: 16px;
+                    color: #555;
+                }}
+                .content p:first-child {{
+                    font-size: 18px;
+                    color: #333;
+                    font-weight: 500;
+                }}
+                .button-container {{
+                    text-align: center;
+                    margin: 35px 0;
+                }}
+                .button {{
+                    display: inline-block;
+                    padding: 16px 40px;
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+                    color: white !important;
+                    text-decoration: none;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    font-size: 16px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                    transition: all 0.3s ease;
+                }}
+                .button:hover {{
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+                }}
+                .divider {{
+                    margin: 30px 0;
+                    border: 0;
+                    border-top: 1px solid #e0e0e0;
+                }}
+                .info-box {{
+                    background: #f8f9fa;
+                    border-left: 4px solid #ff6b6b;
+                    padding: 15px 20px;
+                    margin: 25px 0;
+                    border-radius: 4px;
+                }}
+                .info-box p {{
+                    margin: 0;
+                    font-size: 14px;
+                    color: #666;
+                }}
+                .info-box strong {{
+                    color: #ff6b6b;
+                    font-weight: 600;
+                }}
+                .footer {{
+                    background: #f8f9fa;
+                    padding: 25px 30px;
+                    text-align: center;
+                    border-top: 1px solid #e0e0e0;
+                }}
+                .footer p {{
+                    margin: 5px 0;
+                    font-size: 13px;
+                    color: #999;
+                }}
+                .footer a {{
+                    color: #ff6b6b;
+                    text-decoration: none;
+                }}
+                @media only screen and (max-width: 600px) {{
+                    .email-wrapper {{
+                        border-radius: 0;
+                    }}
+                    .header {{
+                        padding: 30px 20px;
+                    }}
+                    .header h1 {{
+                        font-size: 24px;
+                    }}
+                    .content {{
+                        padding: 30px 20px;
+                    }}
+                    .button {{
+                        padding: 14px 30px;
+                        font-size: 15px;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-wrapper">
+                <div class="header">
+                    <span class="emoji">🔐</span>
+                    <h1>Password Reset Request</h1>
+                </div>
+                
+                <div class="content">
+                    <p>Hello there,</p>
+                    
+                    <p>We received a request to reset your ImgCraft password. Click the button below to create a new password:</p>
+                    
+                    <div class="button-container">
+                        <a href="{reset_url}" class="button">Reset My Password</a>
+                    </div>
+                    
+                    <hr class="divider">
+                    
+                    <p style="font-size: 14px; color: #777;">If the button above doesn't work, copy and paste this link into your browser:</p>
+                    <p style="font-size: 13px; word-break: break-all; color: #ff6b6b; background: #fff5f5; padding: 12px; border-radius: 6px; border: 1px solid #ffe0e0;">{reset_url}</p>
+                    
+                    <div class="info-box">
+                        <p><strong>⏰ Important:</strong> This link will expire in 1 hour for security reasons.</p>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #777;">If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+                    
+                    <p style="margin-top: 30px; font-size: 15px;">Best regards,<br><strong>The ImgCraft Team</strong></p>
+                </div>
+                
+                <div class="footer">
+                    <p>© 2025 ImgCraft. All rights reserved.</p>
+                    <p>This is an automated message, please do not reply to this email.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Plain text version
+        text_body = f"""
+        Password Reset Request
+        
+        Hello,
+        
+        We received a request to reset your ImgCraft password.
+        
+        Click this link to reset your password:
+        {reset_url}
+        
+        This link will expire in 1 hour.
+        
+        If you didn't request this password reset, you can safely ignore this email.
+        
+        Best regards,
+        The ImgCraft Team
+        """
+        
+        # Attach both versions
+        part1 = MIMEText(text_body, 'plain')
+        part2 = MIMEText(html_body, 'html')
+        msg.attach(part1)
+        msg.attach(part2)
+        
+        # Send email
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.send_message(msg)
+        
+        logger.info(f"Password reset email sent successfully to {to_email}")
+        
+    except Exception as e:
+        logger.error(f"Failed to send password reset email: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise
+
+@app.route('/api/auth/reset-password', methods=['POST'])
+def auth_reset_password():
+    """Reset password with custom token"""
+    try:
+        data = request.get_json()
+        reset_token = data.get('reset_token')
+        new_password = data.get('password')
+        
+        if not reset_token:
+            return jsonify({'success': False, 'error': 'Reset token is required'}), 400
+        
+        if not new_password:
+            return jsonify({'success': False, 'error': 'New password is required'}), 400
+        
+        if len(new_password) < 6:
+            return jsonify({'success': False, 'error': 'Password must be at least 6 characters'}), 400
+        
+        # Hash the token to compare with database
+        import hashlib
+        from datetime import datetime
+        
+        token_hash = hashlib.sha256(reset_token.encode()).hexdigest()
+        
+        # Find token in database
+        try:
+            token_result = supabase_admin.table('password_reset_tokens')\
+                .select('*')\
+                .eq('token_hash', token_hash)\
+                .eq('used', False)\
+                .execute()
+            
+            if not token_result.data or len(token_result.data) == 0:
+                return jsonify({'success': False, 'error': 'Invalid or expired reset token'}), 400
+            
+            token_data = token_result.data[0]
+            
+            # Check if token is expired
+            expires_at = datetime.fromisoformat(token_data['expires_at'].replace('Z', '+00:00'))
+            if datetime.utcnow().replace(tzinfo=expires_at.tzinfo) > expires_at:
+                return jsonify({'success': False, 'error': 'Reset token has expired'}), 400
+            
+            user_id = token_data['user_id']
+            
+            # Update password using Supabase admin
+            update_result = supabase_admin.auth.admin.update_user_by_id(
+                user_id,
+                {'password': new_password}
+            )
+            
+            if update_result:
+                # Mark token as used
+                supabase_admin.table('password_reset_tokens')\
+                    .update({'used': True})\
+                    .eq('token_hash', token_hash)\
+                    .execute()
+                
+                logger.info(f"Password reset successful for user: {user_id}")
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Password reset successfully'
+                })
+            else:
+                return jsonify({'success': False, 'error': 'Failed to update password'}), 500
+                
+        except Exception as e:
+            logger.error(f"Token validation error: {str(e)}")
+            logger.error(traceback.format_exc())
+            return jsonify({'success': False, 'error': 'Invalid reset token'}), 400
+        
+    except Exception as e:
+        logger.error(f"Reset password error: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ============================================================================
+# EMAIL VERIFICATION ENDPOINTS
+# ============================================================================
+
+def send_verification_email(to_email, verification_url, user_name=""):
+    """Send email verification email using custom SMTP"""
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        
+        # Email configuration from environment variables
+        smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+        smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        smtp_username = os.getenv('SMTP_USERNAME', '')
+        smtp_password = os.getenv('SMTP_PASSWORD', '')
+        from_email = os.getenv('FROM_EMAIL', smtp_username)
+        from_name = os.getenv('FROM_NAME', 'ImgCraft')
+        
+        if not smtp_username or not smtp_password:
+            logger.warning("SMTP credentials not configured. Verification email not sent.")
+            logger.warning(f"Verification URL (for testing): {verification_url}")
+            return
+        
+        # Create email
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'Verify Your ImgCraft Email Address'
+        msg['From'] = f'{from_name} <{from_email}>'
+        msg['To'] = to_email
+        
+        greeting = f"Hello {user_name}," if user_name else "Hello there,"
+        
+        # Email body (HTML)
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                * {{
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }}
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    background-color: #f4f4f4;
+                    padding: 20px;
+                }}
+                .email-wrapper {{
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: #ffffff;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                }}
+                .header {{
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+                    color: white;
+                    padding: 40px 30px;
+                    text-align: center;
+                }}
+                .header h1 {{
+                    font-size: 28px;
+                    font-weight: 700;
+                    margin: 0;
+                    letter-spacing: -0.5px;
+                }}
+                .header .emoji {{
+                    font-size: 48px;
+                    display: block;
+                    margin-bottom: 10px;
+                }}
+                .content {{
+                    padding: 40px 30px;
+                    background: #ffffff;
+                }}
+                .content p {{
+                    margin-bottom: 20px;
+                    font-size: 16px;
+                    color: #555;
+                }}
+                .content p:first-child {{
+                    font-size: 18px;
+                    color: #333;
+                    font-weight: 500;
+                }}
+                .button-container {{
+                    text-align: center;
+                    margin: 35px 0;
+                }}
+                .button {{
+                    display: inline-block;
+                    padding: 16px 40px;
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+                    color: white !important;
+                    text-decoration: none;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    font-size: 16px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                    transition: all 0.3s ease;
+                }}
+                .button:hover {{
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+                }}
+                .divider {{
+                    margin: 30px 0;
+                    border: 0;
+                    border-top: 1px solid #e0e0e0;
+                }}
+                .info-box {{
+                    background: #f8f9fa;
+                    border-left: 4px solid #ff6b6b;
+                    padding: 15px 20px;
+                    margin: 25px 0;
+                    border-radius: 4px;
+                }}
+                .info-box p {{
+                    margin: 0;
+                    font-size: 14px;
+                    color: #666;
+                }}
+                .info-box strong {{
+                    color: #ff6b6b;
+                    font-weight: 600;
+                }}
+                .footer {{
+                    background: #f8f9fa;
+                    padding: 25px 30px;
+                    text-align: center;
+                    border-top: 1px solid #e0e0e0;
+                }}
+                .footer p {{
+                    margin: 5px 0;
+                    font-size: 13px;
+                    color: #999;
+                }}
+                @media only screen and (max-width: 600px) {{
+                    .email-wrapper {{
+                        border-radius: 0;
+                    }}
+                    .header {{
+                        padding: 30px 20px;
+                    }}
+                    .header h1 {{
+                        font-size: 24px;
+                    }}
+                    .content {{
+                        padding: 30px 20px;
+                    }}
+                    .button {{
+                        padding: 14px 30px;
+                        font-size: 15px;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-wrapper">
+                <div class="header">
+                    <span class="emoji">✉️</span>
+                    <h1>Welcome to ImgCraft!</h1>
+                </div>
+                
+                <div class="content">
+                    <p>{greeting}</p>
+                    
+                    <p>Thank you for signing up for ImgCraft! We're excited to have you on board.</p>
+                    
+                    <p>To get started, please verify your email address by clicking the button below:</p>
+                    
+                    <div class="button-container">
+                        <a href="{verification_url}" class="button">Verify Email Address</a>
+                    </div>
+                    
+                    <hr class="divider">
+                    
+                    <p style="font-size: 14px; color: #777;">If the button above doesn't work, copy and paste this link into your browser:</p>
+                    <p style="font-size: 13px; word-break: break-all; color: #ff6b6b; background: #fff5f5; padding: 12px; border-radius: 6px; border: 1px solid #ffe0e0;">{verification_url}</p>
+                    
+                    <div class="info-box">
+                        <p><strong>⏰ Note:</strong> This verification link will expire in 24 hours.</p>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #777;">If you didn't create an account with ImgCraft, you can safely ignore this email.</p>
+                    
+                    <p style="margin-top: 30px; font-size: 15px;">Welcome aboard!<br><strong>The ImgCraft Team</strong></p>
+                </div>
+                
+                <div class="footer">
+                    <p>© 2025 ImgCraft. All rights reserved.</p>
+                    <p>This is an automated message, please do not reply to this email.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Plain text version
+        text_body = f"""
+        Welcome to ImgCraft!
+        
+        {greeting}
+        
+        Thank you for signing up for ImgCraft! We're excited to have you on board.
+        
+        To get started, please verify your email address by clicking this link:
+        {verification_url}
+        
+        This verification link will expire in 24 hours.
+        
+        If you didn't create an account with ImgCraft, you can safely ignore this email.
+        
+        Welcome aboard!
+        The ImgCraft Team
+        """
+        
+        # Attach both versions
+        part1 = MIMEText(text_body, 'plain')
+        part2 = MIMEText(html_body, 'html')
+        msg.attach(part1)
+        msg.attach(part2)
+        
+        # Send email
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.send_message(msg)
+        
+        logger.info(f"Verification email sent successfully to {to_email}")
+        
+    except Exception as e:
+        logger.error(f"Failed to send verification email: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise
+
+@app.route('/api/auth/verify-email', methods=['GET'])
+def verify_email():
+    """Verify email with token from verification link"""
+    try:
+        verification_token = request.args.get('token')
+        
+        if not verification_token:
+            return jsonify({'success': False, 'error': 'Verification token is required'}), 400
+        
+        # Hash the token to compare with database
+        import hashlib
+        from datetime import datetime
+        
+        token_hash = hashlib.sha256(verification_token.encode()).hexdigest()
+        
+        # Find token in database
+        try:
+            token_result = supabase_admin.table('email_verification_tokens')\
+                .select('*')\
+                .eq('token_hash', token_hash)\
+                .eq('verified', False)\
+                .execute()
+            
+            if not token_result.data or len(token_result.data) == 0:
+                return jsonify({'success': False, 'error': 'Invalid or already used verification token'}), 400
+            
+            token_data = token_result.data[0]
+            
+            # Check if token is expired
+            expires_at = datetime.fromisoformat(token_data['expires_at'].replace('Z', '+00:00'))
+            if datetime.utcnow().replace(tzinfo=expires_at.tzinfo) > expires_at:
+                return jsonify({'success': False, 'error': 'Verification token has expired'}), 400
+            
+            user_id = token_data['user_id']
+            
+            # Mark email as verified in Supabase auth
+            try:
+                supabase_admin.auth.admin.update_user_by_id(
+                    user_id,
+                    {'email_confirmed_at': datetime.utcnow().isoformat()}
+                )
+            except Exception as e:
+                logger.warning(f"Could not update email_confirmed_at: {str(e)}")
+            
+            # Mark token as verified
+            supabase_admin.table('email_verification_tokens')\
+                .update({'verified': True})\
+                .eq('token_hash', token_hash)\
+                .execute()
+            
+            logger.info(f"Email verified successfully for user: {user_id}")
+            
+            # Redirect to auth page with success message
+            return redirect('/auth?verified=true')
+                
+        except Exception as e:
+            logger.error(f"Token validation error: {str(e)}")
+            logger.error(traceback.format_exc())
+            return jsonify({'success': False, 'error': 'Invalid verification token'}), 400
+        
+    except Exception as e:
+        logger.error(f"Email verification error: {str(e)}")
+        logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/credits/balance', methods=['GET'])

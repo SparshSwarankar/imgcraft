@@ -103,8 +103,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ads.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pwa.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton-loader.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-switcher.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-chatbox.css') }}">
+    <!-- Google Fonts - Multiple options for font switcher -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Poppins:wght@200;300;400&family=Fira+Code:wght@200;300;400&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome - Critical for icons, load synchronously to prevent FOUC -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- ADS FEATURE REMOVED -->
     <!-- {% if not user_ad_free %}
@@ -142,7 +153,7 @@
             <div class="mobile-top-actions">
                 <div class="auth-guest-mobile" style="display: flex;">
                     <a href="/auth" class="account-icon-btn" title="Login">
-                        <i class="fas fa-circle-user"></i>
+                        <i class="fas fa-user-circle"></i>
                     </a>
                 </div>
 
@@ -167,124 +178,116 @@
             </button>
 
             <div class="nav-links" id="navLinks">
-                <div class="nav-item">
-                    <a href="/" class="nav-link">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                </div>
 
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link">
-                        Essentials <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="dropdown-menu glass-panel">
-                        <a href="/resize" class="dropdown-item"><i class="fas fa-compress-arrows-alt"></i> Resize</a>
-                        <a href="/crop" class="dropdown-item"><i class="fas fa-crop-alt"></i> Crop</a>
-                        <a href="/convert" class="dropdown-item"><i class="fas fa-exchange-alt"></i> Convert</a>
-                        <a href="/compress" class="dropdown-item"><i class="fas fa-file-image"></i> Compress</a>
-                    </div>
-                </div>
-
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link">
-                        Enhance <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="dropdown-menu glass-panel">
-                        <a href="/filter" class="dropdown-item"><i class="fas fa-magic"></i> Filter</a>
-                        <a href="/upscale" class="dropdown-item"><i class="fas fa-arrow-up"></i> Upscale</a>
-                        <a href="/remove-bg" class="dropdown-item"><i class="fas fa-eraser"></i> Remove BG</a>
-                    </div>
-                </div>
-
-                <div class="nav-item">
-                    <a href="/docs" class="nav-link">
-                        <i class="fas fa-book"></i> Docs
-                    </a>
-                </div>
-                <div class="nav-item dropdown premium-nav">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-sparkles"></i> AI Studio <i class="fas fa-chevron-down"
-                            style="font-size: 0.8em; margin-left: 5px;"></i>
-                    </a>
-                    <div class="dropdown-menu glass-panel">
-                        <a href="/collage" class="dropdown-item premium-item">
-                            <i class="fas fa-th-large" style="color: #ffd700;"></i> AI Collage <span
-                                class="badge-pro">New</span>
-                        </a>
-                        <a href="/watermark" class="dropdown-item">
-                            <i class="fas fa-copyright"></i> Watermark
+                <div class="nav-menu-center">
+                    <div class="nav-item">
+                        <a href="/" class="nav-link">
+                            <i class="fas fa-home"></i> Home
                         </a>
                     </div>
-                </div>
 
-
-                <!-- Desktop: Credits & Auth (inside nav-links) -->
-                <div class="nav-divider desktop-only"></div>
-
-                <div class="auth-guest desktop-only">
-                    <a href="/auth" class="account-icon-btn" title="Login">
-                        <i class="fas fa-circle-user"></i>
-                    </a>
-                </div>
-
-                <div class="auth-user desktop-only">
-                    <div class="user-credits">
-                        <!-- Streak Badge -->
-                        <div id="streakBadge" class="streak-badge" style="display: none;">
-                            <div class="streak-icon-container">
-                                <i class="fas fa-fire streak-icon-flame"></i>
-                            </div>
-                            <span id="streakCount">0</span>
-
-                            <!-- Popover -->
-                            <div class="streak-popover glass-panel">
-                                <div class="popover-row">
-                                    <span>Current Streak:</span>
-                                    <strong id="streakPopoverCurrent">0 days</strong>
-                                </div>
-                                <div class="popover-row">
-                                    <span>Longest Streak:</span>
-                                    <strong id="streakPopoverLongest">0 days</strong>
-                                </div>
-                                <div class="popover-footer">
-                                    <span>Keep it up! 🔥</span>
-                                    <button id="streakNotifBtn" class="notif-toggle-btn"
-                                        onclick="enableStreakNotifications()" title="Enable streak reminders">
-                                        <i class="fas fa-bell"></i>
-                                    </button>
-                                </div>
-                            </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link">
+                            Essentials <i class="fas fa-chevron-down nav-arrow"></i>
+                        </a>
+                        <div class="dropdown-menu glass-panel">
+                            <a href="/resize" class="dropdown-item"><i class="fas fa-compress-arrows-alt"></i>
+                                Resize</a>
+                            <a href="/crop" class="dropdown-item"><i class="fas fa-crop-alt"></i> Crop</a>
+                            <a href="/convert" class="dropdown-item"><i class="fas fa-exchange-alt"></i> Convert</a>
+                            <a href="/compress" class="dropdown-item"><i class="fas fa-file-image"></i> Compress</a>
                         </div>
-
-                        <a href="/billing" class="credit-badge">
-                            <i class="fas fa-coins"></i>
-                            <span id="creditBalance">0</span>
-                        </a>
                     </div>
 
-                    <div class="nav-item dropdown user-menu">
-                        <a href="#" class="nav-link user-link">
-                            <div class="user-avatar">
-                                <i class="fas fa-circle-user"></i>
-                            </div>
-                            <span id="userName">User</span>
-                            <i class="fas fa-chevron-down"></i>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link">
+                            Enhance <i class="fas fa-chevron-down nav-arrow"></i>
                         </a>
-                        <div class="dropdown-menu glass-panel dropdown-right">
-                            <div class="user-info-header">
-                                <div class="user-name-display" id="userNameDisplay">User</div>
-                                <div class="user-email-display" id="userEmail">user@example.com</div>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <a href="/billing" class="dropdown-item">
-                                <i class="fas fa-credit-card"></i> Billing & Credits
+                        <div class="dropdown-menu glass-panel">
+                            <a href="/filter" class="dropdown-item"><i class="fas fa-magic"></i> Filter</a>
+                            <a href="/upscale" class="dropdown-item"><i class="fas fa-arrow-up"></i> Upscale</a>
+                            <a href="/remove-bg" class="dropdown-item"><i class="fas fa-eraser"></i> Remove BG</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-item dropdown premium-nav">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-sparkles"></i> AI Studio
+                            <i class="fas fa-chevron-down nav-arrow" style="font-size: 0.8em; margin-left: 5px;"></i>
+                        </a>
+                        <div class="dropdown-menu glass-panel">
+                            <a href="/collage" class="dropdown-item premium-item">
+                                <i class="fas fa-th-large" style="color: #ffd700;"></i> AI Collage <span
+                                    class="badge-pro">New</span>
                             </a>
-                            <a href="#" class="dropdown-item" onclick="AuthManager.signOut()">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                            <a href="/watermark" class="dropdown-item">
+                                <i class="fas fa-copyright"></i> Watermark
                             </a>
                         </div>
                     </div>
+
+                    <div class="nav-item">
+                        <a href="/docs" class="nav-link">
+                            <i class="fas fa-book"></i> Docs
+                        </a>
+                    </div>
                 </div>
+
+                <div class="nav-menu-right desktop-only">
+
+                    <div class="auth-guest">
+                        <a href="/auth" class="nav-login-btn">
+                            Sign In <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="auth-user">
+                        <div class="user-credits">
+                            <div id="streakBadge" class="streak-badge" style="display: none;">
+                                <div class="streak-icon-container">
+                                    <i class="fas fa-fire streak-icon-flame"></i>
+                                </div>
+                                <span id="streakCount">0</span>
+                                <div class="streak-popover glass-panel">
+                                    <div class="popover-row">
+                                        <span>Current Streak:</span><strong id="streakPopoverCurrent">0 days</strong>
+                                    </div>
+                                    <div class="popover-row">
+                                        <span>Longest Streak:</span><strong id="streakPopoverLongest">0 days</strong>
+                                    </div>
+                                    <div class="popover-footer">
+                                        <span>Keep it up! 🔥</span>
+                                        <button id="streakNotifBtn" class="notif-toggle-btn"
+                                            onclick="enableStreakNotifications()"><i class="fas fa-bell"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="/billing" class="credit-badge">
+                                <i class="fas fa-coins"></i> <span id="creditBalance">0</span>
+                            </a>
+                        </div>
+
+                        <div class="nav-item dropdown user-menu">
+                            <a href="#" class="nav-link user-link-profile">
+                                <div class="user-avatar">
+                                    <i class="fas fa-circle-user"></i>
+                                </div>
+                            </a>
+                            <div class="dropdown-menu glass-panel dropdown-right">
+                                <div class="user-info-header">
+                                    <div class="user-name-display" id="userNameDisplay">User</div>
+                                    <div class="user-email-display" id="userEmail">user@example.com</div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="/billing" class="dropdown-item"><i class="fas fa-credit-card"></i> Billing</a>
+                                <a href="#" class="dropdown-item" onclick="AuthManager.signOut()"><i
+                                        class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </nav>
@@ -346,6 +349,27 @@
                         <li><a href="#" data-modal="refunds">Payments & Refunds</a></li>
                         <li><a href="/billing">Billing & Credits</a></li>
                     </ul>
+
+                    <!-- Font Switcher -->
+                    <div class="font-switcher" style="margin-top: 24px;">
+                        <h4 class="footer-title" style="font-size: 0.9rem; margin-bottom: 12px;">
+                            <i class="fas fa-font"></i> Font Style
+                        </h4>
+                        <div class="font-options">
+                            <button class="font-option" data-font="inter" title="Inter - Modern & Clean">
+                                <span style="font-family: 'Inter', sans-serif;">Aa</span>
+                                <small>Inter</small>
+                            </button>
+                            <button class="font-option active" data-font="poppins" title="Poppins - Rounded & Friendly">
+                                <span style="font-family: 'Poppins', sans-serif;">Aa</span>
+                                <small>Poppins</small>
+                            </button>
+                            <button class="font-option" data-font="fira-code" title="Fira Code - Developer Font">
+                                <span style="font-family: 'Fira Code', monospace;">Aa</span>
+                                <small>Fira Code</small>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -578,6 +602,7 @@
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
     <script src="{{ url_for('static', filename='js/streak.js') }}"></script>
     <script src="{{ url_for('static', filename='js/credits.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/web-ready-score.js') }}"></script>
 
     <script>
         // Apply same guest access logic to navigation bar links
@@ -627,6 +652,9 @@
 
     <!-- Consistent Loading UI across tools -->
     <script src="{{ url_for('static', filename='js/busy-ui.js') }}"></script>
+
+    <!-- Font Switcher -->
+    <script src="{{ url_for('static', filename='js/font-switcher.js') }}?v=3"></script>
 
     <script src="{{ url_for('static', filename='js/background.js') }}"></script>
 
@@ -684,6 +712,10 @@ Thank you!`;
 
     <!-- First Visit Welcome Overlay -->
     <script src="{{ url_for('static', filename='js/welcome-overlay.js') }}"></script>
+
+    <!-- AI Chatbox - Knowledge Base & Logic -->
+    <script src="{{ url_for('static', filename='js/ai-chatbox-knowledge.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ai-chatbox.js') }}"></script>
 
     {% block scripts %}{% endblock %}
 </body>

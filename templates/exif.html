@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}EXIF Viewer & Remover – ImgCraft{% endblock %}
 
-{% block meta_description %}View and remove EXIF metadata from photos. Protect privacy by deleting GPS, camera settings, and sensitive data.{% endblock %}
+{% block meta_description %}View and remove EXIF metadata from photos. Protect privacy by deleting GPS, camera settings,
+and sensitive data.{% endblock %}
 
 {% block meta_keywords %}exif viewer online free, remove exif data, view photo metadata, remove gps from photo, exif
 remover tool, photo privacy protection, remove camera data, clear image metadata, exif data viewer, photo location
@@ -16,7 +17,8 @@ data, clean photo metadata, imgcraft exif{% endblock %}
 
 {% block og_title %}EXIF Viewer & Remover – ImgCraft{% endblock %}
 
-{% block og_description %}View camera settings and remove GPS data from photos. Protect your privacy before sharing images online.{% endblock %}
+{% block og_description %}View camera settings and remove GPS data from photos. Protect your privacy before sharing
+images online.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -46,6 +48,18 @@ data, clean photo metadata, imgcraft exif{% endblock %}
                         <span class="file-info-label">Dimensions:</span>
                         <span class="file-info-value" id="fileDim">-</span>
                     </div>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow" style="display: none;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
 
                 <hr class="panel-divider">

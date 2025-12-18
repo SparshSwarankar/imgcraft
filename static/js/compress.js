@@ -165,6 +165,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Then refresh credits
                 if (window.CreditManager) CreditManager.refreshCredits();
 
+                // Calculate and display Web-Ready Score
+                if (window.WebReadyScore) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const scoreData = WebReadyScore.calculateScore({
+                            blob: blob,
+                            width: img.width,
+                            height: img.height,
+                            format: blob.type.split('/')[1],
+                            hasMetadata: false // Compressed images typically have metadata stripped
+                        });
+
+                        if (scoreData) {
+                            WebReadyScore.displayScore('webReadyScoreRow', scoreData);
+                        }
+                    };
+                    img.src = url;
+                }
+
                 // Prepare Toast Message
                 let msg = `Compressed by ${savings}%!`;
                 if (cost) msg += ` (-${cost} Credits)`;

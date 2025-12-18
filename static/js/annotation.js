@@ -726,6 +726,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     StreakManager.updateStreak();
                 }
 
+                // Note: Web-Ready Score not applicable for JSON export (no image blob)
+
             } catch (error) {
                 console.error('Credit deduction error:', error);
                 showToast('Failed to process payment', 'error');

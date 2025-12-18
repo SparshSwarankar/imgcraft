@@ -587,7 +587,8 @@ AI-powered tools.{% endblock %}
             </button>
 
             <div class="auth-footer">
-                <a href="#"><i class="fas fa-question-circle"></i> Forgot your password?</a>
+                <a href="#" onclick="switchTab(event, 'forgot')"><i class="fas fa-question-circle"></i> Forgot your
+                    password?</a>
             </div>
         </form>
 
@@ -617,6 +618,49 @@ AI-powered tools.{% endblock %}
             <div class="auth-footer">
                 By signing up, you agree to our<br>
                 <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>
+            </div>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotForm" class="auth-form" onsubmit="handleForgotPassword(event)">
+            <div id="forgotAlert" class="alert"></div>
+
+            <div id="forgotRequestSection">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="forgotEmail" name="email" required
+                        placeholder="your@email.com">
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Send Reset Link
+                </button>
+
+                <div class="auth-footer">
+                    Remember your password? <a href="#" onclick="switchTab(event, 'login')">Login</a>
+                </div>
+            </div>
+
+            <div id="forgotResetSection" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-input" id="newPassword" name="newPassword" minlength="6"
+                        placeholder="••••••••">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-input" id="confirmPassword" name="confirmPassword" minlength="6"
+                        placeholder="••••••••">
+                </div>
+
+                <button type="button" class="btn-submit" onclick="handleResetPassword(event)">
+                    <i class="fas fa-lock"></i> Reset Password
+                </button>
+
+                <div class="auth-footer">
+                    <a href="#" onclick="switchTab(event, 'login')">Back to Login</a>
+                </div>
             </div>
         </form>
     </div>
@@ -665,9 +709,11 @@ AI-powered tools.{% endblock %}
     function switchTab(event, tab) {
         event.preventDefault();
 
-        // Update tabs
-        document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
-        event.target.closest('.auth-tab').classList.add('active');
+        // Update tabs (only if clicking on a tab element)
+        if (event.target.closest('.auth-tab')) {
+            document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+            event.target.closest('.auth-tab').classList.add('active');
+        }
 
         // Update forms
         document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
@@ -768,5 +814,133 @@ AI-powered tools.{% endblock %}
             btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Free Account';
         }
     }
+
+    async function handleForgotPassword(e) {
+        e.preventDefault();
+        const form = e.target;
+        const email = form.email.value;
+        const btn = form.querySelector('button[type="submit"]');
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.error);
+
+            showAlert('forgot', '✓ Password reset link sent! Check your email.', 'success');
+
+            setTimeout(() => {
+                form.reset();
+            }, 2000);
+
+        } catch (error) {
+            showAlert('forgot', '✗ ' + (error.message || 'Failed to send reset link'), 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+        }
+    }
+
+    async function handleResetPassword(e) {
+        e.preventDefault();
+
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const btn = e.target;
+
+        // Validate passwords match
+        if (newPassword !== confirmPassword) {
+            showAlert('forgot', '✗ Passwords do not match', 'error');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            showAlert('forgot', '✗ Password must be at least 6 characters', 'error');
+            return;
+        }
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+
+            // Get reset token from URL query params (our custom system)
+            const queryParams = new URLSearchParams(window.location.search);
+            const resetToken = queryParams.get('reset_token');
+
+            console.log('Reset token found:', resetToken ? 'Yes' : 'No');
+            console.log('Search:', window.location.search);
+
+            if (!resetToken) {
+                throw new Error('Invalid or expired reset link. Please request a new one.');
+            }
+
+            const response = await fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reset_token: resetToken,
+                    password: newPassword
+                })
+            });
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.error);
+
+            showAlert('forgot', '✓ Password reset successful! Redirecting to login...', 'success');
+
+            setTimeout(() => {
+                // Clear URL params and switch to login
+                window.history.replaceState({}, document.title, window.location.pathname);
+                switchTab({ target: document.querySelector('.auth-tab'), preventDefault: () => { } }, 'login');
+            }, 2000);
+
+        } catch (error) {
+            showAlert('forgot', '✗ ' + (error.message || 'Failed to reset password'), 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-lock"></i> Reset Password';
+        }
+    }
+
+
+
+    // URL Parameter handling (Verification and Password Reset)
+    document.addEventListener('DOMContentLoaded', () => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const resetToken = queryParams.get('reset_token');
+        const isVerified = queryParams.get('verified') === 'true';
+
+        // 1. Handle Email Verification Success
+        if (isVerified) {
+            showAlert('login', '✓ Email verified successfully! You can now log in.', 'success');
+            // Clean up the URL without reloading
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // 2. Handle Password Reset Token Detection (Auto-switch to reset form)
+        if (resetToken) {
+            // Hide all forms and tabs
+            document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+
+            // Show reset password section
+            document.getElementById('forgotForm').classList.add('active');
+            document.getElementById('forgotRequestSection').style.display = 'none';
+            document.getElementById('forgotResetSection').style.display = 'block';
+
+            showAlert('forgot', 'Enter your new password below', 'success');
+        }
+    });
 </script>
 {% endblock %}

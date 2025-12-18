@@ -1,0 +1,95 @@
+/* =========================================
+   FONT SWITCHER COMPONENT - Professional Clean Style
+   ========================================= */
+
+.font-switcher {
+    margin-top: 20px;
+}
+
+.font-switcher h4 {
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-bottom: 12px;
+}
+
+.font-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.font-option {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 65px;
+    color: var(--text-muted);
+}
+
+.font-option:hover {
+    border-color: rgba(249, 115, 22, 0.3);
+    background: rgba(249, 115, 22, 0.05);
+    color: var(--text-main);
+}
+
+.font-option.active {
+    border-color: var(--primary);
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--primary);
+}
+
+.font-option span {
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.font-option small {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+}
+
+/* Font Family Classes for Dynamic Switching */
+body.font-inter {
+    --font-main: 'Inter', sans-serif;
+    --font-heading: 'Inter', sans-serif;
+}
+
+body.font-poppins {
+    --font-main: 'Poppins', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
+}
+
+body.font-fira-code {
+    --font-main: 'Fira Code', monospace;
+    --font-heading: 'Fira Code', monospace;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .font-options {
+        justify-content: flex-start;
+    }
+
+    .font-option {
+        min-width: 60px;
+        padding: 6px 12px;
+    }
+
+    .font-option span {
+        font-size: 1.2rem;
+    }
+
+    .font-option small {
+        font-size: 0.6rem;
+    }
+}

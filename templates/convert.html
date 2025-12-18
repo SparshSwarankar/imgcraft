@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}Image Converter – ImgCraft{% endblock %}
 
-{% block meta_description %}Convert images between JPG, PNG, WebP, TIFF, BMP, and ICO formats instantly. Fast, secure, and free online converter.{% endblock %}
+{% block meta_description %}Convert images between JPG, PNG, WebP, TIFF, BMP, and ICO formats instantly. Fast, secure,
+and free online converter.{% endblock %}
 
 {% block meta_keywords %}image converter online free, jpg to png converter, png to jpg converter, convert webp to jpg,
 convert jpg to webp, transparent png maker, webp converter online, tiff converter, bmp converter, ico converter, favicon
@@ -17,7 +18,8 @@ converter, secure format converter, no watermark converter, free batch converter
 
 {% block og_title %}Image Converter – ImgCraft{% endblock %}
 
-{% block og_description %}Convert between all major image formats. JPG to PNG with transparency, WebP to JPG, and more. Free and secure.{% endblock %}
+{% block og_description %}Convert between all major image formats. JPG to PNG with transparency, WebP to JPG, and more.
+Free and secure.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -43,6 +45,18 @@ converter, secure format converter, no watermark converter, free batch converter
                         <span class="file-info-label">Type:</span>
                         <span class="file-info-value" id="fileType">-</span>
                     </div>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow" style="display: none;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
             </div>
 

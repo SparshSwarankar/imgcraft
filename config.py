@@ -19,6 +19,13 @@ def _to_bool(value: str, default: bool = False) -> bool:
 class Config:
     """Application configuration values with validation helpers."""
 
+    SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
+    SMTP_USERNAME = os.getenv('SMTP_USERNAME')
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+    FROM_EMAIL = os.getenv('FROM_EMAIL')
+    FROM_NAME = os.getenv('FROM_NAME', 'ImgCraft')
+
     # Flask / Server
     FLASK_ENV: str = os.getenv('FLASK_ENV', 'production')
     DEBUG: bool = _to_bool(os.getenv('FLASK_DEBUG'), False)

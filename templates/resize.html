@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}Image Resizer – ImgCraft{% endblock %}
 
-{% block meta_description %}Resize images instantly by pixels or percentage. Maintain quality for social media, websites, and more.{% endblock %}
+{% block meta_description %}Resize images instantly by pixels or percentage. Maintain quality for social media,
+websites, and more.{% endblock %}
 
 {% block meta_keywords %}resize image online, change image size, photo resizer tool, resize picture dimensions,
 image dimension changer, resize for instagram, resize for facebook, resize photo for twitter, social media image
@@ -16,7 +17,8 @@ instant image scaler, imgcraft resize{% endblock %}
 
 {% block og_title %}Image Resizer – ImgCraft{% endblock %}
 
-{% block og_description %}Resize photos to perfect dimensions in seconds. Ideal for Instagram, Facebook, and websites with no watermarks.{% endblock %}
+{% block og_description %}Resize photos to perfect dimensions in seconds. Ideal for Instagram, Facebook, and websites
+with no watermarks.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -48,8 +50,21 @@ instant image scaler, imgcraft resize{% endblock %}
                     </div>
                     <div class="file-info-row" id="resizedSizeRow" style="display: none;">
                         <span class="file-info-label">Resized Size:</span>
-                        <span class="file-info-value" id="resizedSize" style="color: #22c55e; font-weight: 600;">-</span>
+                        <span class="file-info-value" id="resizedSize"
+                            style="color: #22c55e; font-weight: 600;">-</span>
                     </div>
+                </div>
+
+                <!-- Web-Ready Score -->
+                <div class="file-info-row web-ready-score-row" id="webReadyScoreRow" style="display: none;">
+                    <div class="score-display">
+                        <svg class="score-ring" id="scoreRing" viewBox="0 0 60 60"></svg>
+                        <div>
+                            <div class="file-info-label">Web-Ready Score</div>
+                            <div class="score-value" id="scoreValue">--</div>
+                        </div>
+                    </div>
+                    <div class="score-tips" id="scoreTips"></div>
                 </div>
             </div>
 

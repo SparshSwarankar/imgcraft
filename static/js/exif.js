@@ -262,9 +262,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (window.CreditManager) CreditManager.refreshCredits();
 
+
                 // Update Streak
                 if (window.StreakManager) {
                     StreakManager.updateStreak();
+                }
+
+                // Calculate and display Web-Ready Score
+                if (window.WebReadyScore) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const scoreData = WebReadyScore.calculateScore({
+                            blob: blob,
+                            width: img.width,
+                            height: img.height,
+                            format: blob.type.split('/')[1],
+                            hasMetadata: false // EXIF removed
+                        });
+
+                        if (scoreData) {
+                            WebReadyScore.displayScore('webReadyScoreRow', scoreData);
+                        }
+                    };
+                    img.src = url;
                 }
             } else {
                 const errorMessage = await parseErrorResponse(response, 'Failed to remove metadata');

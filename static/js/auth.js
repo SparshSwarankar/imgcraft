@@ -222,6 +222,38 @@ if (!window.AuthSystem) {
             return this.session ? this.session.access_token : null;
         },
 
+        async forgotPassword(email) {
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                return { data: null, error: 'Supabase not initialized' };
+            }
+
+            try {
+                const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/auth'
+                });
+                return { data, error };
+            } catch (error) {
+                return { data: null, error: error.message };
+            }
+        },
+
+        async resetPassword(newPassword) {
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                return { data: null, error: 'Supabase not initialized' };
+            }
+
+            try {
+                const { data, error } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+                return { data, error };
+            } catch (error) {
+                return { data: null, error: error.message };
+            }
+        },
+
         getAuthHeaders() {
             const token = this.getToken();
             return token ? { 'Authorization': `Bearer ${token}` } : {};

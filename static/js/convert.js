@@ -140,6 +140,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     StreakManager.updateStreak();
                 }
 
+                // Calculate and display Web-Ready Score
+                if (window.WebReadyScore) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const scoreData = WebReadyScore.calculateScore({
+                            blob: blob,
+                            width: img.width,
+                            height: img.height,
+                            format: blob.type.split('/')[1],
+                            hasMetadata: undefined // Format conversion may or may not preserve metadata
+                        });
+
+                        if (scoreData) {
+                            WebReadyScore.displayScore('webReadyScoreRow', scoreData);
+                        }
+                    };
+                    img.src = url;
+                }
+
             } else {
                 const errorBody = await response.text();
                 let errorMessage = 'Conversion failed. Please try again.';
