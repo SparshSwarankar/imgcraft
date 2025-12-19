@@ -484,23 +484,55 @@
             });
 
             // Mobile: Click/tap to toggle dropdowns (no hover)
-            if (window.innerWidth <= 768) {
+            // Use a function so we can call it on resize too
+            function setupMobileDropdowns() {
+                const isMobile = window.innerWidth <= 768;
+                const dropdownLinks = document.querySelectorAll('.nav-item.dropdown > .nav-link');
+
+                dropdownLinks.forEach(link => {
+                    // Remove existing listeners by cloning
+                    const newLink = link.cloneNode(true);
+                    link.parentNode.replaceChild(newLink, link);
+                });
+
+                // Re-query after cloning
                 document.querySelectorAll('.nav-item.dropdown > .nav-link').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
+                    if (isMobile) {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const dropdown = link.nextElementSibling;
+                            const isOpen = dropdown && dropdown.style.display === 'flex';
+
+                            // Close all dropdowns first
+                            document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+
+                            // Toggle clicked dropdown
+                            if (!isOpen && dropdown) {
+                                dropdown.style.display = 'flex';
+                            }
+                        });
+                    } else {
+                        // On desktop, ensure dropdowns are reset
                         const dropdown = link.nextElementSibling;
-                        const isOpen = dropdown.style.display === 'flex';
-
-                        // Close all dropdowns first
-                        document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
-
-                        // Toggle clicked dropdown
-                        if (!isOpen) {
-                            dropdown.style.display = 'flex';
+                        if (dropdown) {
+                            dropdown.style.display = '';
                         }
-                    });
+                    }
                 });
             }
+
+            // Setup on load
+            setupMobileDropdowns();
+
+            // Re-setup on window resize
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    setupMobileDropdowns();
+                }, 250);
+            });
 
             // Close menu if clicked outside
             document.addEventListener('click', (e) => {

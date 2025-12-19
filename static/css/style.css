@@ -378,7 +378,7 @@ body::before {
     display: flex;
     align-items: center;
     width: 100%;
-    margin-left: 40px;
+    /* margin-left: 40px; */
     /* Space from Logo */
 }
 
@@ -2577,7 +2577,9 @@ p .internal-link:hover,
         position: fixed;
         top: var(--header-height);
         left: 0;
-        width: 100%;
+        right: 0;
+        width: 100vw;
+        max-width: 100vw;
         height: calc(100vh - var(--header-height));
         background: rgba(15, 23, 42, 0.98);
         backdrop-filter: blur(20px);
@@ -2586,6 +2588,9 @@ p .internal-link:hover,
         align-items: center;
         justify-content: flex-start;
         padding-top: 2rem;
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 2rem;
         gap: 1.5rem;
         transform: translateX(100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2595,6 +2600,22 @@ p .internal-link:hover,
         /* Prevent clicks when hidden */
         z-index: 1001;
         overflow-y: auto;
+        overflow-x: hidden;
+        /* Prevent horizontal scroll */
+        box-sizing: border-box;
+    }
+
+    /* Menu Sections in Drawer */
+    .nav-menu-center,
+    .nav-menu-right {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 100%;
+        gap: 1.5rem;
+        margin: 0;
+        padding: 0;
     }
 
     .nav-links.active {
@@ -2605,11 +2626,18 @@ p .internal-link:hover,
 
     /* Nav Items in Drawer */
     .nav-item {
+        position: relative;
         width: 100%;
+        max-width: 100%;
         text-align: center;
         opacity: 0;
         transform: translateY(10px);
         transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        overflow: visible;
     }
 
     .nav-links.active .nav-item {
@@ -2636,37 +2664,111 @@ p .internal-link:hover,
 
     .nav-link {
         font-size: 1.25rem;
-        padding: 12px;
+        padding: 14px 20px;
         justify-content: center;
+        width: 85%;
+        max-width: 400px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        transition: all 0.2s ease;
     }
 
-    /* Dropdowns in Mobile */
+    /* Dropdowns in Mobile - Override ALL desktop positioning */
     .dropdown-menu {
-        position: static;
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        backdrop-filter: none;
-        padding: 0;
-        margin-top: 5px;
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 8px;
+        margin: 8px auto 0 auto;
         transform: none !important;
         opacity: 1 !important;
         visibility: visible !important;
         display: none;
         /* Toggled by JS */
         flex-direction: column;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.03);
+        align-items: stretch;
         border-radius: 12px;
-        width: 90%;
-        margin: 10px auto;
+        width: 85%;
+        max-width: 400px;
+        min-width: auto;
+        gap: 4px;
+        overflow: hidden;
+        z-index: auto;
+    }
+
+    .dropdown-menu::before {
+        display: none !important;
+        /* Hide the arrow on mobile */
     }
 
     .dropdown-item {
-        text-align: center;
-        padding: 12px;
-        width: 100%;
+        display: flex;
+        align-items: center;
         justify-content: center;
+        text-align: center;
+        padding: 14px 16px;
+        width: 100%;
+        font-size: 1.05rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        transition: all 0.2s ease;
+        border: none;
+        gap: 8px;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:active {
+        background: rgba(249, 115, 22, 0.15);
+        transform: none;
+    }
+
+    /* Reset premium item borders in mobile */
+    .dropdown-item.premium-item {
+        border-left: none;
+        padding-left: 14px;
+    }
+
+    /* Reset icon effects in mobile */
+    .dropdown-item i {
+        width: auto;
+        height: auto;
+        margin: 0;
+    }
+
+    .dropdown-item:hover i,
+    .dropdown-item:active i {
+        transform: none;
+        filter: none;
+    }
+
+    .nav-link:hover,
+    .nav-link:active {
+        background: rgba(249, 115, 22, 0.1);
+        transform: translateY(0);
+    }
+
+    /* Ensure dropdown arrows are visible and functional on mobile */
+    .nav-arrow {
+        margin-left: 6px;
+        font-size: 0.8em;
+    }
+
+    /* Make dropdown parent items more obvious */
+    .nav-item.dropdown>.nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
     }
 
     /* Hide desktop-specific elements on mobile */
