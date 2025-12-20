@@ -563,38 +563,887 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-    .studio-wrapper {
-        grid-template-columns: 280px 1fr 280px;
-        padding: 0 10px;
-    }
-}
+/* =========================================
+   RESPONSIVE MEDIA QUERIES - UPSCALE TOOL
+   ========================================= */
 
-@media (max-width: 768px) {
+/* Extra Small Devices (320px - 480px) */
+@media (max-width: 480px) {
+    :root {
+        --panel-width: 100%;
+        --header-height: 60px;
+    }
+
     .studio-wrapper {
         display: flex;
         flex-direction: column;
+        gap: 12px;
+        padding: 0 12px 12px 12px;
+        margin-top: 70px;
         height: auto;
         overflow: visible;
     }
 
-    .studio-panel,
+    /* Canvas First */
     .studio-canvas {
+        order: 1;
+        height: 420px;
+        min-height: 420px;
+        border-radius: 12px;
+    }
+
+    .canvas-container {
+        padding: 15px;
+    }
+
+    .upload-area-large {
+        padding: 30px 20px;
+        border-radius: 12px;
+    }
+
+    .upload-icon-large {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .upload-area-large h2 {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+
+    .upload-area-large p {
+        font-size: 0.85rem;
+    }
+
+    /* Preview Images */
+    .preview-image {
+        max-height: 360px !important;
+    }
+
+    /* Comparison Container */
+    .compare-container {
+        border-radius: 6px;
+    }
+
+    /* Comparison Slider */
+    .slider-handle {
+        width: 36px;
+        transform: translateX(-50%);
+    }
+
+    .handle-button {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+        border-width: 2px;
+    }
+
+    .handle-line {
+        width: 2px;
+    }
+
+    /* Comparison Toggle Button */
+    .comparison-toggle {
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .toggle-btn {
+        padding: 7px 14px;
+        font-size: 0.8rem;
+        gap: 5px;
+        border-radius: 18px;
+    }
+
+    /* Left Panel Second */
+    .studio-panel:first-of-type {
+        order: 2;
         height: auto;
-        min-height: 350px;
+        min-height: auto;
+    }
+
+    /* Right Panel Third */
+    .studio-panel:last-of-type {
+        order: 3;
+        height: auto;
+        min-height: auto;
+    }
+
+    /* Panel Headers */
+    .panel-header {
+        padding: 12px 16px;
+        min-height: 50px;
+    }
+
+    .panel-header h3 {
+        font-size: 0.9rem;
+        gap: 6px;
+    }
+
+    .badge-pro {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+    }
+
+    .panel-content {
+        padding: 16px;
+    }
+
+    .panel-footer {
+        padding: 16px;
+    }
+
+    /* File Info Section */
+    .file-info-section {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .file-info-row {
+        margin-bottom: 9px;
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .file-info-label {
+        font-size: 0.8rem;
+    }
+
+    .file-info-value {
+        font-size: 0.85rem;
+    }
+
+    /* Info Cards */
+    .info-card-small {
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 12px;
+    }
+
+    .info-card-small p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .highlight-text {
+        font-size: 1rem;
+        margin-top: 3px;
+    }
+
+    /* Factor Grid (Upscale Buttons) */
+    .factor-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .factor-btn {
+        padding: 10px 8px;
+        border-radius: 6px;
+        gap: 3px;
+    }
+
+    .factor-lg {
+        font-size: 1.1rem;
+    }
+
+    .factor-sm {
+        font-size: 0.65rem;
+    }
+
+    .factor-btn.active {
+        box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+    }
+
+    /* Custom Dropdown */
+    .custom-input-group {
+        margin-bottom: 14px;
+    }
+
+    .select-trigger {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+
+    .select-trigger i {
+        font-size: 0.75rem;
+    }
+
+    .select-options {
+        border-radius: 6px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .option {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    /* Sliders */
+    .slider-group-compact {
+        margin-bottom: 14px;
+    }
+
+    .slider-label {
+        font-size: 0.75rem;
+        margin-bottom: 3px;
+    }
+
+    .slider-label .val {
+        font-size: 0.75rem;
+    }
+
+    .range-slider {
+        height: 3px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 13px;
+        height: 13px;
+    }
+
+    /* Buttons */
+    .btn-full,
+    .btn-primary {
+        padding: 11px 14px;
+        font-size: 0.9rem;
+    }
+
+    #downloadBtn {
+        font-size: 0.95rem;
+        gap: 8px;
+    }
+
+    /* Progress Container */
+    .progress-container-floating {
+        padding: 16px 30px;
+        min-width: 180px;
+    }
+
+    .loader-spinner {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 12px;
+    }
+
+    .progress-text {
+        font-size: 0.85rem;
+    }
+
+    /* Info Boxes */
+    .info-box-empty {
+        padding: 40px 20px;
+        font-size: 0.9rem;
+    }
+
+    .info-box-empty i {
+        font-size: 2rem !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Cost Indicator */
+    .cost-indicator {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+
+    .panel-divider {
+        margin: 16px 0;
+    }
+}
+
+/* Tiny Devices (320px - 374px) */
+@media (max-width: 374px) {
+    .studio-wrapper {
+        padding: 0 8px 8px 8px;
+        gap: 10px;
+        margin-top: 60px;
+    }
+
+    .studio-canvas {
+        height: 370px;
+        min-height: 370px;
+    }
+
+    .canvas-container {
+        padding: 12px;
+    }
+
+    .upload-area-large {
+        padding: 25px 15px;
+    }
+
+    .upload-icon-large {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+
+    .upload-area-large h2 {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+    }
+
+    .upload-area-large p {
+        font-size: 0.8rem;
+    }
+
+    .upload-area-large .btn {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+
+    .preview-image {
+        max-height: 310px !important;
+    }
+
+    .slider-handle {
+        width: 32px;
+    }
+
+    .handle-button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+        border-width: 1.5px;
+    }
+
+    .comparison-toggle {
+        bottom: 12px;
+        right: 12px;
+    }
+
+    .toggle-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        gap: 4px;
+        border-radius: 16px;
+    }
+
+    .panel-header {
+        padding: 10px 12px;
+        min-height: 45px;
+    }
+
+    .panel-header h3 {
+        font-size: 0.85rem;
+        gap: 5px;
+    }
+
+    .badge-pro {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+
+    .panel-content {
+        padding: 12px;
+    }
+
+    .panel-footer {
+        padding: 12px;
+    }
+
+    .file-info-section {
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .file-info-row {
+        margin-bottom: 8px;
+        font-size: 0.8rem;
+    }
+
+    .file-info-label {
+        font-size: 0.75rem;
+    }
+
+    .file-info-value {
+        font-size: 0.8rem;
+    }
+
+    .info-card-small {
+        padding: 8px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    .info-card-small p {
+        font-size: 0.7rem;
+        line-height: 1.2;
+    }
+
+    .highlight-text {
+        font-size: 0.95rem;
+        margin-top: 2px;
+    }
+
+    .factor-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .factor-btn {
+        padding: 8px 6px;
+        border-radius: 5px;
+        gap: 2px;
+    }
+
+    .factor-lg {
+        font-size: 1rem;
+    }
+
+    .factor-sm {
+        font-size: 0.6rem;
+    }
+
+    .custom-input-group {
+        margin-bottom: 12px;
+    }
+
+    .select-trigger {
+        padding: 9px 12px;
+        font-size: 0.8rem;
+        border-radius: 5px;
+    }
+
+    .select-trigger i {
+        font-size: 0.7rem;
+    }
+
+    .select-options {
+        border-radius: 5px;
+        max-height: 180px;
+    }
+
+    .option {
+        padding: 9px 12px;
+        font-size: 0.8rem;
+    }
+
+    .slider-group-compact {
+        margin-bottom: 12px;
+    }
+
+    .slider-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .slider-label .val {
+        font-size: 0.7rem;
+    }
+
+    .range-slider {
+        height: 3px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 12px;
+        height: 12px;
+    }
+
+    .btn-full,
+    .btn-primary {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    #downloadBtn {
+        font-size: 0.9rem;
+        gap: 7px;
+    }
+
+    .progress-container-floating {
+        padding: 14px 25px;
+        min-width: 160px;
+    }
+
+    .loader-spinner {
+        width: 30px;
+        height: 30px;
+        margin-bottom: 10px;
+    }
+
+    .progress-text {
+        font-size: 0.8rem;
+    }
+
+    .info-box-empty {
+        padding: 30px 15px;
+        font-size: 0.85rem;
+    }
+
+    .info-box-empty i {
+        font-size: 1.8rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .cost-indicator {
+        font-size: 0.75rem;
+        margin-bottom: 8px;
+    }
+
+    .panel-divider {
+        margin: 14px 0;
+    }
+}
+
+/* Small Tablets (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+    .studio-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 0 16px 16px 16px;
+        margin-top: 80px;
+        height: auto;
+        overflow: visible;
     }
 
     .studio-canvas {
         order: 1;
-        height: 450px;
+        height: 480px;
+        min-height: 480px;
     }
 
     .studio-panel:first-of-type {
         order: 2;
+        height: auto;
     }
 
     .studio-panel:last-of-type {
         order: 3;
+        height: auto;
+    }
+
+    .canvas-container {
+        padding: 20px;
+    }
+
+    .upload-area-large {
+        padding: 50px 30px;
+    }
+
+    .preview-image {
+        max-height: 420px !important;
+    }
+
+    .slider-handle {
+        width: 38px;
+    }
+
+    .handle-button {
+        width: 38px;
+        height: 38px;
+    }
+
+    .comparison-toggle {
+        bottom: 18px;
+        right: 18px;
+    }
+
+    .toggle-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+
+    .panel-content {
+        padding: 18px;
+    }
+
+    .panel-footer {
+        padding: 18px;
+    }
+
+    .factor-grid {
+        gap: 10px;
+    }
+
+    .factor-btn {
+        padding: 12px 10px;
+    }
+}
+
+
+/* Landscape Orientation for Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .studio-wrapper {
+        margin-top: 60px;
+    }
+
+    .studio-canvas {
+        height: 320px;
+        min-height: 320px;
+    }
+
+    .preview-image {
+        max-height: 270px !important;
+    }
+
+    .upload-area-large {
+        padding: 25px 20px;
+    }
+
+    .upload-icon-large {
+        font-size: 2.5rem;
+    }
+
+    .info-box-empty {
+        padding: 30px 15px;
+    }
+
+    .slider-handle {
+        width: 32px;
+    }
+
+    .handle-button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .comparison-toggle {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .toggle-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Touch-Friendly Enhancements */
+@media (hover: none) and (pointer: coarse) {
+    .slider-handle {
+        width: 44px;
+        /* iOS touch target guideline */
+    }
+
+    .handle-button {
+        width: 44px;
+        height: 44px;
+    }
+
+    .factor-btn {
+        min-height: 60px;
+        /* Better touch target for upscale buttons */
+        padding: 12px 10px;
+    }
+
+    .toggle-btn {
+        min-height: 44px;
+        padding: 10px 18px;
+    }
+
+    .range-slider {
+        height: 6px;
+        /* Thicker for easier grabbing */
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 18px;
+        height: 18px;
+    }
+
+    .option {
+        min-height: 44px;
+        padding: 12px 16px;
+    }
+}
+
+/* Prevent Horizontal Scroll on Mobile */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .studio-wrapper {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+}
+
+/* Factor Grid Responsive Layout */
+@media (max-width: 360px) {
+    .factor-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .factor-btn {
+        padding: 12px 8px;
+    }
+
+    .factor-lg {
+        font-size: 1.2rem;
+    }
+
+    .factor-sm {
+        font-size: 0.7rem;
+    }
+}
+
+/* Comparison Slider Better Touch Area */
+@media (max-width: 480px) {
+    .slider-handle {
+        /* Expand touch area beyond visual size */
+        padding: 10px;
+        margin: -10px;
+    }
+
+    /* Better visibility on mobile */
+    .handle-button {
+        box-shadow: 0 0 15px rgba(249, 115, 22, 0.6), 0 0 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .handle-line {
+        box-shadow: 0 0 10px rgba(249, 115, 22, 0.9);
+    }
+}
+
+/* Info Card Enhancement on Mobile */
+@media (max-width: 374px) {
+    .info-card-small {
+        text-align: left;
+    }
+
+    .highlight-text {
+        text-align: center;
+    }
+}
+
+/* Related Tools Section Responsive */
+@media (max-width: 480px) {
+    .related-tools {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 6px;
+    }
+
+    .related-tools h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .related-tools-list {
+        gap: 0.5rem;
+    }
+
+    .related-tool-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        gap: 0.4rem;
+        border-radius: 15px;
+    }
+
+    .related-tool-link i {
+        font-size: 0.8rem;
+    }
+}
+
+/* Internal Link Styles Responsive */
+@media (max-width: 480px) {
+
+    .internal-link,
+    a.internal-link {
+        font-size: 0.9rem;
+    }
+
+    p .internal-link,
+    .tool-desc .internal-link {
+        display: inline-block;
+        padding: 2px 0;
+    }
+}
+
+/* Custom Dropdown Better Mobile Experience */
+@media (max-width: 480px) {
+    .select-options {
+        max-height: 60vh;
+    }
+
+    .custom-select.open .select-options {
+        animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* Comparison Toggle Positioning */
+@media (max-width: 374px) {
+    .comparison-toggle {
+        bottom: 10px;
+        right: 10px;
+        left: auto;
+    }
+
+    .toggle-btn {
+        white-space: nowrap;
+    }
+}
+
+/* Progress Container Better Sizing */
+@media (max-width: 360px) {
+    .progress-container-floating {
+        padding: 12px 20px;
+        min-width: 140px;
+        border-radius: 10px;
+    }
+
+    .loader-spinner {
+        width: 28px;
+        height: 28px;
+    }
+
+    .progress-text {
+        font-size: 0.75rem;
+    }
+}
+
+/* Factor Buttons Active State Enhancement */
+@media (max-width: 480px) {
+    .factor-btn.active {
+        transform: scale(1.02);
+    }
+
+    .factor-btn:active {
+        transform: scale(0.98);
+    }
+}
+
+/* File Info Row Stacking on Tiny Screens */
+@media (max-width: 360px) {
+    .file-info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .file-info-value {
+        margin-left: 0;
+    }
+}
+
+/* High DPI Image Rendering */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
+    .preview-image,
+    .img-original,
+    .img-processed {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
     }
 }
 

@@ -99,7 +99,8 @@ self.addEventListener('activate', (event) => {
     (async () => {
       try {
         const cacheNames = await caches.keys();
-        const validCaches = [STATIC_CACHE, IMAGE_CACHE, API_CACHE];
+        const CDN_CACHE = `${CACHE_VERSION}-cdn`;
+        const validCaches = [STATIC_CACHE, IMAGE_CACHE, API_CACHE, CDN_CACHE];
 
         await Promise.all(
           cacheNames.map((name) => {
@@ -164,6 +165,16 @@ self.addEventListener('fetch', (event) => {
   // CSS/JS - Cache first with network fallback
   if (request.destination === 'style' || request.destination === 'script') {
     event.respondWith(cacheFirstStrategy(request, STATIC_CACHE));
+    return;
+  }
+
+  // CDN Resources (External Libraries) - Stale-while-revalidate with version tracking
+  // Note: Removed cdnjs.cloudflare.com since we're not using glfx.js
+  if (url.hostname.includes('cdn.jsdelivr.net') ||
+    url.hostname.includes('unpkg.com') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com')) {
+    event.respondWith(cdnCacheStrategy(request));
     return;
   }
 
@@ -319,6 +330,114 @@ async function networkFirstWithOfflineFallback(request) {
 
     // Last resort: return error response
     return createOfflineResponse();
+  }
+}
+
+/**
+ * CDN Cache Strategy - Stale-while-revalidate with version tracking
+ * Serves cached CDN resources immediately while updating in background
+ * Perfect for external libraries like glfx.js, fonts, etc.
+ */
+async function cdnCacheStrategy(request) {
+  const CDN_CACHE = `${CACHE_VERSION}-cdn`;
+  const CDN_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+  try {
+    const cache = await caches.open(CDN_CACHE);
+    const cached = await cache.match(request);
+
+    // Check if cached version exists and is still fresh
+    if (cached) {
+      const cachedDate = cached.headers.get('sw-cached-date');
+      const cacheAge = cachedDate ? Date.now() - parseInt(cachedDate) : Infinity;
+
+      // If cache is fresh (< 7 days), return it immediately
+      // and update in background (stale-while-revalidate)
+      if (cacheAge < CDN_CACHE_DURATION) {
+        console.log('[ServiceWorker] Serving CDN from cache:', request.url);
+
+        // Update in background (don't await)
+        updateCDNCache(request, cache).catch(err => {
+          console.warn('[ServiceWorker] Background CDN update failed:', err.message);
+        });
+
+        return cached;
+      }
+    }
+
+    // No cache or cache expired - fetch from network
+    console.log('[ServiceWorker] Fetching CDN from network:', request.url);
+    const response = await fetch(request);
+
+    // Cache successful responses
+    if (response && response.status === 200) {
+      // Clone response and add cache timestamp
+      const responseToCache = response.clone();
+      const headers = new Headers(responseToCache.headers);
+      headers.append('sw-cached-date', Date.now().toString());
+
+      const cachedResponse = new Response(responseToCache.body, {
+        status: responseToCache.status,
+        statusText: responseToCache.statusText,
+        headers: headers
+      });
+
+      cache.put(request, cachedResponse);
+      console.log('[ServiceWorker] CDN resource cached:', request.url);
+    }
+
+    return response;
+
+  } catch (error) {
+    console.warn('[ServiceWorker] CDN fetch failed, trying cache:', error.message);
+
+    // Network failed - try to serve stale cache
+    try {
+      const cache = await caches.open(CDN_CACHE);
+      const cached = await cache.match(request);
+
+      if (cached) {
+        console.log('[ServiceWorker] Serving stale CDN cache (offline):', request.url);
+        return cached;
+      }
+    } catch (cacheError) {
+      console.error('[ServiceWorker] CDN cache lookup error:', cacheError);
+    }
+
+    // No cache available - return error
+    return new Response('CDN resource unavailable offline', {
+      status: 503,
+      statusText: 'Service Unavailable',
+      headers: new Headers({
+        'Content-Type': 'text/plain'
+      })
+    });
+  }
+}
+
+/**
+ * Update CDN cache in background (stale-while-revalidate)
+ */
+async function updateCDNCache(request, cache) {
+  try {
+    const response = await fetch(request);
+
+    if (response && response.status === 200) {
+      const headers = new Headers(response.headers);
+      headers.append('sw-cached-date', Date.now().toString());
+
+      const cachedResponse = new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: headers
+      });
+
+      await cache.put(request, cachedResponse);
+      console.log('[ServiceWorker] CDN cache updated in background:', request.url);
+    }
+  } catch (error) {
+    // Silent fail for background updates
+    throw error;
   }
 }
 

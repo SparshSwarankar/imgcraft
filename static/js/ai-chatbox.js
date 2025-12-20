@@ -42,14 +42,13 @@ class ImgCraftAIChatbox {
                     { label: "How Credits Work", next: "credits_info" },
                     { label: "Pricing Plans", next: "pricing_plans" },
                     { label: "Admin Credits", next: "admin_credits" },
-                    { label: "Newsletter Bonus", next: "newsletter_bonus" },
                     { label: "Tool Costs", next: "tool_costs" },
                     { label: "🏠 Main Menu", next: "start" }
                 ]
             },
 
             credits_info: {
-                text: "💰 **How Credits Work:**\n\n• Each tool costs specific credits\n• Free tools (Resize, Convert) = 0 credits\n• Credits deducted after successful processing\n• Failed operations = automatic refund\n• Admin users = unlimited credits\n\n**New User Credits:**\n• Regular signup: 10 credits\n• Newsletter subscribers: 30 credits 🎉",
+                text: "💰 **How Credits Work:**\n\n• Each tool costs specific credits\n• Free tools (Resize, Convert) = 0 credits\n• Credits deducted after successful processing\n• Failed operations = automatic refund\n• Admin users = unlimited credits\n\n**New User Credits:**\n• Sign up and get 10 free credits! 🎉",
                 options: [
                     { label: "View Pricing Plans", next: "pricing_plans" },
                     { label: "Tool Costs", next: "tool_costs" },
@@ -74,14 +73,7 @@ class ImgCraftAIChatbox {
                 ]
             },
 
-            newsletter_bonus: {
-                text: "📧 **Newsletter Bonus:**\n\nSubscribe to our newsletter to get **30 bonus credits** on your first login! 🎉\n\nRegular users get 10 credits, but newsletter subscribers get 30 credits as a welcome bonus.\n\n💡 This is a one-time bonus when you first sign in.",
-                options: [
-                    { label: "How to Join", next: "how_to_join" },
-                    { label: "Back to Credits", next: "credits_menu" },
-                    { label: "🏠 Main Menu", next: "start" }
-                ]
-            },
+
 
             tool_costs: {
                 text: "📊 **Tool Credit Costs:**\n\n**Essentials:**\n• Resize: FREE\n• Convert: FREE\n• Crop: 1 credit\n• Compress: 2 credits\n\n**Enhance:**\n• Filter: 2 credits\n• Upscale: 5 credits\n• Remove Background: 10 credits\n\n**AI Studio:**\n• Watermark: 3 credits\n• Collage: 13 credits\n\n**Tools:**\n• Palette: 2 credits\n• EXIF: 1 credit\n• Annotation: 2 credits",
@@ -317,9 +309,8 @@ class ImgCraftAIChatbox {
             },
 
             faq_started: {
-                text: "**How to get started?**\n\nSimply sign up for a free account to get 10 credits (or 30 if you subscribed to our newsletter). You can use free tools like Resize and Convert without any credits!",
+                text: "**How to get started?**\n\nSimply sign up for a free account to get 10 free credits! You can use free tools like Resize and Convert without any credits!",
                 options: [
-                    { label: "Newsletter Bonus", next: "newsletter_bonus" },
                     { label: "Back to FAQs", next: "faqs_menu" },
                     { label: "🏠 Main Menu", next: "start" }
                 ]
@@ -439,13 +430,7 @@ class ImgCraftAIChatbox {
                 action: () => { window.location.href = '/annotation'; },
                 options: [{ label: "🏠 Main Menu", next: "start" }]
             },
-            how_to_join: {
-                text: "**How to Join:**\n\n1. Click on Sign In/Sign Up in the navigation\n2. Enter your email\n3. Choose to subscribe to newsletter for 30 credits bonus!\n4. Complete registration\n5. Start using ImgCraft!",
-                options: [
-                    { label: "Back to Newsletter", next: "newsletter_bonus" },
-                    { label: "🏠 Main Menu", next: "start" }
-                ]
-            },
+
 
             // ===== FALLBACK =====
             fallback: {
@@ -638,7 +623,7 @@ class ImgCraftAIChatbox {
         // Credits
         if (/\b(credit|cost|price|how much|pricing|plan|buy|purchase)\b/.test(t)) return 'credits_menu';
         if (/\b(admin|unlimited)\b/.test(t)) return 'admin_credits';
-        if (/\b(newsletter|subscribe|bonus|30 credit)\b/.test(t)) return 'newsletter_bonus';
+
 
         // Navigation
         if (/\b(navigate|navigation|where|find|go to|how to get|page|location)\b/.test(t)) return 'navigation_menu';

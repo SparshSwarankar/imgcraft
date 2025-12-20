@@ -3,7 +3,8 @@
 {# --- ENHANCED SEO BLOCKS START --- #}
 {% block title %}Photo Filters & Effects – ImgCraft{% endblock %}
 
-{% block meta_description %}Apply professional filters and effects to photos. Cinematic presets, vintage styles, and manual color adjustments.{% endblock %}
+{% block meta_description %}Apply professional filters and effects to photos. Cinematic presets, vintage styles, and
+manual color adjustments.{% endblock %}
 
 {% block meta_keywords %}photo filters online free, image effects editor, apply filters to photos, color grading tool,
 instagram filters online, cinematic filters, vintage photo effects, black and white filter, photo editor filters,
@@ -17,7 +18,8 @@ effects, artistic filters, imgcraft filters{% endblock %}
 
 {% block og_title %}Photo Filters & Effects – ImgCraft{% endblock %}
 
-{% block og_description %}One-click cinematic and vintage filters with advanced manual adjustments. Create stunning images instantly and free.{% endblock %}
+{% block og_description %}One-click cinematic and vintage filters with advanced manual adjustments. Create stunning
+images instantly and free.{% endblock %}
 {# --- ENHANCED SEO BLOCKS END --- #}
 
 {% block content %}
@@ -31,49 +33,166 @@ effects, artistic filters, imgcraft filters{% endblock %}
         <div class="panel-content custom-scrollbar">
             <div class="control-section" id="presetSection" style="display: none;">
                 <div class="preset-grid">
+                    <!-- Original/None -->
                     <button class="preset-btn active" data-preset="none">
-                        <div class="preset-preview" style="background: #333;"></div>
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
                         <span>Original</span>
                     </button>
 
-                    <button class="preset-btn" data-preset="cinematic">
-                        <div class="preset-preview cinematic-preview"></div>
-                        <span>Cinematic</span>
+                    <!-- Cinematic Presets -->
+                    <button class="preset-btn" data-preset="teal_orange">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #00d2ff 0%, #ff6b00 100%);"></div>
+                        <span>Teal & Orange</span>
                     </button>
 
-                    <button class="preset-btn" data-preset="vintage">
-                        <div class="preset-preview vintage-preview"></div>
-                        <span>Vintage</span>
+                    <button class="preset-btn" data-preset="moody_dark">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);"></div>
+                        <span>Moody Dark</span>
                     </button>
 
-                    <button class="preset-btn" data-preset="moody">
-                        <div class="preset-preview moody-preview"></div>
-                        <span>Moody</span>
+                    <button class="preset-btn" data-preset="bright_cinematic">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></div>
+                        <span>Bright Cinematic</span>
                     </button>
 
-                    <button class="preset-btn" data-preset="bright">
-                        <div class="preset-preview bright-preview"></div>
-                        <span>Bright</span>
-                    </button>
-
-                    <button class="preset-btn" data-preset="bw">
-                        <div class="preset-preview bw-preview"></div>
-                        <span>B&W</span>
-                    </button>
-
-                    <button class="preset-btn" data-preset="warm">
-                        <div class="preset-preview warm-preview"></div>
-                        <span>Warm</span>
-                    </button>
-
-                    <button class="preset-btn" data-preset="cool">
-                        <div class="preset-preview cool-preview"></div>
-                        <span>Cool</span>
+                    <button class="preset-btn" data-preset="film_noir">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #000000 0%, #434343 100%);"></div>
+                        <span>Film Noir</span>
                     </button>
 
                     <button class="preset-btn" data-preset="dramatic">
-                        <div class="preset-preview dramatic-preview"></div>
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #141e30 0%, #243b55 100%);"></div>
                         <span>Dramatic</span>
+                    </button>
+
+                    <!-- Vintage Presets -->
+                    <button class="preset-btn" data-preset="retro_70s">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);"></div>
+                        <span>Retro 70s</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="polaroid">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);"></div>
+                        <span>Polaroid</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="faded_film">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #dfe9f3 0%, #ffffff 100%);"></div>
+                        <span>Faded Film</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="warm_vintage">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #ff9a56 0%, #ff6a00 100%);"></div>
+                        <span>Warm Vintage</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="cool_vintage">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);"></div>
+                        <span>Cool Vintage</span>
+                    </button>
+
+                    <!-- Modern Presets -->
+                    <button class="preset-btn" data-preset="clean_bright">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);"></div>
+                        <span>Clean & Bright</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="high_contrast">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #000000 0%, #ffffff 100%);"></div>
+                        <span>High Contrast</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="matte_finish">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #a8a8a8 0%, #c0c0c0 100%);"></div>
+                        <span>Matte Finish</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="vibrant_pop">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);"></div>
+                        <span>Vibrant Pop</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="soft_pastel">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);"></div>
+                        <span>Soft Pastel</span>
+                    </button>
+
+                    <!-- Black & White Presets -->
+                    <button class="preset-btn" data-preset="classic_bw">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #606060 0%, #a0a0a0 100%);"></div>
+                        <span>Classic B&W</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="high_contrast_bw">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #000000 0%, #ffffff 100%);"></div>
+                        <span>High Contrast B&W</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="soft_bw">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #b0b0b0 0%, #d0d0d0 100%);"></div>
+                        <span>Soft B&W</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="dramatic_bw">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);"></div>
+                        <span>Dramatic B&W</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="film_bw">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #3a3a3a 0%, #8a8a8a 100%);"></div>
+                        <span>Film B&W</span>
+                    </button>
+
+                    <!-- Special Presets -->
+                    <button class="preset-btn" data-preset="golden_hour">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);"></div>
+                        <span>Golden Hour</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="blue_hour">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);"></div>
+                        <span>Blue Hour</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="sunset_glow">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%);"></div>
+                        <span>Sunset Glow</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="cool_tones">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);"></div>
+                        <span>Cool Tones</span>
+                    </button>
+
+                    <button class="preset-btn" data-preset="warm_tones">
+                        <div class="preset-preview"
+                            style="background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);"></div>
+                        <span>Warm Tones</span>
                     </button>
                 </div>
             </div>
@@ -138,6 +257,11 @@ effects, artistic filters, imgcraft filters{% endblock %}
         <div class="panel-content custom-scrollbar">
 
             <div id="filterControls" style="display: none;">
+                <!-- AI Auto Enhance Button -->
+                <button id="aiAutoEnhanceBtn" class="btn btn-outline btn-full" style="margin-bottom: 16px;">
+                    <i class="fas fa-magic"></i> AI Auto Enhance
+                </button>
+
                 <div class="control-section">
                     <label class="section-label">Light & Color</label>
 
@@ -164,6 +288,63 @@ effects, artistic filters, imgcraft filters{% endblock %}
                         </div>
                         <input type="range" id="exposure" class="range-slider" min="-100" max="100" value="0">
                     </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Vibrance</span> <span class="val" id="vibranceValue">0</span>
+                        </div>
+                        <input type="range" id="vibrance" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="section-label">Color Grading</label>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Temperature</span> <span class="val"
+                                id="temperatureValue">0</span></div>
+                        <input type="range" id="temperature" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Tint</span> <span class="val" id="tintValue">0</span></div>
+                        <input type="range" id="tint" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Hue Shift</span> <span class="val" id="hueShiftValue">0</span>
+                        </div>
+                        <input type="range" id="hueShift" class="range-slider" min="-180" max="180" value="0">
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="control-section">
+                    <label class="section-label">Tone Adjustments</label>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Highlights</span> <span class="val"
+                                id="highlightsValue">0</span></div>
+                        <input type="range" id="highlights" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Shadows</span> <span class="val" id="shadowsValue">0</span>
+                        </div>
+                        <input type="range" id="shadows" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Whites</span> <span class="val" id="whitesValue">0</span></div>
+                        <input type="range" id="whites" class="range-slider" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Blacks</span> <span class="val" id="blacksValue">0</span></div>
+                        <input type="range" id="blacks" class="range-slider" min="-100" max="100" value="0">
+                    </div>
                 </div>
 
                 <hr class="panel-divider">
@@ -175,6 +356,17 @@ effects, artistic filters, imgcraft filters{% endblock %}
                         <div class="slider-label"><span>Sharpness</span> <span class="val" id="sharpnessValue">0</span>
                         </div>
                         <input type="range" id="sharpness" class="range-slider" min="0" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Clarity</span> <span class="val" id="clarityValue">0</span>
+                        </div>
+                        <input type="range" id="clarity" class="range-slider" min="0" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group-compact">
+                        <div class="slider-label"><span>Blur</span> <span class="val" id="blurValue">0</span></div>
+                        <input type="range" id="blur" class="range-slider" min="0" max="100" value="0">
                     </div>
 
                     <div class="slider-group-compact">
@@ -193,11 +385,19 @@ effects, artistic filters, imgcraft filters{% endblock %}
                     style="margin-top: 16px; background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--primary);">
                     <i class="fas fa-info-circle"
                         style="color: var(--primary); font-size: 1.1rem; margin-bottom: 6px;"></i>
-                    <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;">
-                        <strong>Preview Mode:</strong><br>
-                        • <strong>Basic adjustments</strong> (Brightness, Contrast, Saturation) show in real-time<br>
-                        • <strong>Advanced effects</strong> (Exposure, Sharpness, Vignette, Grain) apply when you click
-                        "Apply & Download"
+                    <p style="font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                        <strong>⚡ Live Preview (FREE):</strong><br>
+                        • Brightness, Contrast, Saturation<br>
+                        • Hue Shift, Blur<br>
+                        <em style="opacity: 0.8;">Updates instantly as you adjust</em><br><br>
+
+                        <strong>🎨 Server-Side (On Download):</strong><br>
+                        • Exposure, Vibrance, Temperature, Tint<br>
+                        • Highlights, Shadows, Whites, Blacks<br>
+                        • Sharpness, Clarity, Vignette, Grain<br>
+                        • All 25 Presets<br>
+                        • AI Auto Enhance (OpenCV CLAHE)<br>
+                        <em style="opacity: 0.8;">Applied with professional quality</em>
                     </p>
                 </div>
             </div>
@@ -235,7 +435,13 @@ effects, artistic filters, imgcraft filters{% endblock %}
 
 
 {% endblock %}
+
 {% block scripts %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter.css') }}?v=1">
-<script src="{{ url_for('static', filename='js/filter.js') }}?v=1"></script>
+<!-- Filter Tool Styles & Scripts -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter.css') }}?v=3">
+<script src="{{ url_for('static', filename='js/filter.js') }}?v=3" defer></script>
+
+<!-- Note: WebGL acceleration via glfx.js is not available (library doesn't exist on CDN) -->
+<!-- Using Canvas API for real-time preview, which provides excellent performance -->
+<!-- Advanced filters are processed server-side with OpenCV for professional quality -->
 {% endblock %}

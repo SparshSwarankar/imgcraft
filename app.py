@@ -11,6 +11,10 @@ import traceback
 from functools import wraps
 import re
 import os
+import cv2
+import numpy as np
+from skimage import exposure
+import piexif
 # ADS FEATURE REMOVED - Commented out
 # from ads import (
 #     create_ad_free_order,
@@ -2032,6 +2036,16 @@ def api_resize(current_user):
         
         logger.info(f"Resize completed successfully: {fmt} format")
         
+        # Update streak (even for free tools)
+        if current_user:  # Only if logged in
+            try:
+                logger.info(f"[STREAK] Attempting to update streak for user: {current_user['id']}")
+                streak_manager = StreakManager()
+                streak_result = streak_manager.update_streak(current_user['id'])
+                logger.info(f"[STREAK] Update result: {streak_result}")
+            except Exception as e:
+                logger.error(f"[STREAK] Exception: {str(e)}")
+        
         # --- RESPONSE WITH HEADERS ---
         response = make_response(send_file(img_io, mimetype=f'image/{fmt.lower()}'))
         response.headers['X-Credits-Cost'] = str(cost)
@@ -2097,6 +2111,20 @@ def api_compress(current_user):
         img_io.seek(0)
         
         logger.info("Compression completed successfully")
+        
+        # Update streak with detailed logging
+        try:
+            logger.info(f"[STREAK] Attempting to update streak for user: {current_user['id']}")
+            streak_manager = StreakManager()
+            streak_result = streak_manager.update_streak(current_user['id'])
+            logger.info(f"[STREAK] Update result: {streak_result}")
+            
+            if not streak_result or not streak_result.get('success'):
+                logger.error(f"[STREAK] Failed to update: {streak_result}")
+        except Exception as e:
+            logger.error(f"[STREAK] Exception during update: {str(e)}")
+            logger.error(f"[STREAK] Stack trace: {traceback.format_exc()}")
+        
         response = make_response(send_file(img_io, mimetype=f'image/{fmt.lower()}'))
         
         # --- CRITICAL: Send Cost Header for JS Toast ---
@@ -2152,6 +2180,14 @@ def api_convert(current_user):
             mime_type = 'image/x-icon'
         
         logger.info(f"Conversion completed successfully to {target_format}")
+        
+        # Update streak
+        if current_user:
+            try:
+                logger.info(f"[STREAK] Updating for user: {current_user['id']}")
+                StreakManager().update_streak(current_user['id'])
+            except Exception as e:
+                logger.error(f"[STREAK] Error: {e}")
         
         # --- UPDATE: Use make_response to send Cost Header ---
         response = make_response(send_file(img_io, mimetype=mime_type))
@@ -2238,6 +2274,13 @@ def api_remove_bg(current_user):
         
         logger.info("Background removal completed successfully")
         
+        # Update streak
+        try:
+            logger.info(f"[STREAK] Updating for user: {current_user['id']}")
+            StreakManager().update_streak(current_user['id'])
+        except Exception as e:
+            logger.error(f"[STREAK] Error: {e}")
+        
         # Return response with Cost Header
         response = make_response(send_file(img_io, mimetype='image/png'))
         response.headers['X-Credits-Cost'] = str(cost)
@@ -2294,6 +2337,13 @@ def api_palette(current_user):
         
         logger.info(f"Extracted {len(colors)} colors from palette")
         
+        # Update streak
+        try:
+            logger.info(f"[STREAK] Updating for user: {current_user['id']}")
+            StreakManager().update_streak(current_user['id'])
+        except Exception as e:
+            logger.error(f"[STREAK] Error: {e}")
+        
         # --- UPDATE: Send Cost Header ---
         response = make_response(jsonify({'colors': colors}))
         response.headers['X-Credits-Cost'] = str(cost)
@@ -2311,8 +2361,9 @@ def api_palette(current_user):
 @log_request
 def api_filter(current_user):
     """
-    Advanced image filtering and color grading tool
-    Supports preset filters and manual adjustments
+    Advanced image filtering and color grading tool with AI Auto Enhance
+    Supports 25+ preset filters and 15+ manual adjustments
+    Uses: Pillow, OpenCV, scikit-image, NumPy, piexif
     Cost: 2 credits per operation
     """
     # Get cost from database
@@ -2333,135 +2384,82 @@ def api_filter(current_user):
     try:
         import json
         import numpy as np
+        import cv2
         from PIL import ImageEnhance, ImageFilter
+        from skimage import exposure, filters
+        import piexif
         
         # Parse filter data
         filter_data = json.loads(filter_data_str)
         logger.info(f"Applying filters: {filter_data}")
         
-        # Load image
+        # Load image and preserve EXIF
+        file_bytes = file.read()
+        file.seek(0)
         img = Image.open(file)
         fmt = img.format if img.format else 'JPEG'
+        
+        # Extract and preserve EXIF data
+        exif_dict = None
+        try:
+            if fmt.upper() in ['JPEG', 'JPG'] and 'exif' in img.info:
+                exif_dict = piexif.load(img.info['exif'])
+        except Exception as e:
+            logger.warning(f"Could not extract EXIF: {e}")
         
         # Convert to RGB if needed
         if img.mode != 'RGB':
             img = img.convert('RGB')
         
-        # Convert to numpy for advanced operations
-        img_array = np.array(img, dtype=np.float32)
+        # Check for AI Auto Enhance
+        if filter_data.get('aiAutoEnhance', False):
+            img = apply_ai_auto_enhance(img)
         
-        # --- 1. EXPOSURE ---
-        exposure_val = float(filter_data.get('exposure', 0))
-        if exposure_val != 0:
-            # Exposure: multiply by 2^(stops)
-            # Map -100..100 to approximately -2..2 stops
-            stops = exposure_val / 50.0
-            factor = 2.0 ** stops
-            img_array = np.clip(img_array * factor, 0, 255)
+        # Check for preset application
+        preset_name = filter_data.get('preset', None)
+        if preset_name and preset_name != 'none':
+            img = apply_filter_preset(img, preset_name)
         
-        # --- 2. BRIGHTNESS ---
-        brightness = float(filter_data.get('brightness', 0))
-        if brightness != 0:
-            # Simple additive brightness
-            img_array = np.clip(img_array + (brightness * 2.55), 0, 255)
+        # Apply manual adjustments
+        img = apply_manual_filters(img, filter_data)
         
-        # --- 3. CONTRAST ---
-        contrast = float(filter_data.get('contrast', 0))
-        if contrast != 0:
-            # Contrast around midpoint (127.5)
-            factor = (contrast + 100.0) / 100.0
-            img_array = np.clip(((img_array - 127.5) * factor) + 127.5, 0, 255)
-        
-        # --- 4. SATURATION ---
-        saturation = float(filter_data.get('saturation', 0))
-        if saturation != 0:
-            # Convert to PIL for saturation
-            temp_img = Image.fromarray(img_array.astype(np.uint8))
-            enhancer = ImageEnhance.Color(temp_img)
-            factor = 1.0 + (saturation / 100.0)
-            temp_img = enhancer.enhance(max(0, factor))
-            img_array = np.array(temp_img, dtype=np.float32)
-        
-        # --- 5. TEMPERATURE (Color Temperature) ---
-        temp_val = float(filter_data.get('temperature', 0))
-        if temp_val != 0:
-            # Warm = more red/yellow, Cool = more blue
-            if temp_val > 0:  # Warmer
-                img_array[:, :, 0] = np.clip(img_array[:, :, 0] + temp_val * 1.5, 0, 255)  # Red
-                img_array[:, :, 2] = np.clip(img_array[:, :, 2] - temp_val * 0.5, 0, 255)  # Blue
-            else:  # Cooler
-                img_array[:, :, 0] = np.clip(img_array[:, :, 0] + temp_val * 0.5, 0, 255)  # Red
-                img_array[:, :, 2] = np.clip(img_array[:, :, 2] - temp_val * 1.5, 0, 255)  # Blue
-        
-        # --- 6. TINT (Green/Magenta) ---
-        tint_val = float(filter_data.get('tint', 0))
-        if tint_val != 0:
-            # Positive = more green, Negative = more magenta
-            if tint_val > 0:  # More green
-                img_array[:, :, 1] = np.clip(img_array[:, :, 1] + tint_val * 1.5, 0, 255)
-            else:  # More magenta (boost red and blue)
-                img_array[:, :, 0] = np.clip(img_array[:, :, 0] - tint_val * 0.75, 0, 255)
-                img_array[:, :, 2] = np.clip(img_array[:, :, 2] - tint_val * 0.75, 0, 255)
-        
-        # --- 7. SHARPNESS ---
-        sharpness = float(filter_data.get('sharpness', 0))
-        if sharpness > 0:
-            # Convert to PIL for sharpening
-            temp_img = Image.fromarray(img_array.astype(np.uint8))
-            enhancer = ImageEnhance.Sharpness(temp_img)
-            factor = 1.0 + (sharpness / 50.0)
-            temp_img = enhancer.enhance(factor)
-            img_array = np.array(temp_img, dtype=np.float32)
-        
-        # --- 8. VIGNETTE ---
-        vignette = float(filter_data.get('vignette', 0))
-        if vignette > 0:
-            rows, cols = img_array.shape[:2]
-            
-            # Create radial gradient mask
-            center_x, center_y = cols / 2, rows / 2
-            Y, X = np.ogrid[:rows, :cols]
-            
-            # Calculate distance from center
-            dist_from_center = np.sqrt((X - center_x)**2 + (Y - center_y)**2)
-            max_dist = np.sqrt(center_x**2 + center_y**2)
-            
-            # Normalize and create vignette mask
-            mask = 1.0 - (dist_from_center / max_dist)
-            mask = np.clip(mask, 0, 1)
-            
-            # Apply strength
-            strength = vignette / 100.0
-            mask = 1.0 - (strength * (1.0 - mask))
-            
-            # Apply to all channels
-            img_array = img_array * mask[:, :, np.newaxis]
-            img_array = np.clip(img_array, 0, 255)
-        
-        # --- 9. GRAIN ---
-        grain = float(filter_data.get('grain', 0))
-        if grain > 0:
-            # Add gaussian noise
-            noise = np.random.normal(0, grain * 0.5, img_array.shape)
-            img_array = np.clip(img_array + noise, 0, 255)
-        
-        # Convert back to PIL Image
-        result_img = Image.fromarray(img_array.astype(np.uint8))
-        
-        # Save to buffer
+        # Save to buffer with EXIF preservation
         img_io = io.BytesIO()
+        save_kwargs = {'quality': 95, 'optimize': True}
+        
+        # Re-insert EXIF data if available
+        if exif_dict and fmt.upper() in ['JPEG', 'JPG']:
+            try:
+                exif_bytes = piexif.dump(exif_dict)
+                save_kwargs['exif'] = exif_bytes
+            except Exception as e:
+                logger.warning(f"Could not save EXIF: {e}")
+        
         if fmt.upper() in ['JPEG', 'JPG']:
-            result_img.save(img_io, 'JPEG', quality=95, optimize=True)
+            img.save(img_io, 'JPEG', **save_kwargs)
         elif fmt.upper() == 'PNG':
-            result_img.save(img_io, 'PNG', optimize=True)
+            img.save(img_io, 'PNG', optimize=True)
         elif fmt.upper() == 'WEBP':
-            result_img.save(img_io, 'WEBP', quality=95)
+            img.save(img_io, 'WEBP', quality=95)
         else:
-            result_img.save(img_io, fmt, quality=95)
+            img.save(img_io, fmt, quality=95)
         
         img_io.seek(0)
         
         logger.info("Filter application completed successfully")
+        
+        # Update streak with detailed logging
+        try:
+            logger.info(f"[STREAK] Attempting to update streak for user: {current_user['id']}")
+            streak_manager = StreakManager()
+            streak_result = streak_manager.update_streak(current_user['id'])
+            logger.info(f"[STREAK] Update result: {streak_result}")
+            
+            if not streak_result or not streak_result.get('success'):
+                logger.error(f"[STREAK] Failed to update: {streak_result}")
+        except Exception as e:
+            logger.error(f"[STREAK] Exception during update: {str(e)}")
+            logger.error(f"[STREAK] Stack trace: {traceback.format_exc()}")
         
         # Return response with Cost Header
         response = make_response(send_file(img_io, mimetype=f'image/{fmt.lower()}'))
@@ -2472,6 +2470,399 @@ def api_filter(current_user):
         logger.error(f"Filter application failed: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+def apply_ai_auto_enhance(img):
+    """
+    AI-powered auto enhancement using OpenCV CLAHE
+    Applies adaptive histogram equalization in LAB color space
+    """
+    try:
+        import cv2
+        import numpy as np
+        
+        # Convert PIL to OpenCV format
+        img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        
+        # Convert to LAB color space for better color preservation
+        lab = cv2.cvtColor(img_cv, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+        
+        # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization) to L channel
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        l_enhanced = clahe.apply(l)
+        
+        # Merge channels
+        enhanced_lab = cv2.merge([l_enhanced, a, b])
+        
+        # Convert back to BGR then RGB
+        enhanced_bgr = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
+        enhanced_rgb = cv2.cvtColor(enhanced_bgr, cv2.COLOR_BGR2RGB)
+        
+        # Apply subtle sharpening
+        kernel = np.array([[-1,-1,-1],
+                          [-1, 9,-1],
+                          [-1,-1,-1]]) / 9.0
+        enhanced_rgb = cv2.filter2D(enhanced_rgb, -1, kernel)
+        
+        # Apply gentle noise reduction
+        enhanced_rgb = cv2.fastNlMeansDenoisingColored(enhanced_rgb, None, 3, 3, 7, 21)
+        
+        # Auto white balance
+        enhanced_rgb = auto_white_balance(enhanced_rgb)
+        
+        # Convert back to PIL
+        return Image.fromarray(enhanced_rgb)
+        
+    except Exception as e:
+        logger.warning(f"AI Auto Enhance failed: {e}, returning original")
+        return img
+
+
+def auto_white_balance(img_cv):
+    """Apply automatic white balance using gray world assumption"""
+    try:
+        result = cv2.cvtColor(img_cv, cv2.COLOR_RGB2LAB)
+        avg_a = np.average(result[:, :, 1])
+        avg_b = np.average(result[:, :, 2])
+        result[:, :, 1] = result[:, :, 1] - ((avg_a - 128) * (result[:, :, 0] / 255.0) * 1.1)
+        result[:, :, 2] = result[:, :, 2] - ((avg_b - 128) * (result[:, :, 0] / 255.0) * 1.1)
+        result = cv2.cvtColor(result, cv2.COLOR_LAB2RGB)
+        return result
+    except:
+        return img_cv
+
+
+def apply_filter_preset(img, preset_name):
+    """
+    Apply predefined filter presets
+    25 professional presets across 5 categories
+    """
+    import numpy as np
+    from PIL import ImageEnhance
+    
+    img_array = np.array(img, dtype=np.float32)
+    
+    # Cinematic Presets
+    if preset_name == 'teal_orange':
+        # Teal & Orange (Blockbuster look)
+        img_array[:, :, 0] = np.clip(img_array[:, :, 0] * 1.15, 0, 255)  # Boost reds
+        img_array[:, :, 2] = np.clip(img_array[:, :, 2] * 0.85 + 20, 0, 255)  # Teal shadows
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Contrast(img).enhance(1.2)
+        img = ImageEnhance.Color(img).enhance(0.9)
+        
+    elif preset_name == 'moody_dark':
+        img_array = np.clip(img_array * 0.7, 0, 255)  # Darken
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Contrast(img).enhance(1.3)
+        img = ImageEnhance.Color(img).enhance(0.8)
+        img = apply_vignette_pil(img, 60)
+        
+    elif preset_name == 'bright_cinematic':
+        img_array = np.clip(img_array * 1.15 + 10, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Contrast(img).enhance(1.1)
+        img = ImageEnhance.Color(img).enhance(1.1)
+        
+    elif preset_name == 'film_noir':
+        img = img.convert('L').convert('RGB')  # B&W
+        img = ImageEnhance.Contrast(img).enhance(1.5)
+        img = apply_vignette_pil(img, 70)
+        
+    elif preset_name == 'dramatic':
+        img = ImageEnhance.Contrast(img).enhance(1.4)
+        img = ImageEnhance.Color(img).enhance(0.9)
+        img = apply_vignette_pil(img, 50)
+        
+    # Vintage Presets
+    elif preset_name == 'retro_70s':
+        img_array[:, :, 0] = np.clip(img_array[:, :, 0] * 1.1, 0, 255)  # Warm
+        img_array[:, :, 1] = np.clip(img_array[:, :, 1] * 1.05, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Color(img).enhance(0.7)
+        img = ImageEnhance.Contrast(img).enhance(0.9)
+        img = add_grain_pil(img, 15)
+        
+    elif preset_name == 'polaroid':
+        img = ImageEnhance.Brightness(img).enhance(1.1)
+        img = ImageEnhance.Color(img).enhance(0.8)
+        img = ImageEnhance.Contrast(img).enhance(0.95)
+        img = apply_vignette_pil(img, 30)
+        
+    elif preset_name == 'faded_film':
+        img_array = np.clip(img_array * 0.9 + 20, 0, 255)  # Fade
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Color(img).enhance(0.6)
+        img = ImageEnhance.Contrast(img).enhance(0.85)
+        
+    elif preset_name == 'warm_vintage':
+        img_array[:, :, 0] = np.clip(img_array[:, :, 0] + 25, 0, 255)  # Red
+        img_array[:, :, 1] = np.clip(img_array[:, :, 1] + 15, 0, 255)  # Green
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Color(img).enhance(0.75)
+        
+    elif preset_name == 'cool_vintage':
+        img_array[:, :, 2] = np.clip(img_array[:, :, 2] + 20, 0, 255)  # Blue
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Color(img).enhance(0.75)
+        img = ImageEnhance.Contrast(img).enhance(0.9)
+        
+    # Modern Presets
+    elif preset_name == 'clean_bright':
+        img = ImageEnhance.Brightness(img).enhance(1.15)
+        img = ImageEnhance.Color(img).enhance(1.05)
+        img = ImageEnhance.Sharpness(img).enhance(1.2)
+        
+    elif preset_name == 'high_contrast':
+        img = ImageEnhance.Contrast(img).enhance(1.4)
+        img = ImageEnhance.Color(img).enhance(1.1)
+        
+    elif preset_name == 'matte_finish':
+        img_array = np.clip(img_array * 0.95 + 10, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Contrast(img).enhance(0.9)
+        
+    elif preset_name == 'vibrant_pop':
+        img = ImageEnhance.Color(img).enhance(1.3)
+        img = ImageEnhance.Contrast(img).enhance(1.15)
+        img = ImageEnhance.Sharpness(img).enhance(1.1)
+        
+    elif preset_name == 'soft_pastel':
+        img_array = np.clip(img_array * 0.9 + 25, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Color(img).enhance(0.8)
+        img = ImageEnhance.Contrast(img).enhance(0.85)
+        
+    # Black & White Presets
+    elif preset_name == 'classic_bw':
+        img = img.convert('L').convert('RGB')
+        img = ImageEnhance.Contrast(img).enhance(1.1)
+        
+    elif preset_name == 'high_contrast_bw':
+        img = img.convert('L').convert('RGB')
+        img = ImageEnhance.Contrast(img).enhance(1.5)
+        
+    elif preset_name == 'soft_bw':
+        img = img.convert('L').convert('RGB')
+        img_array = np.array(img, dtype=np.float32)
+        img_array = np.clip(img_array * 0.95 + 10, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        
+    elif preset_name == 'dramatic_bw':
+        img = img.convert('L').convert('RGB')
+        img = ImageEnhance.Contrast(img).enhance(1.6)
+        img = apply_vignette_pil(img, 60)
+        
+    elif preset_name == 'film_bw':
+        img = img.convert('L').convert('RGB')
+        img = ImageEnhance.Contrast(img).enhance(1.2)
+        img = add_grain_pil(img, 10)
+        
+    # Special Presets
+    elif preset_name == 'golden_hour':
+        img_array[:, :, 0] = np.clip(img_array[:, :, 0] * 1.2 + 15, 0, 255)
+        img_array[:, :, 1] = np.clip(img_array[:, :, 1] * 1.1 + 10, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Color(img).enhance(1.1)
+        
+    elif preset_name == 'blue_hour':
+        img_array[:, :, 2] = np.clip(img_array[:, :, 2] * 1.2 + 15, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img = ImageEnhance.Color(img).enhance(1.05)
+        img = ImageEnhance.Brightness(img).enhance(0.95)
+        
+    elif preset_name == 'sunset_glow':
+        img_array[:, :, 0] = np.clip(img_array[:, :, 0] * 1.25, 0, 255)
+        img_array[:, :, 1] = np.clip(img_array[:, :, 1] * 1.1, 0, 255)
+        img_array[:, :, 2] = np.clip(img_array[:, :, 2] * 0.9, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        
+    elif preset_name == 'cool_tones':
+        img_array[:, :, 2] = np.clip(img_array[:, :, 2] * 1.15, 0, 255)
+        img_array[:, :, 0] = np.clip(img_array[:, :, 0] * 0.95, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+        
+    elif preset_name == 'warm_tones':
+        img_array[:, :, 0] = np.clip(img_array[:, :, 0] * 1.15, 0, 255)
+        img_array[:, :, 2] = np.clip(img_array[:, :, 2] * 0.95, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+    
+    return img
+
+
+def apply_manual_filters(img, filter_data):
+    """Apply manual filter adjustments with full parameter support"""
+    import numpy as np
+    from PIL import ImageEnhance, ImageFilter
+    
+    img_array = np.array(img, dtype=np.float32)
+    
+    # --- EXPOSURE ---
+    exposure_val = float(filter_data.get('exposure', 0))
+    if exposure_val != 0:
+        stops = exposure_val / 50.0
+        factor = 2.0 ** stops
+        img_array = np.clip(img_array * factor, 0, 255)
+    
+    # --- BRIGHTNESS ---
+    brightness = float(filter_data.get('brightness', 0))
+    if brightness != 0:
+        img_array = np.clip(img_array + (brightness * 2.55), 0, 255)
+    
+    # --- CONTRAST ---
+    contrast = float(filter_data.get('contrast', 0))
+    if contrast != 0:
+        factor = (contrast + 100.0) / 100.0
+        img_array = np.clip(((img_array - 127.5) * factor) + 127.5, 0, 255)
+    
+    # --- HIGHLIGHTS ---
+    highlights = float(filter_data.get('highlights', 0))
+    if highlights != 0:
+        mask = (img_array > 180).astype(float)
+        adjustment = highlights * 0.5
+        img_array = np.clip(img_array + (mask * adjustment), 0, 255)
+    
+    # --- SHADOWS ---
+    shadows = float(filter_data.get('shadows', 0))
+    if shadows != 0:
+        mask = (img_array < 75).astype(float)
+        adjustment = shadows * 0.5
+        img_array = np.clip(img_array + (mask * adjustment), 0, 255)
+    
+    # --- WHITES ---
+    whites = float(filter_data.get('whites', 0))
+    if whites != 0:
+        mask = (img_array > 200).astype(float)
+        adjustment = whites * 0.3
+        img_array = np.clip(img_array + (mask * adjustment), 0, 255)
+    
+    # --- BLACKS ---
+    blacks = float(filter_data.get('blacks', 0))
+    if blacks != 0:
+        mask = (img_array < 50).astype(float)
+        adjustment = blacks * 0.3
+        img_array = np.clip(img_array + (mask * adjustment), 0, 255)
+    
+    # Convert to PIL for color adjustments
+    img = Image.fromarray(img_array.astype(np.uint8))
+    
+    # --- SATURATION ---
+    saturation = float(filter_data.get('saturation', 0))
+    if saturation != 0:
+        enhancer = ImageEnhance.Color(img)
+        factor = 1.0 + (saturation / 100.0)
+        img = enhancer.enhance(max(0, factor))
+    
+    # --- VIBRANCE ---
+    vibrance = float(filter_data.get('vibrance', 0))
+    if vibrance != 0:
+        img_array = np.array(img, dtype=np.float32)
+        # Vibrance affects less saturated colors more
+        hsv = cv2.cvtColor(img_array.astype(np.uint8), cv2.COLOR_RGB2HSV).astype(np.float32)
+        saturation_mask = 1.0 - (hsv[:, :, 1] / 255.0)
+        hsv[:, :, 1] = np.clip(hsv[:, :, 1] + (vibrance * saturation_mask * 0.5), 0, 255)
+        img_array = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2RGB)
+        img = Image.fromarray(img_array)
+    
+    # --- TEMPERATURE ---
+    temp_val = float(filter_data.get('temperature', 0))
+    if temp_val != 0:
+        img_array = np.array(img, dtype=np.float32)
+        if temp_val > 0:  # Warmer
+            img_array[:, :, 0] = np.clip(img_array[:, :, 0] + temp_val * 1.5, 0, 255)
+            img_array[:, :, 2] = np.clip(img_array[:, :, 2] - temp_val * 0.5, 0, 255)
+        else:  # Cooler
+            img_array[:, :, 0] = np.clip(img_array[:, :, 0] + temp_val * 0.5, 0, 255)
+            img_array[:, :, 2] = np.clip(img_array[:, :, 2] - temp_val * 1.5, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+    
+    # --- TINT ---
+    tint_val = float(filter_data.get('tint', 0))
+    if tint_val != 0:
+        img_array = np.array(img, dtype=np.float32)
+        if tint_val > 0:  # More green
+            img_array[:, :, 1] = np.clip(img_array[:, :, 1] + tint_val * 1.5, 0, 255)
+        else:  # More magenta
+            img_array[:, :, 0] = np.clip(img_array[:, :, 0] - tint_val * 0.75, 0, 255)
+            img_array[:, :, 2] = np.clip(img_array[:, :, 2] - tint_val * 0.75, 0, 255)
+        img = Image.fromarray(img_array.astype(np.uint8))
+    
+    # --- HUE SHIFT ---
+    hue_shift = float(filter_data.get('hueShift', 0))
+    if hue_shift != 0:
+        img_array = np.array(img)
+        hsv = cv2.cvtColor(img_array, cv2.COLOR_RGB2HSV).astype(np.float32)
+        hsv[:, :, 0] = (hsv[:, :, 0] + hue_shift) % 180
+        img_array = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2RGB)
+        img = Image.fromarray(img_array)
+    
+    # --- SHARPNESS ---
+    sharpness = float(filter_data.get('sharpness', 0))
+    if sharpness > 0:
+        enhancer = ImageEnhance.Sharpness(img)
+        factor = 1.0 + (sharpness / 50.0)
+        img = enhancer.enhance(factor)
+    
+    # --- CLARITY ---
+    clarity = float(filter_data.get('clarity', 0))
+    if clarity > 0:
+        img = img.filter(ImageFilter.UnsharpMask(radius=2, percent=int(clarity * 1.5), threshold=3))
+    
+    # --- BLUR ---
+    blur = float(filter_data.get('blur', 0))
+    if blur > 0:
+        img = img.filter(ImageFilter.GaussianBlur(radius=blur / 10.0))
+    
+    # --- VIGNETTE ---
+    vignette = float(filter_data.get('vignette', 0))
+    if vignette > 0:
+        img = apply_vignette_pil(img, vignette)
+    
+    # --- GRAIN ---
+    grain = float(filter_data.get('grain', 0))
+    if grain > 0:
+        img = add_grain_pil(img, grain)
+    
+    return img
+
+
+def apply_vignette_pil(img, strength):
+    """Apply vignette effect to PIL image"""
+    import numpy as np
+    
+    img_array = np.array(img, dtype=np.float32)
+    rows, cols = img_array.shape[:2]
+    
+    # Create radial gradient mask
+    center_x, center_y = cols / 2, rows / 2
+    Y, X = np.ogrid[:rows, :cols]
+    
+    dist_from_center = np.sqrt((X - center_x)**2 + (Y - center_y)**2)
+    max_dist = np.sqrt(center_x**2 + center_y**2)
+    
+    mask = 1.0 - (dist_from_center / max_dist)
+    mask = np.clip(mask, 0, 1)
+    
+    strength_factor = strength / 100.0
+    mask = 1.0 - (strength_factor * (1.0 - mask))
+    
+    img_array = img_array * mask[:, :, np.newaxis]
+    img_array = np.clip(img_array, 0, 255)
+    
+    return Image.fromarray(img_array.astype(np.uint8))
+
+
+def add_grain_pil(img, amount):
+    """Add film grain to PIL image"""
+    import numpy as np
+    
+    img_array = np.array(img, dtype=np.float32)
+    noise = np.random.normal(0, amount * 0.5, img_array.shape)
+    img_array = np.clip(img_array + noise, 0, 255)
+    
+    return Image.fromarray(img_array.astype(np.uint8))
+
         
 
 
@@ -2530,6 +2921,14 @@ def api_exif(current_user):
             # Count total EXIF fields
             total_fields = sum(len(group) for group in grouped_exif.values())
             logger.info(f"Extracted {total_fields} EXIF fields across {len(grouped_exif)} categories")
+            
+            # Update streak
+            if current_user:
+                try:
+                    logger.info(f"[STREAK] Updating for user: {current_user['id']}")
+                    StreakManager().update_streak(current_user['id'])
+                except Exception as e:
+                    logger.error(f"[STREAK] Error: {e}")
             
             # Create Response with Headers
             response = make_response(jsonify({
@@ -2799,6 +3198,14 @@ def api_upscale(current_user):
         img_io.seek(0)
         
         logger.info("Upscale completed successfully")
+        
+        # Update streak
+        try:
+            logger.info(f"[STREAK] Updating for user: {current_user['id']}")
+            StreakManager().update_streak(current_user['id'])
+        except Exception as e:
+            logger.error(f"[STREAK] Error: {e}")
+        
         return send_file(img_io, mimetype=f'image/{fmt.lower()}')
         
     except Exception as e:
@@ -2878,6 +3285,13 @@ def api_crop(current_user):
         img_io.seek(0)
         
         logger.info("Crop completed successfully")
+        
+        # Update streak
+        try:
+            logger.info(f"[STREAK] Updating for user: {current_user['id']}")
+            StreakManager().update_streak(current_user['id'])
+        except Exception as e:
+            logger.error(f"[STREAK] Error: {e}")
         
         # Return response with Cost Header
         response = make_response(send_file(img_io, mimetype=f'image/{fmt.lower()}'))
@@ -3022,6 +3436,13 @@ def api_watermark(current_user):
         result.save(output, format='PNG')
         output.seek(0)
         
+        # Update streak
+        try:
+            logger.info(f"[STREAK] Updating for user: {current_user['id']}")
+            StreakManager().update_streak(current_user['id'])
+        except Exception as e:
+            logger.error(f"[STREAK] Error: {e}")
+        
         response = make_response(send_file(output, mimetype='image/png'))
         response.headers['X-Credits-Cost'] = str(cost)
         return response
@@ -3137,8 +3558,15 @@ def api_collage(current_user):
         # Return result
         img_io = io.BytesIO()
         collage_img.save(img_io, 'PNG', quality=95)
-        img_io.seek(0)
-        
+        # Update streak
+        try:
+            logger.info(f"[STREAK] Attempting to update streak for user: {current_user['id']}")
+            streak_manager = StreakManager()
+            streak_result = streak_manager.update_streak(current_user['id'])
+            logger.info(f"[STREAK] Update result: {streak_result}")
+        except Exception as e:
+            logger.error(f"[STREAK] Error: {e}")
+
         response = make_response(send_file(img_io, mimetype='image/png'))
         response.headers['X-Credits-Cost'] = str(cost)
         return response
@@ -3170,6 +3598,15 @@ def api_annotation(current_user):
         
         logger.info(f"Annotation export: type={export_type}")
         
+        # Update streak
+        try:
+            logger.info(f"[STREAK] Attempting to update streak for user: {current_user['id']}")
+            streak_manager = StreakManager()
+            streak_result = streak_manager.update_streak(current_user['id'])
+            logger.info(f"[STREAK] Update result: {streak_result}")
+        except Exception as e:
+            logger.error(f"[STREAK] Error: {e}")
+
         # Return success with cost header
         response = make_response(jsonify({
             'success': True,
@@ -4179,8 +4616,8 @@ if __name__ == '__main__':
         import os
         port = int(os.environ.get("PORT", config.PORT))
         host = os.environ.get("HOST", config.HOST)
-        app.run(host=host, port=port, debug=True)
-        # app.run(host=host, port=port, debug=config.DEBUG)
+        # app.run(host=host, port=port, debug=True)
+        app.run(host=host, port=port, debug=config.DEBUG)
         
     except KeyboardInterrupt:
         logger.info("Server shutdown requested by user")

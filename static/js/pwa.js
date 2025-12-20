@@ -120,8 +120,8 @@ class ImgCraftPWA {
   showInstallPrompt() {
     // Check actual install status (not localStorage flag which can be stale)
     const isActuallyInstalled = window.matchMedia('(display-mode: standalone)').matches ||
-                                (typeof window.navigator !== 'undefined' && window.navigator.standalone === true);
-    
+      (typeof window.navigator !== 'undefined' && window.navigator.standalone === true);
+
     // Never show if already installed
     if (isActuallyInstalled) {
       return;
@@ -216,9 +216,9 @@ class ImgCraftPWA {
       if (this.deferredPrompt) {
         this.deferredPrompt.prompt();
         const { outcome } = await this.deferredPrompt.userChoice;
-        
+
         // App install handled
-        
+
         this.deferredPrompt = null;
         closePrompt(false);
       }
@@ -927,6 +927,14 @@ class ImgCraftPWA {
           case 'update-available':
             this.showUpdateNotification(data.version);
             break;
+          case 'navigate':
+            // Handle navigation from notification clicks
+            const targetUrl = event.data.url || '/';
+            console.log('[PWA] Navigating to:', targetUrl);
+            if (targetUrl !== window.location.pathname) {
+              window.location.href = targetUrl;
+            }
+            break;
           default:
             console.log('[PWA] Unknown message type:', type);
         }
@@ -983,7 +991,7 @@ class ImgCraftPWA {
   checkIfInstalled() {
     // Only check actual browser install state, don't rely on localStorage
     return window.matchMedia('(display-mode: standalone)').matches ||
-           (typeof window.navigator !== 'undefined' && window.navigator.standalone === true);
+      (typeof window.navigator !== 'undefined' && window.navigator.standalone === true);
   }
 
   /**

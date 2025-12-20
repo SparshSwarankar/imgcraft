@@ -161,7 +161,6 @@ const ImgCraftKnowledge = {
     credits: {
         freeTools: ['resize', 'convert'],
         newUserCredits: 10,
-        emailSubscriberCredits: 30,
         plans: [
             { name: 'Starter', credits: 50, price: 99, currency: 'INR', savings: 0 },
             { name: 'Basic', credits: 100, price: 179, currency: 'INR', savings: 10 },
@@ -206,11 +205,6 @@ const ImgCraftKnowledge = {
             'Session management',
             'Password validation'
         ],
-        bonusCredits: {
-            emailSubscriber: 30,
-            regularUser: 10,
-            oneTimeOnly: true
-        },
         guestAccess: {
             allowed: true,
             freeTools: ['resize', 'convert'],
@@ -325,11 +319,7 @@ const ImgCraftKnowledge = {
             question: 'What are admin privileges?',
             answer: 'Admin users have unlimited credits and can use all tools without any restrictions. This is a special privilege for ImgCraft administrators.',
             keywords: ['admin', 'unlimited', 'privileges', 'administrator']
-        },
-        {
-            question: 'How do I get the newsletter bonus?',
-            answer: 'Subscribe to our newsletter when signing up to receive 30 bonus credits on your first login! Regular users get 10 credits, but newsletter subscribers get 30 credits as a one-time welcome bonus.',
-            keywords: ['newsletter', 'bonus', '30 credits', 'subscribe', 'email']
+
         },
         {
             question: 'Is there a limit to how many images I can process?',
@@ -421,7 +411,6 @@ const ImgCraftKnowledge = {
 
         // Getting Started
         'New users get 10 free credits to try premium tools.',
-        'Newsletter subscribers get 30 bonus credits on first login!',
         'Start with free tools to learn the interface before using credits.',
 
         // Advanced Features
