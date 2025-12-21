@@ -771,7 +771,15 @@ AI-powered tools.{% endblock %}
             }, 500);
 
         } catch (error) {
-            showAlert('login', '✗ ' + (error.message || 'Login failed'), 'error');
+            // Check if this is an email verification error
+            const errorMessage = error.message || 'Login failed';
+
+            if (errorMessage.includes('verify your email') || errorMessage.includes('email_not_verified')) {
+                showAlert('login', '⚠️ Email Not Verified!\n\nPlease check your inbox and click the verification link before logging in. Check your spam folder if you don\'t see it.', 'error');
+            } else {
+                showAlert('login', '✗ ' + errorMessage, 'error');
+            }
+
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to ImgCraft';
         }

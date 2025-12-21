@@ -41,7 +41,7 @@
     <meta property="og:url" content="https://imgcraft.online{{ request.path }}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="{{ url_for('static', filename='image/og-banner.jpg', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='image/Logo.jpg', _external=True) }}">
 
     <!-- =========================================
          ✅ Twitter Card Tags
@@ -50,7 +50,7 @@
     <meta name="twitter:url" content="https://imgcraft.online{{ request.path }}">
     <meta name="twitter:title" content="{% block twitter_title %}{{ self.og_title() }}{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}{{ self.og_description() }}{% endblock %}">
-    <meta name="twitter:image" content="{{ url_for('static', filename='image/og-banner.jpg', _external=True) }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='image/Logo.jpg', _external=True) }}">
 
     <!-- =========================================
          ✅ Schema.org JSON-LD (AI Tool Definition)
@@ -64,7 +64,7 @@
       "url": "https://imgcraft.online",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "Web",
-      "image": "{{ url_for('static', filename='image/og-banner.jpg', _external=True) }}",
+      "image": "{{ url_for('static', filename='image/Logo.jpg', _external=True) }}",
       "description": "Professional AI-powered image editing suite. Resize, compress, convert, and enhance images with premium quality.",
       "offers": {
         "@type": "AggregateOffer",

@@ -27,6 +27,9 @@ import piexif
 # Import configuration
 from config import config
 
+# Import email service for unified email sending (SMTP or Brevo)
+from email_service import send_verification_email, send_password_reset_email
+
 # Import Auth, Credits, and Payments modules
 from auth import (
     get_supabase_client,
@@ -341,6 +344,47 @@ def auth_login():
         })
         
         if res.session:
+            # ✅ SECURITY: Check if email is verified using custom verification system
+            if res.user:
+                user_email = res.user.email
+                user_id = res.user.id
+                
+                logger.info(f"Login attempt for: {user_email}")
+                
+                # Check custom email_verification_tokens table
+                try:
+                    verification_check = supabase_admin.table('email_verification_tokens')\
+                        .select('verified')\
+                        .eq('user_id', user_id)\
+                        .execute()
+                    
+                    # If no verification record exists, or if verified = False, block login
+                    if not verification_check.data or len(verification_check.data) == 0:
+                        logger.warning(f"BLOCKED: No verification record found for: {user_email}")
+                        return jsonify({
+                            'success': False,
+                            'error': 'Please verify your email address before logging in. Check your inbox for the verification email.',
+                            'email_not_verified': True
+                        }), 403
+                    
+                    is_verified = verification_check.data[0].get('verified', False)
+                    
+                    if not is_verified:
+                        logger.warning(f"BLOCKED: Email not verified for: {user_email}")
+                        return jsonify({
+                            'success': False,
+                            'error': 'Please verify your email address before logging in. Check your inbox for the verification email.',
+                            'email_not_verified': True
+                        }), 403
+                    
+                    logger.info(f"ALLOWED: Email verified for: {user_email}")
+                    
+                except Exception as e:
+                    logger.error(f"Error checking email verification: {str(e)}")
+                    # On error, allow login (fail open) but log the issue
+                    logger.warning(f"Verification check failed, allowing login for: {user_email}")
+            
+            
             # Initialize credits for the user (one-time only on first login)
             if res.user:
                 try:
@@ -491,243 +535,15 @@ def auth_forgot_password():
         logger.error(f"Forgot password error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# OLD SMTP FUNCTION - Now using email_service.py
+# This function has been moved to email_service.py to support both SMTP and Brevo API
+# The import at the top of this file now provides send_password_reset_email()
+# Keeping this commented out for reference only
+"""
 def send_password_reset_email(to_email, reset_url):
-    """Send password reset email using custom SMTP or email service"""
-    try:
-        import smtplib
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
-        
-        # Email configuration from environment variables
-        smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-        smtp_port = int(os.getenv('SMTP_PORT', '587'))
-        smtp_username = os.getenv('SMTP_USERNAME', '')
-        smtp_password = os.getenv('SMTP_PASSWORD', '')
-        from_email = os.getenv('FROM_EMAIL', smtp_username)
-        from_name = os.getenv('FROM_NAME', 'ImgCraft')
-        
-        if not smtp_username or not smtp_password:
-            logger.warning("SMTP credentials not configured. Email not sent.")
-            logger.warning(f"Reset URL (for testing): {reset_url}")
-            return
-        
-        # Create email
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = 'Reset Your ImgCraft Password'
-        msg['From'] = f'{from_name} <{from_email}>'
-        msg['To'] = to_email
-        
-        # Email body (HTML)
-        html_body = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                * {{
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }}
-                body {{
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                    line-height: 1.6;
-                    color: #333;
-                    background-color: #f4f4f4;
-                    padding: 20px;
-                }}
-                .email-wrapper {{
-                    max-width: 600px;
-                    margin: 0 auto;
-                    background: #ffffff;
-                    border-radius: 16px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-                }}
-                .header {{
-                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-                    color: white;
-                    padding: 40px 30px;
-                    text-align: center;
-                }}
-                .header h1 {{
-                    font-size: 28px;
-                    font-weight: 700;
-                    margin: 0;
-                    letter-spacing: -0.5px;
-                }}
-                .header .emoji {{
-                    font-size: 48px;
-                    display: block;
-                    margin-bottom: 10px;
-                }}
-                .content {{
-                    padding: 40px 30px;
-                    background: #ffffff;
-                }}
-                .content p {{
-                    margin-bottom: 20px;
-                    font-size: 16px;
-                    color: #555;
-                }}
-                .content p:first-child {{
-                    font-size: 18px;
-                    color: #333;
-                    font-weight: 500;
-                }}
-                .button-container {{
-                    text-align: center;
-                    margin: 35px 0;
-                }}
-                .button {{
-                    display: inline-block;
-                    padding: 16px 40px;
-                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-                    color: white !important;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    font-size: 16px;
-                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-                    transition: all 0.3s ease;
-                }}
-                .button:hover {{
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-                }}
-                .divider {{
-                    margin: 30px 0;
-                    border: 0;
-                    border-top: 1px solid #e0e0e0;
-                }}
-                .info-box {{
-                    background: #f8f9fa;
-                    border-left: 4px solid #ff6b6b;
-                    padding: 15px 20px;
-                    margin: 25px 0;
-                    border-radius: 4px;
-                }}
-                .info-box p {{
-                    margin: 0;
-                    font-size: 14px;
-                    color: #666;
-                }}
-                .info-box strong {{
-                    color: #ff6b6b;
-                    font-weight: 600;
-                }}
-                .footer {{
-                    background: #f8f9fa;
-                    padding: 25px 30px;
-                    text-align: center;
-                    border-top: 1px solid #e0e0e0;
-                }}
-                .footer p {{
-                    margin: 5px 0;
-                    font-size: 13px;
-                    color: #999;
-                }}
-                .footer a {{
-                    color: #ff6b6b;
-                    text-decoration: none;
-                }}
-                @media only screen and (max-width: 600px) {{
-                    .email-wrapper {{
-                        border-radius: 0;
-                    }}
-                    .header {{
-                        padding: 30px 20px;
-                    }}
-                    .header h1 {{
-                        font-size: 24px;
-                    }}
-                    .content {{
-                        padding: 30px 20px;
-                    }}
-                    .button {{
-                        padding: 14px 30px;
-                        font-size: 15px;
-                    }}
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="email-wrapper">
-                <div class="header">
-                    <span class="emoji">🔐</span>
-                    <h1>Password Reset Request</h1>
-                </div>
-                
-                <div class="content">
-                    <p>Hello there,</p>
-                    
-                    <p>We received a request to reset your ImgCraft password. Click the button below to create a new password:</p>
-                    
-                    <div class="button-container">
-                        <a href="{reset_url}" class="button">Reset My Password</a>
-                    </div>
-                    
-                    <hr class="divider">
-                    
-                    <p style="font-size: 14px; color: #777;">If the button above doesn't work, copy and paste this link into your browser:</p>
-                    <p style="font-size: 13px; word-break: break-all; color: #ff6b6b; background: #fff5f5; padding: 12px; border-radius: 6px; border: 1px solid #ffe0e0;">{reset_url}</p>
-                    
-                    <div class="info-box">
-                        <p><strong>⏰ Important:</strong> This link will expire in 1 hour for security reasons.</p>
-                    </div>
-                    
-                    <p style="font-size: 14px; color: #777;">If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.</p>
-                    
-                    <p style="margin-top: 30px; font-size: 15px;">Best regards,<br><strong>The ImgCraft Team</strong></p>
-                </div>
-                
-                <div class="footer">
-                    <p>© 2025 ImgCraft. All rights reserved.</p>
-                    <p>This is an automated message, please do not reply to this email.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        
-        # Plain text version
-        text_body = f"""
-        Password Reset Request
-        
-        Hello,
-        
-        We received a request to reset your ImgCraft password.
-        
-        Click this link to reset your password:
-        {reset_url}
-        
-        This link will expire in 1 hour.
-        
-        If you didn't request this password reset, you can safely ignore this email.
-        
-        Best regards,
-        The ImgCraft Team
-        """
-        
-        # Attach both versions
-        part1 = MIMEText(text_body, 'plain')
-        part2 = MIMEText(html_body, 'html')
-        msg.attach(part1)
-        msg.attach(part2)
-        
-        # Send email
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.send_message(msg)
-        
-        logger.info(f"Password reset email sent successfully to {to_email}")
-        
-    except Exception as e:
-        logger.error(f"Failed to send password reset email: {str(e)}")
-        logger.error(traceback.format_exc())
-        raise
+    # This function is now in email_service.py
+    pass
+"""
 
 @app.route('/api/auth/reset-password', methods=['POST'])
 def auth_reset_password():
@@ -808,243 +624,15 @@ def auth_reset_password():
 # EMAIL VERIFICATION ENDPOINTS
 # ============================================================================
 
+# OLD SMTP FUNCTION - Now using email_service.py
+# This function has been moved to email_service.py to support both SMTP and Brevo API
+# The import at the top of this file now provides send_verification_email()
+# Keeping this commented out for reference only
+"""
 def send_verification_email(to_email, verification_url, user_name=""):
-    """Send email verification email using custom SMTP"""
-    try:
-        import smtplib
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
-        
-        # Email configuration from environment variables
-        smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-        smtp_port = int(os.getenv('SMTP_PORT', '587'))
-        smtp_username = os.getenv('SMTP_USERNAME', '')
-        smtp_password = os.getenv('SMTP_PASSWORD', '')
-        from_email = os.getenv('FROM_EMAIL', smtp_username)
-        from_name = os.getenv('FROM_NAME', 'ImgCraft')
-        
-        if not smtp_username or not smtp_password:
-            logger.warning("SMTP credentials not configured. Verification email not sent.")
-            logger.warning(f"Verification URL (for testing): {verification_url}")
-            return
-        
-        # Create email
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = 'Verify Your ImgCraft Email Address'
-        msg['From'] = f'{from_name} <{from_email}>'
-        msg['To'] = to_email
-        
-        greeting = f"Hello {user_name}," if user_name else "Hello there,"
-        
-        # Email body (HTML)
-        html_body = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                * {{
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }}
-                body {{
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                    line-height: 1.6;
-                    color: #333;
-                    background-color: #f4f4f4;
-                    padding: 20px;
-                }}
-                .email-wrapper {{
-                    max-width: 600px;
-                    margin: 0 auto;
-                    background: #ffffff;
-                    border-radius: 16px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-                }}
-                .header {{
-                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-                    color: white;
-                    padding: 40px 30px;
-                    text-align: center;
-                }}
-                .header h1 {{
-                    font-size: 28px;
-                    font-weight: 700;
-                    margin: 0;
-                    letter-spacing: -0.5px;
-                }}
-                .header .emoji {{
-                    font-size: 48px;
-                    display: block;
-                    margin-bottom: 10px;
-                }}
-                .content {{
-                    padding: 40px 30px;
-                    background: #ffffff;
-                }}
-                .content p {{
-                    margin-bottom: 20px;
-                    font-size: 16px;
-                    color: #555;
-                }}
-                .content p:first-child {{
-                    font-size: 18px;
-                    color: #333;
-                    font-weight: 500;
-                }}
-                .button-container {{
-                    text-align: center;
-                    margin: 35px 0;
-                }}
-                .button {{
-                    display: inline-block;
-                    padding: 16px 40px;
-                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-                    color: white !important;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    font-size: 16px;
-                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-                    transition: all 0.3s ease;
-                }}
-                .button:hover {{
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-                }}
-                .divider {{
-                    margin: 30px 0;
-                    border: 0;
-                    border-top: 1px solid #e0e0e0;
-                }}
-                .info-box {{
-                    background: #f8f9fa;
-                    border-left: 4px solid #ff6b6b;
-                    padding: 15px 20px;
-                    margin: 25px 0;
-                    border-radius: 4px;
-                }}
-                .info-box p {{
-                    margin: 0;
-                    font-size: 14px;
-                    color: #666;
-                }}
-                .info-box strong {{
-                    color: #ff6b6b;
-                    font-weight: 600;
-                }}
-                .footer {{
-                    background: #f8f9fa;
-                    padding: 25px 30px;
-                    text-align: center;
-                    border-top: 1px solid #e0e0e0;
-                }}
-                .footer p {{
-                    margin: 5px 0;
-                    font-size: 13px;
-                    color: #999;
-                }}
-                @media only screen and (max-width: 600px) {{
-                    .email-wrapper {{
-                        border-radius: 0;
-                    }}
-                    .header {{
-                        padding: 30px 20px;
-                    }}
-                    .header h1 {{
-                        font-size: 24px;
-                    }}
-                    .content {{
-                        padding: 30px 20px;
-                    }}
-                    .button {{
-                        padding: 14px 30px;
-                        font-size: 15px;
-                    }}
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="email-wrapper">
-                <div class="header">
-                    <span class="emoji">✉️</span>
-                    <h1>Welcome to ImgCraft!</h1>
-                </div>
-                
-                <div class="content">
-                    <p>{greeting}</p>
-                    
-                    <p>Thank you for signing up for ImgCraft! We're excited to have you on board.</p>
-                    
-                    <p>To get started, please verify your email address by clicking the button below:</p>
-                    
-                    <div class="button-container">
-                        <a href="{verification_url}" class="button">Verify Email Address</a>
-                    </div>
-                    
-                    <hr class="divider">
-                    
-                    <p style="font-size: 14px; color: #777;">If the button above doesn't work, copy and paste this link into your browser:</p>
-                    <p style="font-size: 13px; word-break: break-all; color: #ff6b6b; background: #fff5f5; padding: 12px; border-radius: 6px; border: 1px solid #ffe0e0;">{verification_url}</p>
-                    
-                    <div class="info-box">
-                        <p><strong>⏰ Note:</strong> This verification link will expire in 24 hours.</p>
-                    </div>
-                    
-                    <p style="font-size: 14px; color: #777;">If you didn't create an account with ImgCraft, you can safely ignore this email.</p>
-                    
-                    <p style="margin-top: 30px; font-size: 15px;">Welcome aboard!<br><strong>The ImgCraft Team</strong></p>
-                </div>
-                
-                <div class="footer">
-                    <p>© 2025 ImgCraft. All rights reserved.</p>
-                    <p>This is an automated message, please do not reply to this email.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        
-        # Plain text version
-        text_body = f"""
-        Welcome to ImgCraft!
-        
-        {greeting}
-        
-        Thank you for signing up for ImgCraft! We're excited to have you on board.
-        
-        To get started, please verify your email address by clicking this link:
-        {verification_url}
-        
-        This verification link will expire in 24 hours.
-        
-        If you didn't create an account with ImgCraft, you can safely ignore this email.
-        
-        Welcome aboard!
-        The ImgCraft Team
-        """
-        
-        # Attach both versions
-        part1 = MIMEText(text_body, 'plain')
-        part2 = MIMEText(html_body, 'html')
-        msg.attach(part1)
-        msg.attach(part2)
-        
-        # Send email
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.send_message(msg)
-        
-        logger.info(f"Verification email sent successfully to {to_email}")
-        
-    except Exception as e:
-        logger.error(f"Failed to send verification email: {str(e)}")
-        logger.error(traceback.format_exc())
-        raise
+    # This function is now in email_service.py
+    pass
+"""
 
 @app.route('/api/auth/verify-email', methods=['GET'])
 def verify_email():
@@ -3558,6 +3146,8 @@ def api_collage(current_user):
         # Return result
         img_io = io.BytesIO()
         collage_img.save(img_io, 'PNG', quality=95)
+        img_io.seek(0)
+        
         # Update streak
         try:
             logger.info(f"[STREAK] Attempting to update streak for user: {current_user['id']}")

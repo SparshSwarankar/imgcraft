@@ -18,6 +18,7 @@ def _to_bool(value: str, default: bool = False) -> bool:
 @dataclass
 class Config:
     """Application configuration values with validation helpers."""
+    EMAIL_PROVIDER: str = os.getenv('EMAIL_PROVIDER', 'brevo')
 
     SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
     SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
