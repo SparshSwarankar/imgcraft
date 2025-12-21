@@ -270,7 +270,7 @@ def auth_signup():
         })
         
         if res.user:
-            # Generate verification token
+            # ✅ IMPROVED: Generate verification token (always create token even if email fails)
             try:
                 import secrets
                 import hashlib
@@ -294,21 +294,26 @@ def auth_signup():
                 # Delete any existing tokens for this user
                 supabase_admin.table('email_verification_tokens').delete().eq('user_id', res.user.id).execute()
                 
-                # Insert new token
+                # Insert new token - DO THIS FIRST before sending email
                 supabase_admin.table('email_verification_tokens').insert(token_data).execute()
+                logger.info(f"Verification token created for: {email}")
                 
                 # Create verification URL
                 verification_url = f"{request.host_url.rstrip('/')}/api/auth/verify-email?token={verification_token}"
                 
-                # Send verification email
-                send_verification_email(email, verification_url, full_name)
-                
-                logger.info(f"User registered and verification email sent to: {email}")
+                # Send verification email (if this fails, token still exists)
+                try:
+                    send_verification_email(email, verification_url, full_name)
+                    logger.info(f"Verification email sent to: {email}")
+                except Exception as email_error:
+                    logger.error(f"Failed to send verification email: {str(email_error)}")
+                    logger.error(traceback.format_exc())
+                    # Token is created, so user can request resend later
                 
             except Exception as e:
-                logger.error(f"Error sending verification email: {str(e)}")
+                logger.error(f"Error creating verification token: {str(e)}")
                 logger.error(traceback.format_exc())
-                # Don't fail signup if email fails
+                # Don't fail signup if token creation fails, but log it
             
             return jsonify({
                 'success': True,
@@ -351,38 +356,81 @@ def auth_login():
                 
                 logger.info(f"Login attempt for: {user_email}")
                 
-                # Check custom email_verification_tokens table
+                # ✅ IMPROVED: Check email verification with robust fallback logic
                 try:
                     verification_check = supabase_admin.table('email_verification_tokens')\
                         .select('verified')\
                         .eq('user_id', user_id)\
                         .execute()
                     
-                    # If no verification record exists, or if verified = False, block login
-                    if not verification_check.data or len(verification_check.data) == 0:
-                        logger.warning(f"BLOCKED: No verification record found for: {user_email}")
-                        return jsonify({
-                            'success': False,
-                            'error': 'Please verify your email address before logging in. Check your inbox for the verification email.',
-                            'email_not_verified': True
-                        }), 403
-                    
-                    is_verified = verification_check.data[0].get('verified', False)
-                    
-                    if not is_verified:
-                        logger.warning(f"BLOCKED: Email not verified for: {user_email}")
-                        return jsonify({
-                            'success': False,
-                            'error': 'Please verify your email address before logging in. Check your inbox for the verification email.',
-                            'email_not_verified': True
-                        }), 403
-                    
-                    logger.info(f"ALLOWED: Email verified for: {user_email}")
+                    # Check if verification record exists and is verified
+                    if verification_check.data and len(verification_check.data) > 0:
+                        is_verified = verification_check.data[0].get('verified', False)
+                        
+                        if is_verified:
+                            logger.info(f"ALLOWED: Email verified for: {user_email}")
+                        else:
+                            # Email not verified - block login
+                            logger.warning(f"BLOCKED: Email not verified for: {user_email}")
+                            return jsonify({
+                                'success': False,
+                                'error': 'Please verify your email address before logging in. Check your inbox for the verification email.',
+                                'email_not_verified': True
+                            }), 403
+                    else:
+                        # No verification record found - check if user has successfully reset password
+                        logger.info(f"No verification record found for: {user_email}, checking password reset history")
+                        
+                        try:
+                            # Check if user has used a password reset token (proves email ownership)
+                            reset_check = supabase_admin.table('password_reset_tokens')\
+                                .select('used')\
+                                .eq('user_id', user_id)\
+                                .eq('used', True)\
+                                .execute()
+                            
+                            if reset_check.data and len(reset_check.data) > 0:
+                                # User has successfully reset password - allow login
+                                logger.info(f"ALLOWED: User has reset password (email verified via reset): {user_email}")
+                                
+                                # Create verification record for future logins
+                                try:
+                                    from datetime import datetime, timedelta
+                                    verification_data = {
+                                        'user_id': user_id,
+                                        'token_hash': 'auto_verified_via_password_reset',
+                                        'email': user_email,
+                                        'expires_at': (datetime.utcnow() + timedelta(days=365)).isoformat(),
+                                        'verified': True
+                                    }
+                                    supabase_admin.table('email_verification_tokens').insert(verification_data).execute()
+                                    logger.info(f"Created verification record for: {user_email}")
+                                except Exception as e:
+                                    logger.warning(f"Could not create verification record: {str(e)}")
+                            else:
+                                # No verification record and no password reset - block login
+                                logger.warning(f"BLOCKED: No verification record or password reset found for: {user_email}")
+                                return jsonify({
+                                    'success': False,
+                                    'error': 'Please verify your email address before logging in. Check your inbox for the verification email.',
+                                    'email_not_verified': True
+                                }), 403
+                                
+                        except Exception as e:
+                            logger.error(f"Error checking password reset history: {str(e)}")
+                            # On error checking reset history, block login to be safe
+                            logger.warning(f"BLOCKED: Could not verify email ownership for: {user_email}")
+                            return jsonify({
+                                'success': False,
+                                'error': 'Please verify your email address before logging in. Check your inbox for the verification email.',
+                                'email_not_verified': True
+                            }), 403
                     
                 except Exception as e:
                     logger.error(f"Error checking email verification: {str(e)}")
-                    # On error, allow login (fail open) but log the issue
-                    logger.warning(f"Verification check failed, allowing login for: {user_email}")
+                    logger.error(traceback.format_exc())
+                    # On database error, fail open but log the issue
+                    logger.warning(f"Verification check failed due to error, allowing login for: {user_email}")
             
             
             # Initialize credits for the user (one-time only on first login)
@@ -601,11 +649,63 @@ def auth_reset_password():
                     .eq('token_hash', token_hash)\
                     .execute()
                 
+                # ✅ CRITICAL FIX: Mark email as verified after successful password reset
+                # Rationale: Successfully resetting password via email link proves email ownership
+                try:
+                    # Check if verification record exists
+                    verification_check = supabase_admin.table('email_verification_tokens')\
+                        .select('*')\
+                        .eq('user_id', user_id)\
+                        .execute()
+                    
+                    if verification_check.data and len(verification_check.data) > 0:
+                        # Update existing record to verified
+                        supabase_admin.table('email_verification_tokens')\
+                            .update({'verified': True})\
+                            .eq('user_id', user_id)\
+                            .execute()
+                        logger.info(f"Email marked as verified for user: {user_id} (password reset)")
+                    else:
+                        # Create new verified record
+                        from datetime import datetime, timedelta
+                        verification_data = {
+                            'user_id': user_id,
+                            'token_hash': 'password_reset_verified',  # Placeholder since token not needed
+                            'email': token_data.get('email', ''),  # Get from user profile if needed
+                            'expires_at': (datetime.utcnow() + timedelta(days=365)).isoformat(),
+                            'verified': True
+                        }
+                        
+                        # Get user email from user_profiles
+                        try:
+                            user_profile = supabase_admin.table('user_profiles').select('email').eq('id', user_id).execute()
+                            if user_profile.data:
+                                verification_data['email'] = user_profile.data[0]['email']
+                        except Exception as e:
+                            logger.warning(f"Could not fetch user email: {str(e)}")
+                        
+                        supabase_admin.table('email_verification_tokens').insert(verification_data).execute()
+                        logger.info(f"Email verification record created for user: {user_id} (password reset)")
+                    
+                    # Also update Supabase auth email_confirmed_at
+                    try:
+                        supabase_admin.auth.admin.update_user_by_id(
+                            user_id,
+                            {'email_confirmed_at': datetime.utcnow().isoformat()}
+                        )
+                    except Exception as e:
+                        logger.warning(f"Could not update email_confirmed_at: {str(e)}")
+                        
+                except Exception as e:
+                    logger.error(f"Error marking email as verified: {str(e)}")
+                    logger.error(traceback.format_exc())
+                    # Don't fail password reset if verification update fails
+                
                 logger.info(f"Password reset successful for user: {user_id}")
                 
                 return jsonify({
                     'success': True,
-                    'message': 'Password reset successfully'
+                    'message': 'Password reset successfully. You can now log in with your new password.'
                 })
             else:
                 return jsonify({'success': False, 'error': 'Failed to update password'}), 500
