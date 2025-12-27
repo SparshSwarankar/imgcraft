@@ -370,6 +370,7 @@
                             </button>
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -638,39 +639,85 @@
 
     <script>
         // Apply same guest access logic to navigation bar links
-        (function () {
+        // Apply same guest access logic to navigation bar links
+        function updateNavLocks(isLoggedIn) {
             const freeTools = ['resize', 'convert']; // Same as index.html
+            const navLinks = document.querySelectorAll('.dropdown-menu a[href^="/"]');
 
-            // Wait for AuthManager to be ready
-            setTimeout(() => {
-                if (!window.AuthManager || !window.AuthManager.user) {
-                    // User is NOT logged in - apply restrictions
-                    const navLinks = document.querySelectorAll('.dropdown-menu a[href^="/"]');
+            navLinks.forEach(link => {
+                // Store original href if not already stored
+                const currentHref = link.getAttribute('href');
+                let originalHref = link.getAttribute('data-original-href');
 
-                    navLinks.forEach(link => {
-                        const href = link.getAttribute('href');
-                        const toolName = href.replace('/', '').split('/')[0];
+                if (!originalHref) {
+                    // If currently pointing to auth, try to recover original from ID or heuristics if possible?
+                    // Actually, on first run, href is the tool URL.
+                    // If this runs again, href might be /auth.
+                    if (currentHref !== '/auth' && !currentHref.startsWith('/auth?')) {
+                        originalHref = currentHref;
+                        link.setAttribute('data-original-href', originalHref);
+                    }
+                }
 
-                        // If it's a tool link and NOT in free tools
-                        if (toolName && !freeTools.includes(toolName) && href.startsWith('/')) {
-                            // Change href to redirect to auth page
-                            link.setAttribute('data-original-href', href);
+                // If we still don't have original href (e.g. page loaded with /auth links), skip or handle?
+                // The HTML is server-rendered with correct links, so on first run we catch them.
+                if (!originalHref) return;
+
+                const toolName = originalHref.replace('/', '').split('/')[0];
+
+                // Logic: If tool is paid AND user is NOT logged in -> Lock it
+                if (toolName && !freeTools.includes(toolName) && originalHref.startsWith('/')) {
+                    if (!isLoggedIn) {
+                        // LOCK IT
+                        if (!link.href.includes('/auth')) {
                             link.href = '/auth';
-
-                            // Add lock icon
-                            if (!link.querySelector('.fa-lock')) {
+                            // Add lock icon if missing
+                            if (!link.querySelector('.nav-lock-icon')) {
                                 const lockIcon = document.createElement('i');
-                                lockIcon.className = 'fas fa-lock';
+                                lockIcon.className = 'fas fa-lock nav-lock-icon';
                                 lockIcon.style.marginLeft = '6px';
                                 lockIcon.style.fontSize = '0.75em';
                                 lockIcon.style.opacity = '0.7';
                                 link.appendChild(lockIcon);
                             }
                         }
-                    });
+                    } else {
+                        // UNLOCK IT
+                        if (link.href.includes('/auth') || link.href !== originalHref) {
+                            link.href = originalHref;
+                        }
+                        // Remove lock icon
+                        const lockIcon = link.querySelector('.nav-lock-icon');
+                        if (lockIcon) lockIcon.remove();
+                        // Clean up any legacy locks
+                        const legacyLock = link.querySelector('.fa-lock');
+                        if (legacyLock && legacyLock.parentElement === link && !legacyLock.classList.contains('fa-compress-arrows-alt')) {
+                            // Be careful not to remove the tool's own icon if it happens to be a lock (unlikely for these tools)
+                            // Tool icons are usually :before or first child. This lock is appended last.
+                            // Safer to just remove .nav-lock-icon which we added.
+                            // But for existing users with cached pages?
+                        }
+                    }
                 }
-            }, 500); // Same delay as index.html
-        })();
+            });
+        }
+
+        // Listen for AuthManager updates
+        window.addEventListener('auth:stateChanged', (e) => {
+            console.log('Auth state changed, updating locks:', e.detail.isLoggedIn);
+            updateNavLocks(e.detail.isLoggedIn);
+        });
+
+        // Initial check on load (failsafe)
+        document.addEventListener('DOMContentLoaded', () => {
+            // Default to unlocked (do nothing) or check current state
+            if (window.AuthManager && window.AuthManager.session) {
+                updateNavLocks(true);
+            } else if (window.AuthManager && window.AuthManager.initialized) {
+                updateNavLocks(false);
+            }
+            // If AuthManager isn't ready, the auth:stateChanged event will catch it.
+        });
     </script>
 
     <!-- Modal System -->
@@ -742,8 +789,6 @@ Thank you!`;
     <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/scrollbar.js') }}"></script>
 
-    <!-- First Visit Welcome Overlay -->
-    <script src="{{ url_for('static', filename='js/welcome-overlay.js') }}"></script>
 
     <!-- AI Chatbox - Knowledge Base & Logic -->
     <script src="{{ url_for('static', filename='js/ai-chatbox-knowledge.js') }}"></script>

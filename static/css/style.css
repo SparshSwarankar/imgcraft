@@ -27,6 +27,7 @@
     --header-height: 70px;
 }
 
+
 * {
     margin: 0;
     padding: 0;
@@ -801,7 +802,7 @@ body::before {
 .streak-badge-mobile {
     padding: 6px 10px;
     font-size: 0.8rem;
-    gap: 4px;
+    gap: 6px;
     border-radius: 20px;
     min-width: auto;
 }

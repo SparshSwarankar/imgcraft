@@ -15,18 +15,48 @@ class StreakManager:
     def get_streak(user_id):
         """
         Get current streak for a user.
+        Returns 0 if the streak is broken (last active more than 1 day ago).
         """
         try:
             response = supabase_admin.table('streaks').select('*').eq('user_id', user_id).execute()
             
             if response.data and len(response.data) > 0:
                 record = response.data[0]
+                current_streak = record.get('current_streak', 0)
+                longest_streak = record.get('longest_streak', 0)
+                last_active_date = record.get('last_active_date')
+                
+                # Check if streak is still valid
+                if last_active_date and current_streak > 0:
+                    today = date.today()
+                    yesterday = today - timedelta(days=1)
+                    
+                    # If last active was today or yesterday, streak is still valid
+                    if last_active_date in [today.isoformat(), yesterday.isoformat()]:
+                        logger.debug(f"Got valid streak for {user_id}: {current_streak}")
+                        return {
+                            'success': True,
+                            'current_streak': current_streak,
+                            'longest_streak': longest_streak,
+                            'last_active_date': last_active_date
+                        }
+                    else:
+                        # Streak is broken (last active more than 1 day ago)
+                        logger.debug(f"Streak broken for {user_id}: last active {last_active_date}, returning 0")
+                        return {
+                            'success': True,
+                            'current_streak': 0,
+                            'longest_streak': longest_streak,
+                            'last_active_date': last_active_date
+                        }
+                
+                # If current_streak is already 0 or no last_active_date
                 logger.debug(f"Got streak for {user_id}: {record}")
                 return {
                     'success': True,
-                    'current_streak': record.get('current_streak', 0),
-                    'longest_streak': record.get('longest_streak', 0),
-                    'last_active_date': record.get('last_active_date')
+                    'current_streak': current_streak,
+                    'longest_streak': longest_streak,
+                    'last_active_date': last_active_date
                 }
             
             # No record found
@@ -130,19 +160,22 @@ class StreakManager:
                     'message': f"🔥 Day {new_streak} streak!"
                 }
             
-            # Case 3: Missed a day (reset streak to 1)
+            # Case 3: Missed a day (streak was broken, now starting fresh)
+            # The old streak is now 0 (broken), but since user is using a tool today,
+            # we start a new streak at 1
             supabase_admin.table('streaks').update({
                 'current_streak': 1,
                 'last_active_date': today_str
             }).eq('user_id', user_id).execute()
             
-            logger.info(f"Streak reset for {user_id}: 1")
+            logger.info(f"Streak broken for {user_id}: was {current_streak}, now starting fresh at 1")
             return {
                 'success': True,
-                'status': 'reset',
+                'status': 'broken_and_restarted',
                 'new_streak': 1,
+                'previous_streak': current_streak,
                 'longest_streak': longest_streak,
-                'message': "Streak reset. Day 1! 💪"
+                'message': f"Streak broken (was {current_streak}). Starting fresh! Day 1! 💪"
             }
             
         except Exception as e:

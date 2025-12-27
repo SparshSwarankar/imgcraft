@@ -95,6 +95,11 @@ if (!window.AuthSystem) {
             this.session = session;
             this.user = session ? session.user : null;
 
+            // ✅ Dispatch global event for other components (like nav locks)
+            window.dispatchEvent(new CustomEvent('auth:stateChanged', {
+                detail: { isLoggedIn: !!session, user: this.user }
+            }));
+
             if (session) {
                 this.updateUI(true);
                 this.syncSessionWithBackend();

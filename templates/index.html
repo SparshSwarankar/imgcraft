@@ -25,20 +25,6 @@ for everyone.{% endblock %}
 
 {% block content %}
 
-<!-- Launch Day Overlay - Shows only on Dec 21, 2025 -->
-<div id="launchOverlay" class="launch-overlay">
-    <div class="launch-content">
-        <div class="confetti-container" id="confettiContainer"></div>
-        <div class="launch-icon">
-            <i class="fas fa-rocket"></i>
-        </div>
-        <h2 class="launch-title">We're Live! 🎉</h2>
-        <p class="launch-message">ImgCraft is now officially launched! Welcome to the future of image processing.</p>
-        <button class="launch-btn" onclick="dismissLaunchOverlay()">
-            <i class="fas fa-arrow-right"></i> Explore Tools
-        </button>
-    </div>
-</div>
 
 <section class="hero">
     <h1 class="animate-fade-up">Professional Image Tools<br><span class="text-primary">Powered by AI</span></h1>
@@ -176,189 +162,6 @@ for everyone.{% endblock %}
 
 <style>
     /* ========================================
-       LAUNCH DAY OVERLAY STYLES
-       ======================================== */
-    .launch-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        height: 100vh;
-        height: 100dvh;
-        background: rgba(2, 6, 23, 0.95);
-        backdrop-filter: blur(20px);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.5s ease, visibility 0.5s ease;
-        overflow-y: auto;
-        padding: 20px;
-    }
-
-    .launch-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .launch-content {
-        text-align: center;
-        padding: 2rem;
-        max-width: 600px;
-        width: 100%;
-        margin: auto;
-        position: relative;
-        z-index: 2;
-        animation: launchFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .launch-icon {
-        font-size: 5rem;
-        margin-bottom: 1.5rem;
-        animation: rocketLaunch 1.5s ease-in-out infinite;
-    }
-
-    .launch-icon i {
-        background: linear-gradient(135deg, #f97316, #e11d48);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.5));
-    }
-
-    @keyframes rocketLaunch {
-
-        0%,
-        100% {
-            transform: translateY(0) rotate(-45deg);
-        }
-
-        50% {
-            transform: translateY(-20px) rotate(-45deg);
-        }
-    }
-
-    .launch-title {
-        font-size: clamp(2.5rem, 6vw, 4rem);
-        font-weight: 800;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, #f97316, #e11d48);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        letter-spacing: -0.02em;
-    }
-
-    .launch-message {
-        font-size: 1.25rem;
-        color: #94A3B8;
-        margin-bottom: 2rem;
-        line-height: 1.6;
-    }
-
-    .launch-btn {
-        padding: 1rem 2.5rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #f97316, #ea580c);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
-    }
-
-    .launch-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(249, 115, 22, 0.6);
-    }
-
-    .launch-btn i {
-        transition: transform 0.3s ease;
-    }
-
-    .launch-btn:hover i {
-        transform: translateX(5px);
-    }
-
-    @keyframes launchFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    /* Confetti Animation */
-    .confetti-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .confetti {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background: #f97316;
-        animation: confettiFall 3s linear forwards;
-    }
-
-    @keyframes confettiFall {
-        to {
-            transform: translateY(100vh) rotate(360deg);
-            opacity: 0;
-        }
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .launch-overlay {
-            padding: 15px;
-        }
-
-        .launch-content {
-            padding: 1.5rem 1rem;
-        }
-
-        .launch-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .launch-title {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .launch-message {
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .launch-btn {
-            padding: 0.875rem 2rem;
-            width: 100%;
-            font-size: 1rem;
-        }
-    }
-
-    /* ========================================
        EXISTING INLINE STYLES
        ======================================== */
     /* Inline styles for the specific SEO section */
@@ -477,75 +280,8 @@ for everyone.{% endblock %}
 
 <script>
     // ========================================
-    // LAUNCH DAY OVERLAY LOGIC
+    // TOOL LOADING AND INITIALIZATION
     // ========================================
-    const LAUNCH_DATE = new Date('2025-12-21T00:00:00');
-    const LAUNCH_OVERLAY_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-    function checkLaunchDay() {
-        const now = new Date();
-        const timeSinceLaunch = now - LAUNCH_DATE;
-
-        // Show overlay only on launch day (within 24 hours of launch)
-        if (timeSinceLaunch >= 0 && timeSinceLaunch <= LAUNCH_OVERLAY_DURATION) {
-            // Check if user has already dismissed it in this session
-            const dismissed = sessionStorage.getItem('launchOverlayDismissed');
-            if (!dismissed) {
-                showLaunchOverlay();
-            }
-        }
-    }
-
-    function showLaunchOverlay() {
-        const overlay = document.getElementById('launchOverlay');
-        if (overlay) {
-            overlay.classList.add('active');
-            createConfetti();
-
-            // Prevent body scrolling
-            document.body.style.overflow = 'hidden';
-
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                dismissLaunchOverlay();
-            }, 5000);
-        }
-    }
-
-    function dismissLaunchOverlay() {
-        const overlay = document.getElementById('launchOverlay');
-        if (overlay) {
-            overlay.classList.remove('active');
-            sessionStorage.setItem('launchOverlayDismissed', 'true');
-
-            // Restore body scrolling
-            document.body.style.overflow = '';
-        }
-    }
-
-    function createConfetti() {
-        const container = document.getElementById('confettiContainer');
-        if (!container) return;
-
-        const colors = ['#f97316', '#e11d48', '#fbbf24', '#3b82f6', '#8b5cf6'];
-        const confettiCount = 50;
-
-        for (let i = 0; i < confettiCount; i++) {
-            setTimeout(() => {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animationDelay = Math.random() * 0.5 + 's';
-                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                container.appendChild(confetti);
-
-                // Remove confetti after animation
-                setTimeout(() => confetti.remove(), 5000);
-            }, i * 30);
-        }
-    }
-
     // Check on page load
     document.addEventListener('DOMContentLoaded', async () => {
         // Show skeleton loaders by hiding tool cards and showing skeletons
@@ -575,7 +311,7 @@ for everyone.{% endblock %}
         // Insert skeletons after the original cards
         toolsGrid.insertAdjacentHTML('beforeend', skeletonHTML);
 
-        checkLaunchDay();
+
 
         // Fetch tool config for pricing badges
         try {

@@ -151,17 +151,74 @@ document.addEventListener('DOMContentLoaded', () => {
 // Expose globally
 window.StreakManager = StreakManager;
 
-// Mobile streak info function
-function showMobileStreakInfo() {
+// Unified streak click handler - shows info and requests notifications
+function handleStreakClick() {
     const current = StreakManager.currentStreak || 0;
     const longest = StreakManager.longestStreak || 0;
 
+    // Show streak info
     if (window.showToast) {
         showToast(`🔥 Current: ${current} day${current !== 1 ? 's' : ''} | Best: ${longest} day${longest !== 1 ? 's' : ''}`, 'info', 'Your Streak');
     }
+
+    // Debug logging
+    console.log('[Streak] Notification support:', 'Notification' in window);
+    console.log('[Streak] Notification.permission:', Notification?.permission);
+
+    // Show modal if notifications are supported and permission is default
+    // This will keep asking until user grants or denies permission in browser
+    if ('Notification' in window && Notification.permission === 'default') {
+        console.log('[Streak] Will show modal in 800ms');
+        // Small delay so toast appears first
+        setTimeout(() => {
+            showNotificationConfirmModal();
+        }, 800);
+    } else {
+        console.log('[Streak] NOT showing modal. Reason:',
+            !('Notification' in window) ? 'Notifications not supported' :
+                `Permission is ${Notification.permission} (need default)`);
+    }
 }
 
-window.showMobileStreakInfo = showMobileStreakInfo;
+// Show confirmation modal for notifications
+function showNotificationConfirmModal() {
+    console.log('[Streak] Showing notification confirmation modal');
+
+    if (window.showConfirmModal) {
+        console.log('[Streak] Using showConfirmModal function');
+        showConfirmModal(
+            '🔔 Enable Streak Notifications?',
+            'Get reminded at 6 PM if your streak is at risk. Stay on track!',
+            () => {
+                // User clicked "Yes" - request permission
+                console.log('[Streak] User confirmed - requesting permission');
+                if (window.StreakNotifications) {
+                    StreakNotifications.requestPermission();
+                }
+            },
+            () => {
+                // User clicked "No" - just close modal
+                console.log('[Streak] User declined notifications');
+                showToast('You can enable notifications anytime from the bell icon', 'info');
+            }
+        );
+    } else {
+        // Fallback if modal not available
+        console.log('[Streak] showConfirmModal not available, using native confirm');
+        if (confirm('Enable streak notifications? Get reminded at 6 PM if your streak is at risk.')) {
+            localStorage.setItem('streak_notif_asked', 'true');
+            if (window.StreakNotifications) {
+                StreakNotifications.requestPermission();
+            }
+        } else {
+            localStorage.setItem('streak_notif_asked', 'true');
+        }
+    }
+}
+
+window.handleStreakClick = handleStreakClick;
+// Keep old function for backward compatibility
+window.showMobileStreakInfo = handleStreakClick;
 
 // ============================================================================
 // STREAK NOTIFICATION SYSTEM

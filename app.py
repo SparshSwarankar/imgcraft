@@ -741,7 +741,7 @@ def verify_email():
         verification_token = request.args.get('token')
         
         if not verification_token:
-            return jsonify({'success': False, 'error': 'Verification token is required'}), 400
+            return redirect('/auth?error=Verification+token+is+missing')
         
         # Hash the token to compare with database
         import hashlib
@@ -751,21 +751,27 @@ def verify_email():
         
         # Find token in database
         try:
+            # ✅ IMPROVED: Fetch token regardless of verification status to handle double-clicks
             token_result = supabase_admin.table('email_verification_tokens')\
                 .select('*')\
                 .eq('token_hash', token_hash)\
-                .eq('verified', False)\
                 .execute()
             
             if not token_result.data or len(token_result.data) == 0:
-                return jsonify({'success': False, 'error': 'Invalid or already used verification token'}), 400
+                logger.warning(f"Invalid verification token hash used: {token_hash[:10]}...")
+                return redirect('/auth?error=Invalid+verification+link')
             
             token_data = token_result.data[0]
             
-            # Check if token is expired
+            # 1. Check if already verified
+            if token_data.get('verified', False):
+                logger.info(f"Email already verified for user: {token_data.get('user_id')}")
+                return redirect('/auth?verified=true') # Idempotent success
+            
+            # 2. Check if token is expired
             expires_at = datetime.fromisoformat(token_data['expires_at'].replace('Z', '+00:00'))
             if datetime.utcnow().replace(tzinfo=expires_at.tzinfo) > expires_at:
-                return jsonify({'success': False, 'error': 'Verification token has expired'}), 400
+                return redirect('/auth?error=Verification+link+has+expired.+Please+request+a+new+one.')
             
             user_id = token_data['user_id']
             
@@ -792,12 +798,12 @@ def verify_email():
         except Exception as e:
             logger.error(f"Token validation error: {str(e)}")
             logger.error(traceback.format_exc())
-            return jsonify({'success': False, 'error': 'Invalid verification token'}), 400
+            return redirect('/auth?error=Invalid+verification+token')
         
     except Exception as e:
         logger.error(f"Email verification error: {str(e)}")
         logger.error(traceback.format_exc())
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return redirect('/auth?error=Server+error+during+verification')
 
 @app.route('/api/credits/balance', methods=['GET'])
 @require_auth
@@ -2864,28 +2870,101 @@ def api_upscale(current_user):
     
     file = request.files['image']
     factor = int(request.form.get('factor', 2))
-    enhance = request.form.get('enhance', 'false') == 'true'
+    output_format = request.form.get('format', 'PNG').upper()
     
     try:
         img = Image.open(file)
         original_size = f"{img.width}x{img.height}"
         
+        # Convert to RGB if necessary (for JPEG output)
+        if img.mode in ('RGBA', 'LA', 'P') and output_format == 'JPEG':
+            # Create white background
+            background = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+            img = background
+        elif img.mode != 'RGB' and output_format == 'JPEG':
+            img = img.convert('RGB')
+        
         new_width = img.width * factor
         new_height = img.height * factor
         
-        logger.info(f"Upscaling image: {original_size} -> {new_width}x{new_height} (factor={factor}, enhance={enhance})")
+        logger.info(f"Upscaling image: {original_size} -> {new_width}x{new_height} (factor={factor})")
         
+        # Step 1: High-quality resize using LANCZOS
         upscaled = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
         
-        if enhance:
+        # Step 2: Apply factor-based quality enhancements
+        if factor == 8:
+            # 8x: Maximum quality - most beautiful
+            logger.info("Applying 8x quality enhancements (maximum)")
+            
+            # High sharpness with UnsharpMask
+            upscaled = upscaled.filter(ImageFilter.UnsharpMask(radius=3, percent=200, threshold=2))
+            
+            # Detail enhancement (contrast boost)
+            enhancer = ImageEnhance.Contrast(upscaled)
+            upscaled = enhancer.enhance(1.15)  # 15% contrast boost
+            
+            # Brightness fine-tuning
+            enhancer = ImageEnhance.Brightness(upscaled)
+            upscaled = enhancer.enhance(1.05)  # 5% brightness boost
+            
+            # Sharpness enhancement
+            enhancer = ImageEnhance.Sharpness(upscaled)
+            upscaled = enhancer.enhance(1.3)  # 30% sharpness boost
+            
+            # Color saturation boost for vibrant colors
+            enhancer = ImageEnhance.Color(upscaled)
+            upscaled = enhancer.enhance(1.1)  # 10% saturation boost
+            
+        elif factor == 4:
+            # 4x: Medium quality
+            logger.info("Applying 4x quality enhancements (medium)")
+            
+            # Moderate sharpness
             upscaled = upscaled.filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
             
+            # Moderate detail enhancement
+            enhancer = ImageEnhance.Contrast(upscaled)
+            upscaled = enhancer.enhance(1.1)  # 10% contrast boost
+            
+            # Sharpness enhancement
+            enhancer = ImageEnhance.Sharpness(upscaled)
+            upscaled = enhancer.enhance(1.2)  # 20% sharpness boost
+            
+            # Slight color boost
+            enhancer = ImageEnhance.Color(upscaled)
+            upscaled = enhancer.enhance(1.05)  # 5% saturation boost
+            
+        else:  # factor == 2
+            # 2x: Standard quality
+            logger.info("Applying 2x quality enhancements (standard)")
+            
+            # Light sharpness
+            upscaled = upscaled.filter(ImageFilter.UnsharpMask(radius=1.5, percent=120, threshold=3))
+            
+            # Minimal detail enhancement
+            enhancer = ImageEnhance.Contrast(upscaled)
+            upscaled = enhancer.enhance(1.05)  # 5% contrast boost
+            
+            # Light sharpness boost
+            enhancer = ImageEnhance.Sharpness(upscaled)
+            upscaled = enhancer.enhance(1.1)  # 10% sharpness boost
+            
+        # Save to buffer
         img_io = io.BytesIO()
-        fmt = img.format if img.format else 'PNG'
-        upscaled.save(img_io, fmt)
+        
+        # Set quality based on format
+        if output_format == 'JPEG':
+            upscaled.save(img_io, 'JPEG', quality=95, optimize=True)
+        else:  # PNG
+            upscaled.save(img_io, 'PNG', optimize=True)
+        
         img_io.seek(0)
         
-        logger.info("Upscale completed successfully")
+        logger.info(f"Upscale completed successfully with {factor}x quality enhancements")
         
         # Update streak
         try:
@@ -2894,12 +2973,17 @@ def api_upscale(current_user):
         except Exception as e:
             logger.error(f"[STREAK] Error: {e}")
         
-        return send_file(img_io, mimetype=f'image/{fmt.lower()}')
+        # Return with proper mimetype
+        mimetype = 'image/jpeg' if output_format == 'JPEG' else 'image/png'
+        response = make_response(send_file(img_io, mimetype=mimetype))
+        response.headers['X-Credits-Cost'] = str(cost)
+        return response
         
     except Exception as e:
         logger.error(f"Upscale operation failed: {str(e)}")
         logger.error(traceback.format_exc())
         return str(e), 500
+
 
 @app.route('/crop')
 def crop():

@@ -3,7 +3,7 @@
 // Comprehensive offline support, caching, background sync, and updates
 // ============================================================================
 
-const CACHE_VERSION = 'imgcraft-v4';
+const CACHE_VERSION = 'imgcraft-v6';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const API_CACHE = `${CACHE_VERSION}-api`;

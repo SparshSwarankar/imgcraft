@@ -923,11 +923,12 @@ AI-powered tools.{% endblock %}
 
 
 
-    // URL Parameter handling (Verification and Password Reset)
+    // URL Parameter handling (Verification, Password Reset, and Errors)
     document.addEventListener('DOMContentLoaded', () => {
         const queryParams = new URLSearchParams(window.location.search);
         const resetToken = queryParams.get('reset_token');
         const isVerified = queryParams.get('verified') === 'true';
+        const errorMsg = queryParams.get('error');
 
         // 1. Handle Email Verification Success
         if (isVerified) {
@@ -936,7 +937,14 @@ AI-powered tools.{% endblock %}
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        // 2. Handle Password Reset Token Detection (Auto-switch to reset form)
+        // 2. Handle Errors (e.g. invalid token)
+        if (errorMsg) {
+            showAlert('login', '✗ ' + decodeURIComponent(errorMsg), 'error');
+            // Clean up the URL without reloading
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // 3. Handle Password Reset Token Detection (Auto-switch to reset form)
         if (resetToken) {
             // Hide all forms and tabs
             document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));

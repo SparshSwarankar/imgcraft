@@ -36,10 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const costDisplay = document.getElementById('costDisplay');
 
     // Inputs
-    const sharpnessInput = document.getElementById('sharpness');
-    const contrastInput = document.getElementById('contrast');
-    const sharpnessVal = document.getElementById('sharpnessVal');
-    const contrastVal = document.getElementById('contrastVal');
     const formatSelect = document.getElementById('formatSelect'); // Hidden Input
 
     // State
@@ -135,14 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Sliders ---
-    if (sharpnessInput) {
-        sharpnessInput.addEventListener('input', (e) => sharpnessVal.textContent = e.target.value);
-    }
-    if (contrastInput) {
-        contrastInput.addEventListener('input', (e) => contrastVal.textContent = e.target.value);
-    }
-
     // --- API Call ---
     upscaleBtn.addEventListener('click', async () => {
         if (!currentFile) return;
@@ -172,8 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('image', currentFile);
         formData.append('factor', currentFactor);
-        formData.append('sharpness', sharpnessInput.value);
-        formData.append('contrast', contrastInput.value);
         formData.append('format', formatSelect.value);
 
         try {
