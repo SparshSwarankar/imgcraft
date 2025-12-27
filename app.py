@@ -4296,6 +4296,11 @@ def log_analytics():
         return jsonify({'success': True}), 200
 
 
+@app.route('/llms.txt')
+def serve_llms_txt():
+    """Serve llms.txt for AI crawlers"""
+    return send_from_directory('static', 'llms.txt')
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint for monitoring"""

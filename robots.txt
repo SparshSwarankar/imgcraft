@@ -20,6 +20,7 @@ Allow: /auth
 Allow: /billing
 Allow: /about
 Allow: /docs
+Allow: /llms.txt
 Allow: /contact
 
 # Block private/internal paths

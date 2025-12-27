@@ -1,0 +1,26 @@
+# ImgCraft AI Image Tools
+
+## Overview
+ImgCraft is a professional, secure, and privacy-focused online image editing suite powered by AI. It provides a collection of tools for developers, designers, and content creators to manipulate images directly in the browser or via AI processing.
+
+## Core Capabilities
+- **Resize**: Smart image resizing with pixel or percentage constraints.
+- **Compress**: Intelligent lossy and lossless compression (JPEG, PNG, WEBP).
+- **Convert**: Universal format conversion (JPG, PNG, WEBP, BMP, TIFF).
+- **Remove BG**: AI-powered background removal.
+- **Upscale**: AI image super-resolution (2x, 4x) for enhancing low-quality images.
+- **Crop**: Precision cropping with aspect ratio presets (16:9, 1:1, etc.).
+- **Watermark**: Add text or image watermarks for copyright protection.
+- **Filter**: Professional color grading and photo effects.
+- **Exif**: View and strip metadata for privacy.
+- **Collage**: AI-assisted photo collage generation.
+- **Annotation**: Professional image labeling for ML datasets.
+
+## Technical Details
+- **Architecture**: Hybrid client-side (WASM/JS) and server-side (Python/AI) processing.
+- **Privacy**: No permanent storage. Images processed on the server are deleted immediately after processing. Client-side tools do not upload images.
+- **Pricing**: Freemium model. Basic tools (Resize, Convert, Crop) are free. AI tools (Upscale, remove-bg) use a credit system.
+- **API**: Internal API available at `/api/`.
+
+## Usage
+Visit https://imgcraft.online to use the tools. No installation required. PWA supported.
