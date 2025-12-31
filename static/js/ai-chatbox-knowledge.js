@@ -152,6 +152,18 @@ const ImgCraftKnowledge = {
             endpoint: '/api/annotation',
             page: '/annotation',
             keywords: ['annotation', 'text', 'arrow', 'shape', 'draw', 'highlight']
+        },
+        {
+            name: 'newyear',
+            displayName: 'New Year AI Template Generator',
+            credits: 5,
+            isFree: false,
+            category: 'AI Studio',
+            description: 'Create stunning 2026 New Year greetings with 20 AI-powered templates',
+            features: ['20 professional templates', '4 categories (Trending, Minimal, Neon, Elegant)', 'Dynamic image zoom (50%-200%)', 'Customizable text sizes (12px-100px)', 'Real-time preview', 'Multiple aspect ratios (1:1, 4:5, 16:9)', 'Seasonal greetings'],
+            endpoint: '/api/newyear/generate',
+            page: '/newyear',
+            keywords: ['new year', 'greeting', 'template', '2026', 'seasonal', 'celebration', 'wishes', 'card']
         }
     ],
 
@@ -241,7 +253,7 @@ const ImgCraftKnowledge = {
             categories: [
                 { name: 'Essentials', tools: ['resize', 'crop', 'convert', 'compress'] },
                 { name: 'Enhance', tools: ['filter', 'upscale', 'remove_bg'] },
-                { name: 'AI Studio', tools: ['collage', 'watermark'] }
+                { name: 'AI Studio', tools: ['collage', 'watermark', 'newyear'] }
             ]
         }
     },
@@ -277,7 +289,7 @@ const ImgCraftKnowledge = {
         },
         {
             question: 'How do credits work?',
-            answer: 'Each tool costs a specific number of credits. For example: Resize (0), Crop (1), Compress (2), Filter (2), Upscale (5), Remove Background (10), Collage (13). Credits are only deducted after successful processing.',
+            answer: 'Each tool costs a specific number of credits. For example: Resize (0), Crop (1), Compress (2), Filter (2), New Year Template (5), Upscale (5), Remove Background (10), Collage (13). Credits are only deducted after successful processing.',
             keywords: ['credits', 'cost', 'price', 'how much']
         },
         {
@@ -385,6 +397,9 @@ const ImgCraftKnowledge = {
         'Extract color palettes from any image to use in your design projects.',
         'View detailed EXIF data including camera settings and GPS coordinates.',
         'Annotate images with text, arrows, and shapes for presentations.',
+        'Create stunning New Year 2026 greetings with 20 professional templates!',
+        'Customize image zoom and text sizes in real-time with the New Year tool.',
+        'Choose from Trending, Minimal, Neon, or Elegant template categories.',
 
         // Streak Tips
         'Maintain your daily streak to track your consistency with ImgCraft.',
@@ -417,7 +432,8 @@ const ImgCraftKnowledge = {
         'Combine multiple tools for complex image editing workflows.',
         'Use filters to enhance photos before removing backgrounds.',
         'Resize images after editing to optimize file size.',
-        'Add watermarks as the final step to protect your work.'
+        'Add watermarks as the final step to protect your work.',
+        'Create personalized New Year greetings with your own photos and custom text!'
     ],
 
     // ============================================

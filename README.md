@@ -7,7 +7,7 @@ ImgCraft is a comprehensive web-based image editing platform built with **Flask*
 
 ## 🎨 Core Features & Functions
 
-### 1. **Image Editing Tools** (12 Tools)
+### 1. **Image Editing Tools** (13 Tools)
 
 #### **Image Resize**
 - **Endpoint:** `POST /api/resize`
@@ -123,6 +123,15 @@ ImgCraft is a comprehensive web-based image editing platform built with **Flask*
   - Highlight regions
   - Custom colors & fonts
   - Layer management
+
+#### **New Year AI Template Generator (Seasonal)**
+- **Endpoint:** `POST /api/newyear/generate`
+- **Credits Required:** 5
+- **Features:**
+  - 20 AI-powered templates (Trending, Minimal, Neon, Elegant)
+  - Dynamic image zoom and text controls
+  - Real-time canvas preview
+  - Social media ready formats for 2026 greetings
 
 ---
 
@@ -471,7 +480,7 @@ MAX_FILE_SIZE
 
 ## 📱 Features Highlights
 
-✅ **12 Image Editing Tools**
+✅ **13 Image Editing Tools**
 ✅ **AI-Powered (Background Removal, Upscaling)**
 ✅ **Credit-Based Billing System**
 ✅ **Razorpay Payment Integration**
@@ -484,6 +493,7 @@ MAX_FILE_SIZE
 ✅ **Color Palette Analysis**
 ✅ **Watermarking & Annotation**
 ✅ **Collage Creation**
+✅ **New Year AI Generator (Seasonal)**
 ✅ **Responsive Design**
 ✅ **Analytics & Usage Tracking**
 

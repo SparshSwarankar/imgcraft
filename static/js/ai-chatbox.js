@@ -76,7 +76,7 @@ class ImgCraftAIChatbox {
 
 
             tool_costs: {
-                text: "📊 **Tool Credit Costs:**\n\n**Essentials:**\n• Resize: FREE\n• Convert: FREE\n• Crop: 1 credit\n• Compress: 2 credits\n\n**Enhance:**\n• Filter: 2 credits\n• Upscale: 5 credits\n• Remove Background: 10 credits\n\n**AI Studio:**\n• Watermark: 3 credits\n• Collage: 13 credits\n\n**Tools:**\n• Palette: 2 credits\n• EXIF: 1 credit\n• Annotation: 2 credits",
+                text: "📊 **Tool Credit Costs:**\n\n**Essentials:**\n• Resize: FREE\n• Convert: FREE\n• Crop: 1 credit\n• Compress: 2 credits\n\n**Enhance:**\n• Filter: 2 credits\n• Upscale: 5 credits\n• Remove Background: 10 credits\n\n**AI Studio:**\n• New Year Generator: 5 credits\n• Watermark: 3 credits\n• Collage: 13 credits\n\n**Tools:**\n• Palette: 2 credits\n• EXIF: 1 credit\n• Annotation: 2 credits",
                 options: [
                     { label: "View Tool Details", next: "all_tools_menu" },
                     { label: "Back to Credits", next: "credits_menu" },
@@ -132,7 +132,7 @@ class ImgCraftAIChatbox {
             },
 
             nav_ai_studio: {
-                text: "🎨 **AI Studio Category:**\n\n• Watermark - /watermark (3 credits)\n• Collage - /collage (13 credits)",
+                text: "🎨 **AI Studio Category:**\n\n• New Year Generator - /newyear (5 credits)\n• Watermark - /watermark (3 credits)\n• Collage - /collage (13 credits)",
                 options: [
                     { label: "Other Categories", next: "nav_tool_categories" },
                     { label: "🏠 Main Menu", next: "start" }
@@ -175,6 +175,7 @@ class ImgCraftAIChatbox {
             all_tools_menu_2: {
                 text: "🛠️ **More Tools:**",
                 options: [
+                    { label: "New Year AI", next: "tool_newyear" },
                     { label: "Watermark", next: "tool_watermark" },
                     { label: "Collage", next: "tool_collage" },
                     { label: "Palette", next: "tool_palette" },
@@ -289,6 +290,15 @@ class ImgCraftAIChatbox {
                 text: "**Image Annotation** (2 credits)\n\nAdd annotations and shapes\n\n**Features:**\n• Text annotations\n• Arrow & shape drawing\n• Highlight regions\n• Custom colors & fonts\n• Layer management\n\n📍 /annotation",
                 options: [
                     { label: "Open Annotation Tool", next: "open_annotation" },
+                    { label: "Back to Tools", next: "all_tools_menu_2" },
+                    { label: "🏠 Main Menu", next: "start" }
+                ]
+            },
+
+            tool_newyear: {
+                text: "**New Year AI Generator** (5 credits)\n\nCreate stunning 2026 greetings\n\n**Features:**\n• 20 Premium Templates\n• Dynamic Text & Zoom\n• Real-time Preview\n• Seasonal Designs\n\n📍 /newyear",
+                options: [
+                    { label: "Open New Year Tool", next: "open_newyear" },
                     { label: "Back to Tools", next: "all_tools_menu_2" },
                     { label: "🏠 Main Menu", next: "start" }
                 ]
@@ -428,6 +438,11 @@ class ImgCraftAIChatbox {
             open_annotation: {
                 text: "Opening Annotation tool...",
                 action: () => { window.location.href = '/annotation'; },
+                options: [{ label: "🏠 Main Menu", next: "start" }]
+            },
+            open_newyear: {
+                text: "Opening New Year AI Generator...",
+                action: () => { window.location.href = '/newyear'; },
                 options: [{ label: "🏠 Main Menu", next: "start" }]
             },
 
@@ -644,6 +659,7 @@ class ImgCraftAIChatbox {
         if (/\b(palette|color)\b/.test(t)) return 'tool_palette';
         if (/\b(exif|metadata)\b/.test(t)) return 'tool_exif';
         if (/\b(annotation|annotate)\b/.test(t)) return 'tool_annotation';
+        if (/\b(new year|greeting|2026|seasonal)\b/.test(t)) return 'tool_newyear';
 
         // FAQs
         if (/\b(faq|question|help)\b/.test(t)) return 'faqs_menu';

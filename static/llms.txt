@@ -15,6 +15,7 @@ ImgCraft is a professional, secure, and privacy-focused online image editing sui
 - **Exif**: View and strip metadata for privacy.
 - **Collage**: AI-assisted photo collage generation.
 - **Annotation**: Professional image labeling for ML datasets.
+- **New Year AI**: Seasonal AI template generator for 2026 greetings with dynamic customization.
 
 ## Technical Details
 - **Architecture**: Hybrid client-side (WASM/JS) and server-side (Python/AI) processing.

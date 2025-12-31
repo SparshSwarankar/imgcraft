@@ -16,6 +16,7 @@ Allow: /exif
 Allow: /palette
 Allow: /collage
 Allow: /annotation
+Allow: /newyear
 Allow: /auth
 Allow: /billing
 Allow: /about

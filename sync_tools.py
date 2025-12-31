@@ -118,6 +118,14 @@ TOOL_DEFINITIONS = [
         'description': 'Professional annotation with bounding boxes, polygons, and metadata export',
         'is_active': True,
         'is_free': False
+    },
+    {
+        'tool_name': 'newyear',
+        'display_name': 'New Year AI Template Generator',
+        'credit_cost': 5,
+        'description': 'Create stunning New Year 2026 greetings with AI-powered templates for social media',
+        'is_active': True,
+        'is_free': False
     }
 ]
 

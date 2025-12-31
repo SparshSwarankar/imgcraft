@@ -1,0 +1,2320 @@
+/* =========================================
+   NEW YEAR AI TEMPLATE GENERATOR - COMPLETE STYLES
+   Includes: Studio Layout + Tool-Specific Styles
+   ========================================= */
+
+/* =========================================
+   1. GLOBAL VARIABLES & ROOT
+   ========================================= */
+:root {
+    /* --- Brand Colors --- */
+    --primary: #F97316;
+    --primary-hover: #EA580C;
+    --secondary: #E11D48;
+    --dark-bg: #020617;
+    --card-bg: #0F172A;
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+    --primary-rgb: 249, 115, 22;
+
+    /* --- Studio Specifics --- */
+    --panel-width: 320px;
+    --header-height: 70px;
+    --studio-bg: #0a0a0a;
+    --panel-bg: rgba(20, 20, 20, 0.95);
+    --canvas-bg: #121212;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --radius-md: 8px;
+    --radius-lg: 16px;
+}
+
+/* =========================================
+   2. STUDIO LAYOUT GRID (3-Column)
+   ========================================= */
+.studio-wrapper {
+    display: grid;
+    grid-template-columns: var(--panel-width) 1fr var(--panel-width);
+    grid-template-rows: calc(100vh - var(--header-height) - 40px);
+    gap: 16px;
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin-top: 100px;
+}
+
+/* Common Panel Styles */
+.studio-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    min-height: 60px;
+}
+
+.panel-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-pro {
+    background: var(--primary);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.panel-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* =========================================
+   3. CENTER CANVAS
+   ========================================= */
+.studio-canvas {
+    background-color: var(--canvas-bg);
+    background-image:
+        linear-gradient(45deg, #1a1a1a 25%, transparent 25%),
+        linear-gradient(-45deg, #1a1a1a 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1a1a1a 75%),
+        linear-gradient(-45deg, transparent 75%, #1a1a1a 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.canvas-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+}
+
+/* Upload Area */
+.upload-area-large {
+    text-align: center;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 60px;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+
+.upload-area-large:hover {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.05);
+    transform: scale(1.02);
+}
+
+.upload-icon-large {
+    font-size: 5rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 24px;
+}
+
+.upload-area-large:hover .upload-icon-large {
+    color: var(--primary);
+}
+
+.upload-area-large h2 {
+    color: var(--text-main);
+    margin-bottom: 12px;
+}
+
+.upload-area-large p {
+    color: var(--text-muted);
+}
+
+/* Preview Stage */
+.preview-stage {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* =========================================
+   4. FILE INFO SECTION
+   ========================================= */
+.file-info-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.file-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.file-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.file-info-label {
+    color: var(--text-muted);
+}
+
+.file-info-value {
+    color: white;
+    font-weight: 600;
+}
+
+.info-card-small {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.info-card-small p {
+    font-size: 0.8rem;
+    color: #ccc;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.highlight-text {
+    color: var(--primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: block;
+    margin-top: 4px;
+}
+
+.info-box-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.info-box-empty i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* =========================================
+   5. CONTROL SECTION
+   ========================================= */
+.control-section {
+    margin-bottom: 20px;
+}
+
+.section-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.panel-divider {
+    border: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 20px 0;
+}
+
+/* =========================================
+   6. NEW YEAR SPECIFIC - TEMPLATE CATEGORIES
+   ========================================= */
+.template-category-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.category-tab {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.category-tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    color: var(--text-main);
+}
+
+.category-tab.active {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.15));
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+}
+
+.category-tab i {
+    font-size: 1rem;
+}
+
+/* =========================================
+   7. NEW YEAR SPECIFIC - TEMPLATE GRID
+   ========================================= */
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding-right: 4px;
+}
+
+.template-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    overflow: hidden;
+}
+
+.template-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.2);
+}
+
+.template-card.active {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.1));
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+}
+
+.template-preview {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.template-preview::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(249, 115, 22, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.template-card:hover .template-preview::before {
+    opacity: 1;
+}
+
+.template-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.template-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--primary);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* =========================================
+   8. NEW YEAR SPECIFIC - PLATFORM SELECTION
+   ========================================= */
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.platform-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.platform-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.platform-btn.active {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.15));
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+}
+
+.platform-btn i {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.platform-btn span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.platform-btn small {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* =========================================
+   9. NEW YEAR SPECIFIC - TEXT INPUTS
+   ========================================= */
+.custom-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.custom-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.custom-input::placeholder {
+    color: var(--text-muted);
+}
+
+.input-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Slider Controls */
+.slider-group {
+    margin-bottom: 16px;
+}
+
+.slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.slider-val {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.range-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+    transition: all 0.2s;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.8);
+}
+
+.range-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+    transition: all 0.2s;
+}
+
+.range-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.8);
+}
+
+.mt-3 {
+    margin-top: 12px;
+}
+
+/* =========================================
+   10. NEW YEAR SPECIFIC - CANVAS PREVIEW
+   ========================================= */
+.newyear-preview-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.newyear-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    background: #000;
+}
+
+/* =========================================
+   11. BUTTONS & ACTIONS
+   ========================================= */
+.cost-indicator {
+    font-size: 0.85rem;
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), #EA580C);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Button Icon Styling - Override any inherited styles */
+.btn-primary i,
+button i {
+    display: inline-block !important;
+    margin-right: 8px;
+    font-size: 1em !important;
+    color: inherit !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    vertical-align: middle;
+}
+
+.action-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-text {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.btn-text:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Download Button */
+#downloadBtn {
+    background: linear-gradient(135deg, #F97316 0%, #db2777 100%) !important;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s;
+}
+
+#downloadBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
+}
+
+/* Glow Effect */
+.btn-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 30px rgba(249, 115, 22, 0.7);
+    }
+}
+
+/* =========================================
+   12. LOADING STATES
+   ========================================= */
+.progress-container-floating {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.85);
+    padding: 20px 40px;
+    border-radius: 12px;
+    text-align: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loader-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.progress-text {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* =========================================
+   13. ANIMATIONS
+   ========================================= */
+@keyframes floating-anim {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.floating-anim {
+    animation: floating-anim 3s ease-in-out infinite;
+}
+
+/* =========================================
+   14. TEMPLATE PREVIEW GRADIENTS
+   ========================================= */
+.template-preview.gradient-1 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.template-preview.gradient-2 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.template-preview.gradient-3 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.template-preview.gradient-4 {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.template-preview.gradient-5 {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.template-preview.gradient-6 {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.template-preview.gradient-7 {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.template-preview.gradient-8 {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+}
+
+.template-preview.gradient-neon {
+    background: linear-gradient(135deg, #f700ff 0%, #00d4ff 100%);
+}
+
+.template-preview.gradient-dark {
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+}
+
+/* =========================================
+   TEMPLATE/FILTER CARDS RESPONSIVE FIX
+   Prevents Overlapping & Ensures Proper Scrolling
+   ========================================= */
+
+/* =========================================
+   DESKTOP - DEFAULT (1025px+)
+   ========================================= */
+@media (min-width: 1025px) {
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding-right: 4px;
+        max-height: none;
+        /* Remove height restriction on desktop */
+        overflow-y: visible;
+    }
+
+    .template-card {
+        position: relative;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        overflow: hidden;
+        margin-bottom: 0;
+        /* Remove extra margin */
+    }
+
+    .template-preview {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .template-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-main);
+        text-align: center;
+        margin-bottom: 4px;
+        line-height: 1.2;
+    }
+}
+
+/* =========================================
+   TABLET LANDSCAPE (769px - 1024px)
+   ========================================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .panel-content {
+        padding: 18px;
+        max-height: calc(100vh - 240px);
+        overflow-y: auto;
+    }
+
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding-right: 4px;
+        max-height: none;
+        overflow-y: visible;
+        margin-bottom: 16px;
+    }
+
+    .template-card {
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 0;
+    }
+
+    .template-preview {
+        aspect-ratio: 1;
+        font-size: 1.8rem;
+        margin-bottom: 6px;
+    }
+
+    .template-name {
+        font-size: 0.75rem;
+    }
+
+    .template-badge {
+        top: 6px;
+        right: 6px;
+        padding: 2px 5px;
+        font-size: 0.6rem;
+    }
+
+    /* Platform Selection Cards */
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .platform-btn {
+        padding: 12px;
+        border-radius: 10px;
+    }
+}
+
+/* =========================================
+   TABLET PORTRAIT (481px - 768px)
+   ========================================= */
+@media (min-width: 481px) and (max-width: 768px) {
+    .studio-panel-right {
+        order: 3;
+        height: auto;
+        max-height: none;
+    }
+
+    .panel-content {
+        padding: 18px;
+        max-height: 70vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .template-category-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .category-tab {
+        padding: 9px 12px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .template-card {
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 0;
+        min-height: auto;
+    }
+
+    .template-preview {
+        width: 100%;
+        aspect-ratio: 1;
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+        border-radius: 8px;
+    }
+
+    .template-name {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        margin-bottom: 0;
+    }
+
+    .template-badge {
+        top: 6px;
+        right: 6px;
+        padding: 2px 5px;
+        font-size: 0.6rem;
+    }
+
+    /* Platform Selection */
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .platform-btn {
+        padding: 10px;
+        min-height: 100px;
+    }
+
+    .platform-btn i {
+        font-size: 1.4rem;
+    }
+
+    .platform-btn span {
+        font-size: 0.8rem;
+    }
+
+    .platform-btn small {
+        font-size: 0.65rem;
+    }
+}
+
+/* =========================================
+   MOBILE (375px - 480px)
+   ========================================= */
+@media (min-width: 375px) and (max-width: 480px) {
+    .studio-panel-right {
+        order: 3;
+        height: auto;
+        max-height: none;
+        margin-bottom: 80px;
+        /* Space for footer */
+    }
+
+    .panel-content {
+        padding: 16px;
+        max-height: 65vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .control-section {
+        margin-bottom: 16px;
+    }
+
+    /* Category Tabs - Single Column */
+    .template-category-tabs {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+
+    .category-tab {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+        gap: 4px;
+        border-radius: 8px;
+    }
+
+    .category-tab i {
+        font-size: 0.9rem;
+    }
+
+    /* Template Grid - Single Column */
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        /* Use 2 columns to save space */
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .template-card {
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 0;
+        min-height: auto;
+        width: 100%;
+    }
+
+    .template-preview {
+        width: 100%;
+        aspect-ratio: 1;
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        border-radius: 8px;
+    }
+
+    .template-name {
+        font-size: 0.75rem;
+        line-height: 1.3;
+        margin-bottom: 0;
+        text-align: center;
+    }
+
+    .template-badge {
+        top: 8px;
+        right: 8px;
+        padding: 2px 6px;
+        font-size: 0.65rem;
+        border-radius: 4px;
+    }
+
+    /* Platform Selection - Single Column */
+    .platform-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .platform-btn {
+        padding: 10px;
+        border-radius: 8px;
+        min-height: 90px;
+    }
+
+    .platform-btn i {
+        font-size: 1.3rem;
+    }
+
+    .platform-btn span {
+        font-size: 0.8rem;
+    }
+
+    .platform-btn small {
+        font-size: 0.65rem;
+    }
+
+    /* Sliders */
+    .slider-group {
+        margin-bottom: 14px;
+    }
+
+    /* Text Inputs */
+    .custom-input {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    /* Panel Footer */
+    .panel-footer {
+        padding: 16px;
+        position: sticky;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+    }
+
+    .cost-indicator {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .btn-primary {
+        padding: 12px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+}
+
+/* =========================================
+   EXTRA SMALL MOBILE (320px - 374px)
+   ========================================= */
+@media (max-width: 374px) {
+    .studio-panel-right {
+        order: 3;
+        height: auto;
+        max-height: none;
+        margin-bottom: 80px;
+    }
+
+    .panel-content {
+        padding: 14px;
+        max-height: 60vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Category Tabs */
+    .template-category-tabs {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .category-tab {
+        padding: 7px 8px;
+        font-size: 0.7rem;
+        gap: 4px;
+    }
+
+    .category-tab i {
+        font-size: 0.85rem;
+    }
+
+    /* Template Grid - Single Column */
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .template-card {
+        padding: 8px;
+        border-radius: 8px;
+        margin-bottom: 0;
+        width: 100%;
+    }
+
+    .template-preview {
+        width: 100%;
+        aspect-ratio: 1;
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+        border-radius: 6px;
+    }
+
+    .template-name {
+        font-size: 0.7rem;
+        line-height: 1.3;
+    }
+
+    .template-badge {
+        top: 6px;
+        right: 6px;
+        padding: 2px 5px;
+        font-size: 0.6rem;
+    }
+
+    /* Platform Selection */
+    .platform-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .platform-btn {
+        padding: 8px;
+        min-height: 80px;
+    }
+
+    .platform-btn i {
+        font-size: 1.2rem;
+    }
+
+    .platform-btn span {
+        font-size: 0.75rem;
+    }
+
+    .platform-btn small {
+        font-size: 0.6rem;
+    }
+
+    .custom-input {
+        padding: 9px 12px;
+        font-size: 0.8rem;
+    }
+
+    .panel-footer {
+        padding: 14px;
+    }
+
+    .btn-primary {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+}
+
+/* =========================================
+   SAFE AREA FOR MOBILE (iPhone Notch, etc.)
+   ========================================= */
+@media (max-width: 480px) {
+    .panel-footer {
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    .panel-content {
+        padding-bottom: 20px;
+    }
+}
+
+/* =========================================
+   LANDSCAPE MODE FIX FOR MOBILE
+   ========================================= */
+@media (max-height: 600px) and (orientation: landscape) and (max-width: 900px) {
+    .panel-content {
+        max-height: calc(100vh - 180px);
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .template-card {
+        padding: 8px;
+    }
+
+    .template-preview {
+        font-size: 1.2rem;
+    }
+
+    .template-name {
+        font-size: 0.7rem;
+    }
+}
+
+/* =========================================
+   ULTRA RESPONSIVE MEDIA QUERIES
+   Mobile-First Approach with Breakpoints
+   ========================================= */
+
+/* =========================================
+   1. EXTRA SMALL MOBILE (320px - 374px)
+   ========================================= */
+@media (max-width: 374px) {
+    :root {
+        --panel-width: 100%;
+        --header-height: 60px;
+    }
+
+    .studio-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 10px 10px 10px;
+        margin-top: 70px;
+        height: auto;
+        overflow: visible;
+    }
+
+    /* Canvas First */
+    .studio-canvas {
+        order: 1;
+        height: 380px;
+        min-height: 380px;
+        border-radius: 10px;
+    }
+
+    .canvas-container {
+        padding: 12px;
+    }
+
+    .upload-area-large {
+        padding: 25px 15px;
+        border-radius: 10px;
+    }
+
+    .upload-icon-large {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+
+    .upload-area-large h2 {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+    }
+
+    .upload-area-large p {
+        font-size: 0.8rem;
+    }
+
+    .btn {
+        font-size: 0.85rem;
+        padding: 10px 16px;
+    }
+
+    /* Left Panel Second */
+    .studio-panel:first-of-type {
+        order: 2;
+        height: auto;
+        min-height: auto;
+    }
+
+    /* Right Panel Third */
+    .studio-panel:last-of-type {
+        order: 3;
+        height: auto;
+        min-height: auto;
+    }
+
+    .panel-header {
+        padding: 10px 14px;
+        min-height: 48px;
+    }
+
+    .panel-header h3 {
+        font-size: 0.85rem;
+        gap: 5px;
+    }
+
+    .panel-header h3 i {
+        font-size: 0.9rem;
+    }
+
+    .badge-pro {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+    }
+
+    .panel-content {
+        padding: 14px;
+    }
+
+    .panel-footer {
+        padding: 14px;
+    }
+
+    /* File Info */
+    .file-info-section {
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .file-info-row {
+        margin-bottom: 8px;
+        font-size: 0.8rem;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .file-info-value {
+        font-size: 0.85rem;
+    }
+
+    .info-card-small {
+        padding: 8px;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .info-card-small i {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .info-card-small p {
+        font-size: 0.7rem;
+        line-height: 1.3;
+    }
+
+    .highlight-text {
+        font-size: 0.95rem;
+        margin-top: 2px;
+    }
+
+    .info-box-empty {
+        padding: 50px 15px;
+    }
+
+    .info-box-empty i {
+        font-size: 2rem;
+        margin-bottom: 12px;
+    }
+
+    .info-box-empty p {
+        font-size: 0.85rem;
+    }
+
+    /* Template Categories */
+    .template-category-tabs {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .category-tab {
+        padding: 7px 8px;
+        font-size: 0.7rem;
+        gap: 4px;
+    }
+
+    .category-tab i {
+        font-size: 0.85rem;
+    }
+
+    /* Template Grid */
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .template-card {
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+    .template-preview {
+        font-size: 1.3rem;
+        border-radius: 6px;
+    }
+
+    .template-name {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .template-badge {
+        top: 6px;
+        right: 6px;
+        padding: 2px 5px;
+        font-size: 0.6rem;
+    }
+
+    /* Platform Selection */
+    .platform-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .platform-btn {
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+    .platform-btn i {
+        font-size: 1.2rem;
+    }
+
+    .platform-btn span {
+        font-size: 0.75rem;
+    }
+
+    .platform-btn small {
+        font-size: 0.6rem;
+    }
+
+    /* Text Inputs */
+    .custom-input {
+        padding: 9px 12px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+
+    .input-hint {
+        font-size: 0.7rem;
+        margin-top: 4px;
+    }
+
+    .section-label {
+        font-size: 0.75rem;
+        margin-bottom: 7px;
+    }
+
+    .control-section {
+        margin-bottom: 14px;
+    }
+
+    /* Sliders */
+    .slider-label {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+
+    .slider-val {
+        font-size: 0.85rem;
+    }
+
+    .range-slider {
+        height: 5px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+    }
+
+    .range-slider::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Buttons */
+    .cost-indicator {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+
+    .btn-primary {
+        padding: 10px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+
+    .btn-primary i,
+    button i {
+        margin-right: 6px;
+        font-size: 0.9em;
+    }
+
+    #downloadBtn {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+
+    .btn-text {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+
+    .action-stack {
+        gap: 8px;
+    }
+
+    /* Loading */
+    .progress-container-floating {
+        padding: 14px 20px;
+        max-width: 92%;
+        border-radius: 10px;
+    }
+
+    .loader-spinner {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 12px;
+    }
+
+    .progress-text {
+        font-size: 0.8rem;
+    }
+
+    /* Canvas Preview */
+    .newyear-canvas {
+        border-radius: 6px;
+    }
+
+    .panel-divider {
+        margin: 16px 0;
+    }
+}
+
+/* =========================================
+   2. SMALL MOBILE (375px - 480px)
+   ========================================= */
+@media (min-width: 375px) and (max-width: 480px) {
+    :root {
+        --panel-width: 100%;
+        --header-height: 60px;
+    }
+
+    .studio-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 12px 12px 12px;
+        margin-top: 70px;
+        height: auto;
+        overflow: visible;
+    }
+
+    /* Canvas First */
+    .studio-canvas {
+        order: 1;
+        height: 420px;
+        min-height: 420px;
+        border-radius: 12px;
+    }
+
+    .canvas-container {
+        padding: 15px;
+    }
+
+    .upload-area-large {
+        padding: 30px 20px;
+        border-radius: 12px;
+    }
+
+    .upload-icon-large {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .upload-area-large h2 {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+
+    .upload-area-large p {
+        font-size: 0.85rem;
+    }
+
+    /* Left Panel Second */
+    .studio-panel:first-of-type {
+        order: 2;
+        height: auto;
+        min-height: auto;
+    }
+
+    /* Right Panel Third */
+    .studio-panel:last-of-type {
+        order: 3;
+        height: auto;
+        min-height: auto;
+    }
+
+    .panel-header {
+        padding: 12px 16px;
+        min-height: 50px;
+    }
+
+    .panel-header h3 {
+        font-size: 0.9rem;
+        gap: 6px;
+    }
+
+    .badge-pro {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+    }
+
+    .panel-content {
+        padding: 16px;
+    }
+
+    .panel-footer {
+        padding: 16px;
+    }
+
+    /* File Info */
+    .file-info-section {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .file-info-row {
+        margin-bottom: 9px;
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .info-card-small {
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 12px;
+    }
+
+    .info-card-small p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .highlight-text {
+        font-size: 1rem;
+        margin-top: 3px;
+    }
+
+    /* Template Categories */
+    .template-category-tabs {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .category-tab {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+        gap: 4px;
+    }
+
+    .category-tab i {
+        font-size: 0.9rem;
+    }
+
+    /* Template Grid */
+    .template-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        max-height: 300px;
+    }
+
+    .template-card {
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .template-preview {
+        font-size: 1.5rem;
+    }
+
+    .template-name {
+        font-size: 0.75rem;
+    }
+
+    /* Platform Selection */
+    .platform-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .platform-btn {
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .platform-btn i {
+        font-size: 1.3rem;
+    }
+
+    .platform-btn span {
+        font-size: 0.8rem;
+    }
+
+    .platform-btn small {
+        font-size: 0.65rem;
+    }
+
+    /* Text Inputs */
+    .custom-input {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    .section-label {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+
+    .control-section {
+        margin-bottom: 16px;
+    }
+
+    /* Loading */
+    .progress-container-floating {
+        padding: 16px 24px;
+        max-width: 90%;
+    }
+
+    .loader-spinner {
+        width: 30px;
+        height: 30px;
+    }
+
+    .progress-text {
+        font-size: 0.85rem;
+    }
+
+    /* Canvas Preview */
+    .newyear-canvas {
+        border-radius: 8px;
+    }
+}
+
+/* =========================================
+   3. TABLET PORTRAIT (481px - 768px)
+   ========================================= */
+@media (min-width: 481px) and (max-width: 768px) {
+    :root {
+        --panel-width: 280px;
+        --header-height: 70px;
+    }
+
+    .studio-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 0 16px 16px 16px;
+        margin-top: 90px;
+        height: auto;
+    }
+
+    /* Canvas First */
+    .studio-canvas {
+        order: 1;
+        height: 500px;
+        min-height: 500px;
+        border-radius: 14px;
+    }
+
+    .canvas-container {
+        padding: 20px;
+    }
+
+    .upload-area-large {
+        padding: 40px 30px;
+    }
+
+    .upload-icon-large {
+        font-size: 3.5rem;
+    }
+
+    /* Left Panel Second */
+    .studio-panel:first-of-type {
+        order: 2;
+    }
+
+    /* Right Panel Third */
+    .studio-panel:last-of-type {
+        order: 3;
+    }
+
+    .panel-header {
+        padding: 14px 18px;
+        min-height: 56px;
+    }
+
+    .panel-header h3 {
+        font-size: 0.95rem;
+    }
+
+    .panel-content {
+        padding: 18px;
+    }
+
+    .panel-footer {
+        padding: 18px;
+    }
+
+    /* Template Categories */
+    .template-category-tabs {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .category-tab {
+        padding: 9px 12px;
+        font-size: 0.8rem;
+    }
+
+    /* Template Grid */
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        max-height: none;
+    }
+
+    /* Platform Selection */
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .platform-btn {
+        padding: 12px;
+    }
+
+    /* File Info */
+    .file-info-row {
+        font-size: 0.9rem;
+    }
+
+    .info-card-small p {
+        font-size: 0.8rem;
+    }
+
+    .highlight-text {
+        font-size: 1.05rem;
+    }
+}
+
+/* =========================================
+   4. TABLET LANDSCAPE (769px - 1024px)
+   ========================================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+    :root {
+        --panel-width: 300px;
+    }
+
+    .studio-wrapper {
+        grid-template-columns: var(--panel-width) 1fr var(--panel-width);
+        gap: 16px;
+        padding: 0 20px 20px 20px;
+        margin-top: 95px;
+    }
+
+    .studio-canvas {
+        height: calc(100vh - var(--header-height) - 135px);
+    }
+
+    .canvas-container {
+        padding: 30px;
+    }
+
+    .upload-area-large {
+        padding: 50px 40px;
+    }
+
+    .upload-icon-large {
+        font-size: 4rem;
+    }
+
+    .panel-header h3 {
+        font-size: 0.95rem;
+    }
+
+    .panel-content {
+        padding: 18px;
+    }
+
+    /* Template Grid */
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .template-card {
+        padding: 10px;
+    }
+
+    /* Platform Selection */
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* File Info */
+    .file-info-section {
+        padding: 14px;
+    }
+
+    .file-info-row {
+        font-size: 0.85rem;
+    }
+}
+
+/* =========================================
+   5. SMALL LAPTOP (1025px - 1280px)
+   ========================================= */
+@media (min-width: 1025px) and (max-width: 1280px) {
+    :root {
+        --panel-width: 310px;
+    }
+
+    .studio-wrapper {
+        grid-template-columns: var(--panel-width) 1fr var(--panel-width);
+        gap: 16px;
+        padding: 0 20px 20px 20px;
+        margin-top: 100px;
+    }
+
+    .studio-canvas {
+        height: calc(100vh - var(--header-height) - 140px);
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+/* =========================================
+   6. MEDIUM LAPTOP (1281px - 1440px)
+   ========================================= */
+@media (min-width: 1281px) and (max-width: 1440px) {
+    :root {
+        --panel-width: 320px;
+    }
+
+    .studio-wrapper {
+        grid-template-columns: var(--panel-width) 1fr var(--panel-width);
+        gap: 16px;
+    }
+
+    .canvas-container {
+        padding: 40px;
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+/* =========================================
+   7. LARGE DESKTOP (1441px - 1920px)
+   ========================================= */
+@media (min-width: 1441px) and (max-width: 1920px) {
+    :root {
+        --panel-width: 340px;
+    }
+
+    .studio-wrapper {
+        grid-template-columns: var(--panel-width) 1fr var(--panel-width);
+        gap: 18px;
+        padding: 0 24px 24px 24px;
+    }
+
+    .panel-content {
+        padding: 22px;
+    }
+
+    .panel-footer {
+        padding: 22px;
+    }
+
+    .canvas-container {
+        padding: 50px;
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .template-card {
+        padding: 14px;
+    }
+
+    .template-preview {
+        font-size: 2.2rem;
+    }
+
+    .platform-grid {
+        gap: 12px;
+    }
+
+    .platform-btn {
+        padding: 14px 12px;
+    }
+}
+
+/* =========================================
+   8. ULTRA WIDE (1921px+)
+   ========================================= */
+@media (min-width: 1921px) {
+    :root {
+        --panel-width: 380px;
+    }
+
+    .studio-wrapper {
+        grid-template-columns: var(--panel-width) 1fr var(--panel-width);
+        gap: 20px;
+        padding: 0 30px 30px 30px;
+        max-width: 2400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .panel-content {
+        padding: 24px;
+    }
+
+    .panel-footer {
+        padding: 24px;
+    }
+
+    .canvas-container {
+        padding: 60px;
+    }
+
+    .upload-area-large {
+        padding: 80px 60px;
+    }
+
+    .upload-icon-large {
+        font-size: 6rem;
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .template-card {
+        padding: 16px;
+    }
+
+    .template-preview {
+        font-size: 2.5rem;
+    }
+
+    .template-name {
+        font-size: 0.9rem;
+    }
+
+    .platform-btn {
+        padding: 16px 14px;
+    }
+
+    .platform-btn i {
+        font-size: 1.8rem;
+    }
+
+    .platform-btn span {
+        font-size: 0.95rem;
+    }
+
+    .custom-input {
+        padding: 14px 18px;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        padding: 14px;
+        font-size: 1rem;
+    }
+}
+
+/* =========================================
+   9. LANDSCAPE ORIENTATION (Mobile/Tablet)
+   ========================================= */
+@media (max-height: 600px) and (orientation: landscape) {
+    .studio-wrapper {
+        margin-top: 75px;
+    }
+
+    .studio-canvas {
+        height: calc(100vh - 95px);
+        min-height: auto;
+    }
+
+    .canvas-container {
+        padding: 15px;
+    }
+
+    .upload-area-large {
+        padding: 25px 30px;
+    }
+
+    .upload-icon-large {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .upload-area-large h2 {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+    }
+
+    .panel-content {
+        padding: 14px;
+    }
+
+    .panel-footer {
+        padding: 14px;
+    }
+
+    .template-grid {
+        max-height: 200px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    .newyear-canvas {
+        max-height: calc(100vh - 150px);
+    }
+}
+
+/* =========================================
+   10. HIGH DPI DISPLAYS (Retina)
+   ========================================= */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+    .newyear-canvas {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+
+    .template-preview {
+        backface-visibility: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+/* =========================================
+   11. PRINT STYLES
+   ========================================= */
+@media print {
+    .studio-wrapper {
+        display: block;
+    }
+
+    .studio-panel,
+    .panel-footer,
+    .upload-area-large {
+        display: none !important;
+    }
+
+    .studio-canvas {
+        width: 100%;
+        height: auto;
+        border: none;
+        background: white;
+    }
+
+    .newyear-canvas {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* =========================================
+   12. ACCESSIBILITY - REDUCED MOTION
+   ========================================= */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .floating-anim,
+    .btn-glow {
+        animation: none !important;
+    }
+
+    .loader-spinner {
+        animation: none !important;
+        border-top-color: var(--primary);
+    }
+}
+
+/* =========================================
+   13. TOUCH DEVICES - ENHANCED HIT AREAS
+   ========================================= */
+@media (hover: none) and (pointer: coarse) {
+
+    .template-card,
+    .category-tab,
+    .platform-btn {
+        min-height: 44px;
+        /* iOS touch target minimum */
+    }
+
+    .btn-primary,
+    .btn-text {
+        min-height: 44px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    .range-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Remove hover effects on touch devices */
+    .template-card:hover,
+    .category-tab:hover,
+    .platform-btn:hover,
+    .btn-primary:hover {
+        transform: none;
+    }
+}

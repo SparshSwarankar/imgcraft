@@ -1667,6 +1667,11 @@ def annotation_tool():
     logger.debug("Rendering annotation tool page")
     return render_template('annotation.html')
 
+@app.route('/newyear')
+def newyear():
+    """New Year AI Template Generator page"""
+    return render_template('newyear.html')
+
 
 # ============================================================================
 # API ROUTES - IMAGE PROCESSING
@@ -4294,6 +4299,53 @@ def log_analytics():
     except Exception as error:
         logger.warning(f'[PWA] Analytics error: {error}')
         return jsonify({'success': True}), 200
+
+
+# ============================================================================
+# NEW YEAR AI TEMPLATE GENERATOR
+# ============================================================================
+
+@app.route('/api/newyear/generate', methods=['POST'])
+@require_auth
+@log_request
+def api_newyear_generate(current_user):
+    """
+    Handle New Year template generation - deduct credits and update streak
+    This is a client-side tool, so no image processing happens here
+    """
+    try:
+        # Get tool cost from database
+        cost = get_tool_cost('newyear')
+        
+        # Deduct credits
+        deduct_result = credit_manager.deduct_credits(
+            current_user['id'],
+            'newyear',
+            cost
+        )
+        
+        if not deduct_result['success']:
+            return jsonify(deduct_result), 402
+        
+        # Update streak
+        try:
+            streak_manager = StreakManager()
+            streak_manager.update_streak(current_user['id'])
+        except Exception as e:
+            logger.warning(f"Streak update failed: {str(e)}")
+        
+        logger.info(f"New Year template generated for user {current_user['id']}")
+        
+        return jsonify({
+            'success': True,
+            'remaining_credits': deduct_result.get('remaining_credits', 0),
+            'message': f'Successfully deducted {cost} credits'
+        })
+        
+    except Exception as e:
+        logger.error(f"New Year generation error: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/llms.txt')

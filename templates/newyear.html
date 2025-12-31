@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{# --- ENHANCED SEO BLOCKS START --- #}
+{% block title %}New Year AI Template Generator – ImgCraft{% endblock %}
+
+{% block meta_description %}Create stunning New Year 2026 greetings with AI-powered templates. Choose from trending,
+minimal, neon party, and elegant dark themes. Perfect for Instagram, WhatsApp Status, and social media.{% endblock %}
+
+{% block meta_keywords %}new year template generator, happy new year 2026, new year greeting card maker, instagram new
+year post, whatsapp status new year, ai greeting card, new year social media template, neon party template, minimal new
+year design, elegant new year card, new year wishes generator, festive template maker, imgcraft new year{% endblock %}
+
+{% block og_title %}New Year AI Template Generator – ImgCraft{% endblock %}
+
+{% block og_description %}Transform your photos into stunning New Year 2026 greetings with AI-powered templates. Perfect
+for Instagram, WhatsApp, and all social platforms.{% endblock %}
+{# --- ENHANCED SEO BLOCKS END --- #}
+
+{% block content %}
+<div class="studio-wrapper">
+
+    <aside class="studio-panel studio-panel-left glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-image"></i> Your Photo</h3>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info-section">
+                    <div class="file-info-row">
+                        <span class="file-info-label">Name:</span>
+                        <span class="file-info-value" id="fileName">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">Size:</span>
+                        <span class="file-info-value" id="fileDim">-</span>
+                    </div>
+                    <div class="file-info-row">
+                        <span class="file-info-label">File Weight:</span>
+                        <span class="file-info-value" id="fileSize">-</span>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <div class="info-card-small">
+                    <i class="fas fa-sparkles"
+                        style="color: var(--primary); font-size: 1.2rem; margin-bottom: 8px;"></i>
+                    <p><strong>AI Template:</strong><br><span id="selectedTemplate" class="highlight-text">None
+                            Selected</span></p>
+                </div>
+            </div>
+
+            <div class="info-box-empty" id="startInfoLeft">
+                <i class="fas fa-image"></i>
+                <p>Upload your photo to begin</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="studio-canvas">
+        <div class="canvas-container">
+
+            <div class="upload-area-large" id="dropZone">
+                <div class="upload-content">
+                    <div class="upload-icon-large floating-anim"><i class="fas fa-champagne-glasses"></i></div>
+                    <h2>New Year AI Template Generator</h2>
+                    <p class="text-muted">Create stunning 2026 greetings with AI templates</p>
+                    <button class="btn btn-primary mt-4" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i> Choose Your Photo
+                    </button>
+                    <input type="file" id="fileInput" hidden accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-stage" id="previewContainer" style="display: none;">
+                <div class="newyear-preview-wrapper">
+                    <canvas id="previewCanvas" class="newyear-canvas"></canvas>
+                </div>
+
+                <div class="progress-container-floating" id="loadingOverlay" style="display: none;">
+                    <div class="loader-spinner"></div>
+                    <p class="progress-text">Generating Your Template...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <aside class="studio-panel studio-panel-right glass-panel">
+        <div class="panel-header">
+            <h3><i class="fas fa-wand-magic-sparkles"></i> Customize</h3>
+            <div class="badge badge-pro">5 Credits</div>
+        </div>
+
+        <div class="panel-content custom-scrollbar">
+
+            <div id="templateControls" style="display: none;">
+
+                <!-- Template Categories -->
+                <div class="control-section">
+                    <label class="section-label">Template Category</label>
+                    <div class="template-category-tabs">
+                        <button class="category-tab active" data-category="trending">
+                            <i class="fas fa-fire"></i> Trending
+                        </button>
+                        <button class="category-tab" data-category="minimal">
+                            <i class="fas fa-circle"></i> Minimal
+                        </button>
+                        <button class="category-tab" data-category="neon">
+                            <i class="fas fa-bolt"></i> Neon Party
+                        </button>
+                        <button class="category-tab" data-category="elegant">
+                            <i class="fas fa-gem"></i> Elegant Dark
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <!-- Template Grid -->
+                <div class="control-section">
+                    <label class="section-label">Choose Template</label>
+                    <div class="template-grid" id="templateGrid">
+                        <!-- Templates will be dynamically loaded here -->
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <!-- Platform Selection -->
+                <div class="control-section">
+                    <label class="section-label">Platform / Aspect Ratio</label>
+                    <div class="platform-grid">
+                        <button class="platform-btn active" data-ratio="1:1" data-width="1080" data-height="1080">
+                            <i class="fab fa-instagram"></i>
+                            <span>Instagram Post</span>
+                            <small>1:1 (1080×1080)</small>
+                        </button>
+                        <button class="platform-btn" data-ratio="9:16" data-width="1080" data-height="1920">
+                            <i class="fab fa-instagram"></i>
+                            <span>Story / Status</span>
+                            <small>9:16 (1080×1920)</small>
+                        </button>
+                        <button class="platform-btn" data-ratio="4:5" data-width="1080" data-height="1350">
+                            <i class="fab fa-instagram"></i>
+                            <span>Portrait Post</span>
+                            <small>4:5 (1080×1350)</small>
+                        </button>
+                        <button class="platform-btn" data-ratio="16:9" data-width="1920" data-height="1080">
+                            <i class="fab fa-facebook"></i>
+                            <span>Facebook Cover</span>
+                            <small>16:9 (1920×1080)</small>
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <!-- Image Controls -->
+                <div class="control-section">
+                    <label class="section-label">Image Size</label>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Zoom</span>
+                            <span class="slider-val" id="imageZoomValue">100%</span>
+                        </div>
+                        <input type="range" id="imageZoomSlider" class="range-slider" min="50" max="200" value="100">
+                    </div>
+                </div>
+
+                <hr class="panel-divider">
+
+                <!-- Text Customization -->
+                <div class="control-section">
+                    <label class="section-label">Greeting Text</label>
+                    <input type="text" id="greetingText" class="custom-input" value="Happy New Year 2026"
+                        maxlength="50">
+                    <small class="input-hint">Max 50 characters</small>
+
+                    <div class="slider-group mt-3">
+                        <div class="slider-label">
+                            <span>Text Size</span>
+                            <span class="slider-val" id="greetingFontSizeValue">48px</span>
+                        </div>
+                        <input type="range" id="greetingFontSizeSlider" class="range-slider" min="24" max="100"
+                            value="48">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <label class="section-label">Subtitle (Optional)</label>
+                    <input type="text" id="subtitleText" class="custom-input" placeholder="Wishing you joy and success"
+                        maxlength="60">
+                    <small class="input-hint">Max 60 characters</small>
+
+                    <div class="slider-group mt-3">
+                        <div class="slider-label">
+                            <span>Text Size</span>
+                            <span class="slider-val" id="subtitleFontSizeValue">24px</span>
+                        </div>
+                        <input type="range" id="subtitleFontSizeSlider" class="range-slider" min="12" max="100"
+                            value="24">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="info-box-empty" id="startInfoRight">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <p>Templates will appear here</p>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <div class="cost-indicator">
+                <i class="fas fa-coins"></i> <span id="costDisplay">5</span> credits
+            </div>
+
+            <button class="btn btn-primary btn-full" id="generateBtn" disabled>
+                <i class="fas fa-wand-magic-sparkles"></i> Generate Template
+            </button>
+
+            <div id="downloadArea" class="action-stack" style="display: none; margin-top: 10px;">
+                <a id="downloadBtn" class="btn btn-primary btn-full btn-glow">
+                    <i class="fas fa-download"></i> Download Result
+                </a>
+                <button class="btn btn-text mt-2" style="width:100%;" onclick="location.reload()">
+                    Create Another
+                </button>
+            </div>
+        </div>
+    </aside>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/newyear.css') }}">
+<script src="{{ url_for('static', filename='js/newyear.js') }}"></script>
+{% endblock %}
