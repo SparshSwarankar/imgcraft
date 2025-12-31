@@ -176,6 +176,43 @@ def add_cache_control_headers(response):
         response.headers['Cache-Control'] = 'no-cache, must-revalidate'
     
     return response
+    
+# ============================================================================
+# CANONICAL REDIRECTS (HTTP → HTTPS, WWW → NON-WWW)
+# Canonical URL: https://imgcraft.online
+# ============================================================================
+
+@app.before_request
+def enforce_canonical_domain():
+    host = request.host.lower()
+
+    # 1️⃣ Skip redirects for local / dev environments
+    if any(local in host for local in (
+        'localhost', '127.0.0.1', '0.0.0.0', '.local', 'testserver'
+    )):
+        return None
+
+    # 2️⃣ Detect original scheme correctly (Cloudflare / Nginx / Render safe)
+    scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
+
+    # 3️⃣ Decide if redirect is required
+    needs_https = scheme != 'https'
+    needs_non_www = host.startswith('www.')
+
+    if needs_https or needs_non_www:
+        # Remove www if present
+        canonical_host = host[4:] if needs_non_www else host
+
+        # Build clean path + query
+        path = request.path
+        query = request.query_string.decode()
+
+        if query:
+            canonical_url = f"https://{canonical_host}{path}?{query}"
+        else:
+            canonical_url = f"https://{canonical_host}{path}"
+
+        return redirect(canonical_url, code=301)
 
 # ============================================================================
 # APPLICATION STARTUP
